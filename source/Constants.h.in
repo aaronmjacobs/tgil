@@ -9,4 +9,6 @@
 #define VERSION_MICRO @VERSION_MICRO@
 #define VERSION_BUILD @VERSION_BUILD@
 
+#cmakedefine LOG_TO_FILE
+
 #endif

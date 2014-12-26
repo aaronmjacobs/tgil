@@ -15,6 +15,9 @@ set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 set(BIN_INCLUDE_DIR "${PROJECT_BINARY_DIR}/include")
 
+# Options
+option(LOG_TO_FILE "Enable logging to a file" OFF)
+
 # Generated content
 configure_file (
   "${SRC_DIR}/Constants.h.in"
@@ -97,6 +100,13 @@ set(BOXER_INCLUDE_DIR "${BOXER_DIR}/include")
 set(BOXER_LIBRARY Boxer)
 add_subdirectory(${BOXER_DIR})
 
+# templog
+set(TEMPLOG_DIR "${DEP_DIR}/templog")
+set(TEMPLOG_INCLUDE_DIR "${TEMPLOG_DIR}/include")
+list(APPEND SOURCES
+   ${TEMPLOG_DIR}/imp/logging.cpp
+)
+
 ### Building ###
 
 # C++11
@@ -122,6 +132,7 @@ include_directories(
    ${GLAD_INCLUDE_DIR}
    ${PEMPEK_INCLUDE_DIR}
    ${BOXER_INCLUDE_DIR}
+   ${TEMPLOG_INCLUDE_DIR}
 )
 
 # Libraries
