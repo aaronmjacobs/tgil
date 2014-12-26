@@ -12,6 +12,7 @@ set(VERSION_BUILD 1)
 
 # Directories
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
+set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 set(BIN_INCLUDE_DIR "${PROJECT_BINARY_DIR}/include")
 
 # Generated content
@@ -27,9 +28,65 @@ set(SOURCES
 
 set(HEADERS
    ${BIN_INCLUDE_DIR}/Constants.h
+   ${SRC_DIR}/GLIncludes.h
 )
 
+### Libraries ###
+
+# GLFW
+set(GLFW_DIR "${DEP_DIR}/GLFW")
+set(GLFW_INCLUDE_DIR "${GLFW_DIR}/include")
+
+if (APPLE)
+   set(GLFW_LIBRARY ${GLFW_DIR}/lib/osx/libglfw.3.1.dylib)
+   list(APPEND COPY_LIBRARIES
+      ${GLFW_DIR}/lib/osx/libglfw.3.1.dylib
+   )
+endif (APPLE)
+
+if (WIN32)
+   if (MSVC11)
+      set(GLFW_LIBRARY ${GLFW_DIR}/lib/win32/lib-msvc110/glfw3dll.lib)
+      list(APPEND COPY_LIBRARIES
+         ${GLFW_DIR}/lib/win32/lib-msvc110/glfw3.dll
+      )
+   endif (MSVC11)
+   if (MSVC12)
+      set(GLFW_LIBRARY ${GLFW_DIR}/lib/win32/lib-msvc120/glfw3dll.lib)
+      list(APPEND COPY_LIBRARIES
+         ${GLFW_DIR}/lib/win32/lib-msvc120/glfw3.dll
+      )
+   endif (MSVC12)
+   # TODO Add support for MSVC14
+   if (MINGW)
+      set(GLFW_LIBRARY ${GLFW_DIR}/lib/win32/lib-mingw/glfw3dll.a)
+      list(APPEND COPY_LIBRARIES
+         ${GLFW_DIR}/lib/win32/lib-mingw/glfw3.dll
+      )
+   endif (MINGW)
+endif (WIN32)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   # TODO Grab glfw 3.1 for Linux
+   set(GLFW_LIBRARY ${GLFW_DIR}/lib/linux/libglfw.so.3.0)
+   list(APPEND COPY_LIBRARIES
+      ${GLFW_DIR}/lib/linux/libglfw.so.3.0
+      ${GLFW_DIR}/lib/linux/libglfw.so.3
+      ${GLFW_DIR}/lib/linux/libglfw.so
+   )
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 ### Building ###
+
+# OpenGL
+find_package(OpenGL REQUIRED)
+if(NOT OPENGL_FOUND)
+    message(ERROR " OpenGL not found!")
+endif(NOT OPENGL_FOUND)
+
+# Fix the rpath
+set(CMAKE_INSTALL_RPATH ${PROJECT_BINARY_DIR})
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 # Includes
 include_directories(
@@ -37,5 +94,25 @@ include_directories(
    ${BIN_INCLUDE_DIR}
 )
 
+# Libraries
+set(LIBRARIES
+   ${OPENGL_LIBRARIES}
+   ${GLFW_LIBRARY}
+)
+
 # Binary
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
+# Link
+target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
+
+# Copy libraries to binary dir
+if (COPY_LIBRARIES)
+   foreach(COPY_LIBRARY ${COPY_LIBRARIES})
+      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${COPY_LIBRARY}"
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+      )
+   endforeach(COPY_LIBRARY)
+endif (COPY_LIBRARIES)
