@@ -29,6 +29,7 @@ set(SOURCES
 set(HEADERS
    ${BIN_INCLUDE_DIR}/Constants.h
    ${SRC_DIR}/GLIncludes.h
+   ${SRC_DIR}/FancyAssert.h
 )
 
 ### Libraries ###
@@ -83,6 +84,13 @@ list(APPEND SOURCES
    ${GLAD_DIR}/src/glad.c
 )
 
+# Pempek Assert
+set(PEMPEK_DIR "${DEP_DIR}/PempekAssert")
+set(PEMPEK_INCLUDE_DIR "${PEMPEK_DIR}/include")
+list(APPEND SOURCES
+   ${PEMPEK_DIR}/lib/pempek_assert.cpp
+)
+
 ### Building ###
 
 # OpenGL
@@ -101,6 +109,7 @@ include_directories(
    ${BIN_INCLUDE_DIR}
    ${GLFW_INCLUDE_DIR}
    ${GLAD_INCLUDE_DIR}
+   ${PEMPEK_INCLUDE_DIR}
 )
 
 # Libraries
