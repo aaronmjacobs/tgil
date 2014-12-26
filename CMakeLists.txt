@@ -91,7 +91,18 @@ list(APPEND SOURCES
    ${PEMPEK_DIR}/lib/pempek_assert.cpp
 )
 
+# Boxer
+set(BOXER_DIR "${DEP_DIR}/Boxer")
+set(BOXER_INCLUDE_DIR "${BOXER_DIR}/include")
+set(BOXER_LIBRARY Boxer)
+add_subdirectory(${BOXER_DIR})
+
 ### Building ###
+
+# C++11
+if (NOT WIN32)
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif (NOT WIN32)
 
 # OpenGL
 find_package(OpenGL REQUIRED)
@@ -110,12 +121,14 @@ include_directories(
    ${GLFW_INCLUDE_DIR}
    ${GLAD_INCLUDE_DIR}
    ${PEMPEK_INCLUDE_DIR}
+   ${BOXER_INCLUDE_DIR}
 )
 
 # Libraries
 set(LIBRARIES
    ${OPENGL_LIBRARIES}
    ${GLFW_LIBRARY}
+   ${BOXER_LIBRARY}
 )
 
 # Binary
