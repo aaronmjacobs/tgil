@@ -139,6 +139,7 @@ include_directories(
 set(LIBRARIES
    ${OPENGL_LIBRARIES}
    ${GLFW_LIBRARY}
+   ${CMAKE_DL_LIBS} # Needed for glad on Linux
    ${BOXER_LIBRARY}
 )
 
