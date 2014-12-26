@@ -19,6 +19,12 @@ int main(int argc, char *argv[]) {
 
    glfwMakeContextCurrent(window);
 
+   // Load glad
+   int gladInitRes = gladLoadGL();
+   if (!gladInitRes) {
+      return EXIT_FAILURE;
+   }
+
    // Game loop
    while (!glfwWindowShouldClose(window)) {
       // TODO Tick

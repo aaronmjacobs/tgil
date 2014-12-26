@@ -76,6 +76,13 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    )
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
+# glad
+set(GLAD_DIR "${DEP_DIR}/glad")
+set(GLAD_INCLUDE_DIR "${GLAD_DIR}/include")
+list(APPEND SOURCES
+   ${GLAD_DIR}/src/glad.c
+)
+
 ### Building ###
 
 # OpenGL
@@ -92,6 +99,8 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 include_directories(
    ${SRC_DIR}
    ${BIN_INCLUDE_DIR}
+   ${GLFW_INCLUDE_DIR}
+   ${GLAD_INCLUDE_DIR}
 )
 
 # Libraries
