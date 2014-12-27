@@ -27,18 +27,22 @@ configure_file (
 
 # Source content
 set(SOURCES
+   ${SRC_DIR}/Context.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/IOUtils.cpp
    ${SRC_DIR}/Renderer.cpp
+   ${SRC_DIR}/Shader.cpp
 )
 
 set(HEADERS
    ${BIN_INCLUDE_DIR}/Constants.h
+   ${SRC_DIR}/Context.h
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/GLIncludes.h
    ${SRC_DIR}/IOUtils.h
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/Renderer.h
+   ${SRC_DIR}/Shader.h
    ${SRC_DIR}/Types.h
 )
 
