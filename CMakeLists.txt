@@ -117,6 +117,10 @@ list(APPEND SOURCES
 set(GLM_DIR "${DEP_DIR}/glm")
 set(GLM_INCLUDE_DIR "${GLM_DIR}/include")
 
+# Folly
+set(FOLLY_DIR "${DEP_DIR}/folly")
+set(FOLLY_INCLUDE_DIR "${FOLLY_DIR}/include")
+
 ### Building ###
 
 # C++11
@@ -144,6 +148,7 @@ include_directories(
    ${BOXER_INCLUDE_DIR}
    ${TEMPLOG_INCLUDE_DIR}
    ${GLM_INCLUDE_DIR}
+   ${FOLLY_INCLUDE_DIR}
 )
 
 # Libraries
