@@ -10,13 +10,13 @@ protected:
    /**
     * The shader's handle
     */
-   GLuint id;
+   const GLuint id;
 
    /**
     * The type of shader (GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, or
     * GL_GEOMETRY_SHADER)
     */
-   GLenum type;
+   const GLenum type;
 
 public:
    /**

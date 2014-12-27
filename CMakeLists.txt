@@ -32,6 +32,7 @@ set(SOURCES
    ${SRC_DIR}/IOUtils.cpp
    ${SRC_DIR}/Renderer.cpp
    ${SRC_DIR}/Shader.cpp
+   ${SRC_DIR}/ShaderProgram.cpp
 )
 
 set(HEADERS
@@ -43,6 +44,7 @@ set(HEADERS
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/Renderer.h
    ${SRC_DIR}/Shader.h
+   ${SRC_DIR}/ShaderProgram.h
    ${SRC_DIR}/Types.h
 )
 

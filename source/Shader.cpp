@@ -1,8 +1,7 @@
 #include "Shader.h"
 
 Shader::Shader(const GLenum type)
-   : type(type) {
-   id = glCreateShader(type);
+   : type(type), id(glCreateShader(type)) {
 }
 
 Shader::~Shader() {
