@@ -1,12 +1,15 @@
 #include "Constants.h"
 #include "GLIncludes.h"
 #include "LogHelper.h"
+#include "Renderer.h"
 
 #include <glm/glm.hpp>
 
 #include <cstdlib>
 
 namespace {
+
+Renderer renderer;
 
 void errorCallback(int error, const char* description) {
    LOG_FATAL("Error " << error << ": " << description, "GLFW Error");
@@ -36,6 +39,8 @@ int main(int argc, char *argv[]) {
       LOG_FATAL("Unable to initialize glad", "glad Error");
    }
 
+   renderer.prepare();
+
    // Timing values
    double lastTime = glfwGetTime();
    const double dt = 1.0 / 60.0;
@@ -54,7 +59,7 @@ int main(int argc, char *argv[]) {
          accumulator -= dt;
       }
 
-      // TODO render
+      renderer.render();
 
       glfwSwapBuffers(window);
 

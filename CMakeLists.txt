@@ -29,6 +29,7 @@ configure_file (
 set(SOURCES
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/IOUtils.cpp
+   ${SRC_DIR}/Renderer.cpp
 )
 
 set(HEADERS
@@ -37,6 +38,7 @@ set(HEADERS
    ${SRC_DIR}/GLIncludes.h
    ${SRC_DIR}/IOUtils.h
    ${SRC_DIR}/LogHelper.h
+   ${SRC_DIR}/Renderer.h
    ${SRC_DIR}/Types.h
 )
 
