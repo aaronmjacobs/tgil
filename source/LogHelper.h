@@ -7,6 +7,7 @@
 #include <ctime>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 
 namespace {
 
@@ -24,20 +25,34 @@ std::string center(std::string input, int width) {
    return std::string((width - input.length()) / 2, ' ') + input + std::string((width - input.length() + 1) / 2, ' ');
 }
 
+// Format time to a string (mm-dd-yyyy hh:mm:ss)
+std::string formatTime(struct tm tm) {
+   std::stringstream ss;
+
+   ss << std::setfill('0')
+      << std::setw(2) << tm.tm_mon + 1 << '-'
+      << std::setw(2) << tm.tm_mday << '-'
+      << std::setw(4) << tm.tm_year + 1900 << ' '
+      << std::setw(2) << tm.tm_hour << ':'
+      << std::setw(2) << tm.tm_min << ':'
+      << std::setw(2) << tm.tm_sec;
+
+   return ss.str();
+}
+
 // Textual output formatting policy (console, file, etc.)
 class text_formating_policy : public templog::formating_policy_base<text_formating_policy> {
 public:
    template< class WritePolicy_, int Sev_, int Aud_, class WriteToken_, class ParamList_ >
    static void write(WriteToken_& token, TEMPLOG_SOURCE_SIGN, const ParamList_& parameters) {
+      auto t = std::time(nullptr);
+      auto tm = *std::localtime(&t);
+
       write_obj<WritePolicy_>(token, '[');
       write_obj<WritePolicy_>(token, center(get_name(static_cast<templog::severity>(Sev_)), SEV_NAME_WIDTH));
-      write_obj<WritePolicy_>(token, "] ");
-      // TODO Replace with something that gcc supports
-      //auto t = std::time(nullptr);
-      //auto tm = *std::localtime(&t);
-      //write_obj<WritePolicy_>(token, "] <");
-      //write_obj<WritePolicy_>(token, std::put_time(&tm, "%m-%d-%Y %H:%M:%S"));
-      //write_obj<WritePolicy_>(token, "> ");
+      write_obj<WritePolicy_>(token, "] <");
+      write_obj<WritePolicy_>(token, formatTime(tm));
+      write_obj<WritePolicy_>(token, "> ");
       write_params<WritePolicy_>(token, parameters);
    }
 };
