@@ -181,19 +181,25 @@ if (WIN32)
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(FMOD_LINUX_ARCHITECTURE "x86_64")
+   else (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(FMOD_LINUX_ARCHITECTURE "x86")
+   endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+
    if (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(FMOD_LIBRARY ${FMOD_DIR}/lib/linux/x86/release/libfmod.so.5.9)
+      set(FMOD_LIBRARY ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.9)
       list(APPEND COPY_LIBRARIES
-         ${FMOD_DIR}/lib/linux/x86/release/libfmod.so.5.9
-         ${FMOD_DIR}/lib/linux/x86/release/libfmod.so.5
-         ${FMOD_DIR}/lib/linux/x86/release/libfmod.so
+         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.9
+         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5
+         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so
       )
    else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(FMOD_LIBRARY ${FMOD_DIR}/lib/linux/x86/debug/libfmodL.so.5.9)
+      set(FMOD_LIBRARY ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.9)
       list(APPEND COPY_LIBRARIES
-         ${FMOD_DIR}/lib/linux/x86/debug/libfmodL.so.5.9
-         ${FMOD_DIR}/lib/linux/x86/debug/libfmodL.so.5
-         ${FMOD_DIR}/lib/linux/x86/debug/libfmodL.so
+         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.9
+         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5
+         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so
       )
    endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
