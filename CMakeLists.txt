@@ -148,6 +148,56 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    )
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
+# FMOD
+set(FMOD_DIR "${DEP_DIR}/FMOD")
+set(FMOD_INCLUDE_DIR "${FMOD_DIR}/include")
+
+if (APPLE)
+   if (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+      set(FMOD_LIBRARY "${FMOD_DIR}/lib/osx/release/libfmod.dylib")
+      list(APPEND COPY_LIBRARIES
+         ${FMOD_DIR}/lib/osx/release/libfmod.dylib
+      )
+   else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+      set(FMOD_LIBRARY "${FMOD_DIR}/lib/osx/debug/libfmodL.dylib")
+      list(APPEND COPY_LIBRARIES
+         ${FMOD_DIR}/lib/osx/debug/libfmodL.dylib
+      )
+   endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+endif (APPLE)
+
+if (WIN32)
+   if (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+      set(FMOD_LIBRARY "${FMOD_DIR}/lib/win32/release/fmod_vc.lib")
+      list(APPEND COPY_LIBRARIES
+         ${FMOD_DIR}/lib/win32/release/fmod.dll
+      )
+   else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+      set(FMOD_LIBRARY "${FMOD_DIR}/lib/win32/release/fmodL_vc.lib")
+      list(APPEND COPY_LIBRARIES
+         ${FMOD_DIR}/lib/win32/release/fmodL.dll
+      )
+   endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+endif (WIN32)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   if (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+      set(FMOD_LIBRARY ${FMOD_DIR}/lib/linux/x86/release/libfmod.so.5.9)
+      list(APPEND COPY_LIBRARIES
+         ${FMOD_DIR}/lib/linux/x86/release/libfmod.so.5.9
+         ${FMOD_DIR}/lib/linux/x86/release/libfmod.so.5
+         ${FMOD_DIR}/lib/linux/x86/release/libfmod.so
+      )
+   else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+      set(FMOD_LIBRARY ${FMOD_DIR}/lib/linux/x86/debug/libfmodL.so.5.9)
+      list(APPEND COPY_LIBRARIES
+         ${FMOD_DIR}/lib/linux/x86/debug/libfmodL.so.5.9
+         ${FMOD_DIR}/lib/linux/x86/debug/libfmodL.so.5
+         ${FMOD_DIR}/lib/linux/x86/debug/libfmodL.so
+      )
+   endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 ### Building ###
 
 # C++11
@@ -177,6 +227,7 @@ include_directories(
    ${GLM_INCLUDE_DIR}
    ${FOLLY_INCLUDE_DIR}
    ${ASSIMP_INCLUDE_DIR}
+   ${FMOD_INCLUDE_DIR}
 )
 
 # Libraries
@@ -186,6 +237,7 @@ set(LIBRARIES
    ${CMAKE_DL_LIBS} # Needed for glad on Linux
    ${BOXER_LIBRARY}
    ${ASSIMP_LIBRARY}
+   ${FMOD_LIBRARY}
 )
 
 # Binary
