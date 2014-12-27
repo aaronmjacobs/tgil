@@ -180,9 +180,9 @@ if (WIN32)
          ${FMOD_DIR}/lib/win32/release/fmod.dll
       )
    else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(FMOD_LIBRARY "${FMOD_DIR}/lib/win32/release/fmodL_vc.lib")
+      set(FMOD_LIBRARY "${FMOD_DIR}/lib/win32/debug/fmodL_vc.lib")
       list(APPEND COPY_LIBRARIES
-         ${FMOD_DIR}/lib/win32/release/fmodL.dll
+         ${FMOD_DIR}/lib/win32/debug/fmodL.dll
       )
    endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
 endif (WIN32)
