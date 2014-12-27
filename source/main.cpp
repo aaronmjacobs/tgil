@@ -12,7 +12,7 @@ void errorCallback(int error, const char* description) {
    LOG_FATAL("Error " << error << ": " << description, "GLFW Error");
 }
 
-}
+} // namespace
 
 int main(int argc, char *argv[]) {
    LOG_INFO(VERSION_TYPE << " " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_MICRO << "." << VERSION_BUILD, PROJECT_NAME);

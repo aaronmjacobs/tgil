@@ -14,6 +14,7 @@ set(VERSION_BUILD 1)
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 set(BIN_INCLUDE_DIR "${PROJECT_BINARY_DIR}/include")
+set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
 
 # Options
 option(LOG_TO_FILE "Enable logging to a file" OFF)
@@ -27,12 +28,16 @@ configure_file (
 # Source content
 set(SOURCES
    ${SRC_DIR}/main.cpp
+   ${SRC_DIR}/IOUtils.cpp
 )
 
 set(HEADERS
    ${BIN_INCLUDE_DIR}/Constants.h
-   ${SRC_DIR}/GLIncludes.h
    ${SRC_DIR}/FancyAssert.h
+   ${SRC_DIR}/GLIncludes.h
+   ${SRC_DIR}/IOUtils.h
+   ${SRC_DIR}/LogHelper.h
+   ${SRC_DIR}/Types.h
 )
 
 ### Libraries ###
