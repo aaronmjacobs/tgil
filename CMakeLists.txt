@@ -198,6 +198,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
+# stb
+set(STB_DIR "${DEP_DIR}/stb")
+set(STB_INCLUDE_DIR "${STB_DIR}/include")
+
 ### Building ###
 
 # C++11
@@ -228,6 +232,7 @@ include_directories(
    ${FOLLY_INCLUDE_DIR}
    ${ASSIMP_INCLUDE_DIR}
    ${FMOD_INCLUDE_DIR}
+   ${STB_INCLUDE_DIR}
 )
 
 # Libraries
