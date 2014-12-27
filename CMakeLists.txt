@@ -113,6 +113,10 @@ list(APPEND SOURCES
    ${TEMPLOG_DIR}/imp/logging.cpp
 )
 
+# GLM
+set(GLM_DIR "${DEP_DIR}/glm")
+set(GLM_INCLUDE_DIR "${GLM_DIR}/include")
+
 ### Building ###
 
 # C++11
@@ -139,6 +143,7 @@ include_directories(
    ${PEMPEK_INCLUDE_DIR}
    ${BOXER_INCLUDE_DIR}
    ${TEMPLOG_INCLUDE_DIR}
+   ${GLM_INCLUDE_DIR}
 )
 
 # Libraries
