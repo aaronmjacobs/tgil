@@ -121,6 +121,33 @@ set(GLM_INCLUDE_DIR "${GLM_DIR}/include")
 set(FOLLY_DIR "${DEP_DIR}/folly")
 set(FOLLY_INCLUDE_DIR "${FOLLY_DIR}/include")
 
+# Assimp
+set(ASSIMP_DIR "${DEP_DIR}/assimp")
+set(ASSIMP_INCLUDE_DIR "${ASSIMP_DIR}/include")
+
+if (APPLE)
+   set(ASSIMP_LIBRARY "${ASSIMP_DIR}/lib/osx/libassimp.3.1.1.dylib")
+   list(APPEND COPY_LIBRARIES
+      ${ASSIMP_DIR}/lib/osx/libassimp.3.1.1.dylib
+   )
+endif (APPLE)
+
+if (WIN32)
+   set(ASSIMP_LIBRARY "${ASSIMP_DIR}/lib/win32/assimp.lib")
+   list(APPEND COPY_LIBRARIES
+      ${ASSIMP_DIR}/lib/win32/assimp.dll
+   )
+endif (WIN32)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   set(ASSIMP_LIBRARY ${ASSIMP_DIR}/lib/linux/libassimp.so.3.1.1)
+   list(APPEND COPY_LIBRARIES
+      ${ASSIMP_DIR}/lib/linux/libassimp.so.3.1.1
+      ${ASSIMP_DIR}/lib/linux/libassimp.so.3
+      ${ASSIMP_DIR}/lib/linux/libassimp.so
+   )
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 ### Building ###
 
 # C++11
@@ -149,6 +176,7 @@ include_directories(
    ${TEMPLOG_INCLUDE_DIR}
    ${GLM_INCLUDE_DIR}
    ${FOLLY_INCLUDE_DIR}
+   ${ASSIMP_INCLUDE_DIR}
 )
 
 # Libraries
@@ -157,6 +185,7 @@ set(LIBRARIES
    ${GLFW_LIBRARY}
    ${CMAKE_DL_LIBS} # Needed for glad on Linux
    ${BOXER_LIBRARY}
+   ${ASSIMP_LIBRARY}
 )
 
 # Binary
