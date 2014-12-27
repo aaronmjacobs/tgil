@@ -61,7 +61,13 @@ if (WIN32)
          ${GLFW_DIR}/lib/win32/lib-msvc120/glfw3.dll
       )
    endif (MSVC12)
-   # TODO Add support for MSVC14
+   # TODO Add proper support for MSVC14
+   if (MSVC14)
+      set(GLFW_LIBRARY ${GLFW_DIR}/lib/win32/lib-msvc120/glfw3dll.lib)
+      list(APPEND COPY_LIBRARIES
+         ${GLFW_DIR}/lib/win32/lib-msvc120/glfw3.dll
+      )
+   endif (MSVC14)
    if (MINGW)
       set(GLFW_LIBRARY ${GLFW_DIR}/lib/win32/lib-mingw/glfw3dll.a)
       list(APPEND COPY_LIBRARIES
