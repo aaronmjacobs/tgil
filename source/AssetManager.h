@@ -1,16 +1,17 @@
 #ifndef ASSET_MANAGER_H
 #define ASSET_MANAGER_H
 
-#include "GLIncludes.h"
+#include "MeshAssetManager.h"
+#include "ShaderAssetManager.h"
 #include "Types.h"
 
-#include <map>
-
+class Mesh;
 class Shader;
 
 class AssetManager {
 protected:
-   std::map<std::string, SPtr<Shader>> shaderMap;
+   MeshAssetManager meshAssetManager;
+   ShaderAssetManager shaderAssetManager;
 
 public:
    AssetManager();
@@ -21,6 +22,11 @@ public:
     * Loads the shader with the given file name and type, using a cached version if possible
     */
    SPtr<Shader> loadShader(const std::string &fileName, const GLenum type);
+
+   /**
+    * Loads the mesh with the given file name, using a cached version if possible
+    */
+   SPtr<Mesh> loadMesh(const std::string &fileName);
 };
 
 #endif

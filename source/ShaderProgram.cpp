@@ -1,4 +1,5 @@
 #include "FancyAssert.h"
+#include "LogHelper.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
 
@@ -35,18 +36,20 @@ void ShaderProgram::disable() {
 }
 
 GLint ShaderProgram::addAttribute(const std::string &name) {
-   const char *nameStr = name.c_str();
-   GLint location = glGetAttribLocation(id, nameStr);
-   ASSERT(location != -1, "Unable to get attribute location: %s", nameStr);
+   GLint location = glGetAttribLocation(id, name.c_str());
+   if (location == -1) {
+      LOG_WARNING("Unable to get attribute location: " << name);
+   }
 
    attributeMap[name] = location;
    return location;
 }
 
 GLint ShaderProgram::addUniform(const std::string &name) {
-   const char *nameStr = name.c_str();
-   GLint location = glGetUniformLocation(id, nameStr);
-   ASSERT(location != -1, "Unable to get uniform location: %s", nameStr);
+   GLint location = glGetUniformLocation(id, name.c_str());
+   if (location == -1) {
+      LOG_WARNING("Unable to get uniform location: " << name);
+   }
 
    uniformMap[name] = location;
    return location;
