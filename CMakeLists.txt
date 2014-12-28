@@ -234,6 +234,10 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 set(STB_DIR "${DEP_DIR}/stb")
 set(STB_INCLUDE_DIR "${STB_DIR}/include")
 
+# cereal
+set(CEREAL_DIR "${DEP_DIR}/cereal")
+set(CEREAL_INCLUDE_DIR "${CEREAL_DIR}/include")
+
 ### Building ###
 
 # C++11
@@ -265,6 +269,7 @@ include_directories(
    ${ASSIMP_INCLUDE_DIR}
    ${FMOD_INCLUDE_DIR}
    ${STB_INCLUDE_DIR}
+   ${CEREAL_INCLUDE_DIR}
 )
 
 # Libraries
