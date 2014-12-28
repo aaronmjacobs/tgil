@@ -12,23 +12,23 @@ namespace {
 Renderer renderer;
 
 void errorCallback(int error, const char* description) {
-   LOG_FATAL("Error " << error << ": " << description, "GLFW Error");
+   LOG_FATAL("GLFW error " << error << ": " << description);
 }
 
 } // namespace
 
 int main(int argc, char *argv[]) {
-   LOG_INFO(VERSION_TYPE << " " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_MICRO << "." << VERSION_BUILD, PROJECT_NAME);
+   LOG_INFO(PROJECT_NAME << " " << VERSION_TYPE << " " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_MICRO << "." << VERSION_BUILD);
 
    glfwSetErrorCallback(errorCallback);
    int glfwInitRes = glfwInit();
    if (!glfwInitRes) {
-      LOG_FATAL("Unable to initialize GLFW", "GLFW Error");
+      LOG_FATAL("Unable to initialize GLFW");
    }
 
    GLFWwindow *window = glfwCreateWindow(1280, 720, PROJECT_NAME, NULL, NULL);
    if (!window) {
-      LOG_FATAL("Unable to create GLFW window", "GLFW Error");
+      LOG_FATAL("Unable to create GLFW window");
    }
 
    glfwMakeContextCurrent(window);
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
    int gladInitRes = gladLoadGL();
    if (!gladInitRes) {
-      LOG_FATAL("Unable to initialize glad", "glad Error");
+      LOG_FATAL("Unable to initialize glad");
    }
 
    renderer.prepare();

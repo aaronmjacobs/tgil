@@ -97,10 +97,6 @@ public:
    }
 };
 
-// We sort of abuse the 'audience' system here, and use it as a way to control the style of the message boxes
-// Warning uses aud_developer, and error / fatal use aud_user in order to allow for compile-time filtering of the logger
-// Only the correct boxer logger gets called, in order to avoid having duplicate messages
-
 // Prevent text logging in release builds
 #define CERR_SEV_THRESHOLD templog::sev_fatal + 1
 #define FILE_SEV_THRESHOLD templog::sev_fatal + 1
@@ -118,44 +114,51 @@ public:
 
 typedef templog::logger<templog::non_filtering_logger<text_formating_policy, templog::std_write_policy>
                       , CERR_SEV_THRESHOLD
-                      , templog::audience_list<templog::aud_developer, templog::aud_support, templog::aud_user> >
+                      , templog::audience_list<templog::aud_developer, templog::aud_support, templog::aud_user>>
                       cerr_logger;
 
 typedef templog::logger<templog::non_filtering_logger<text_formating_policy, file_write_policy>
                       , FILE_SEV_THRESHOLD
-                      , templog::audience_list<templog::aud_developer, templog::aud_support, templog::aud_user> >
+                      , templog::audience_list<templog::aud_developer, templog::aud_support, templog::aud_user>>
                       file_logger;
 
-typedef templog::logger<templog::non_filtering_logger<boxer_formating_policy, boxer_write_policy<boxer::Style::Warning>>
+/*typedef templog::logger<templog::non_filtering_logger<boxer_formating_policy, boxer_write_policy<boxer::Style::Warning>>
                       , templog::sev_warning
                       , templog::audience_list<templog::aud_developer> >
-                      boxer_logger_warning;
+                      boxer_logger_warning;*/
 
 typedef templog::logger<templog::non_filtering_logger<boxer_formating_policy, boxer_write_policy<boxer::Style::Error>>
                       , templog::sev_error
-                      , templog::audience_list<templog::aud_user> >
-                      boxer_logger_error;
+                      , templog::audience_list<templog::aud_developer, templog::aud_support, templog::aud_user>>
+                      boxer_logger;
 
 } // namespace
 
 // Send the log to each of our loggers (and let them do the filtering)
 #define LOG(_log_message_, _log_title_, _log_severity_, _log_audience_) \
 do { \
-   TEMPLOG_LOG(cerr_logger, _log_severity_, _log_audience_) << _log_title_ << ": " << _log_message_; \
-   TEMPLOG_LOG(file_logger, _log_severity_, _log_audience_) << _log_title_ << ": " << _log_message_; \
-   TEMPLOG_LOG(boxer_logger_warning, _log_severity_, _log_audience_) << _log_message_ << BOXER_MESSAGE_SPLIT << _log_title_; \
-   TEMPLOG_LOG(boxer_logger_error, _log_severity_, _log_audience_) << _log_message_ << BOXER_MESSAGE_SPLIT << _log_title_; \
+   TEMPLOG_LOG(cerr_logger, _log_severity_, _log_audience_) << _log_message_; \
+   TEMPLOG_LOG(file_logger, _log_severity_, _log_audience_) << _log_message_; \
+   TEMPLOG_LOG(boxer_logger, _log_severity_, _log_audience_) << _log_message_ << BOXER_MESSAGE_SPLIT << _log_title_; \
 } while (0)
 
 // Simplify logging calls
-#define LOG_DEBUG(_log_message_, _log_title_) LOG(_log_message_, _log_title_, templog::sev_debug, templog::aud_developer)
-#define LOG_INFO(_log_message_, _log_title_) LOG(_log_message_, _log_title_, templog::sev_info, templog::aud_developer)
-#define LOG_MESSAGE(_log_message_, _log_title_) LOG(_log_message_, _log_title_, templog::sev_message, templog::aud_developer)
-#define LOG_WARNING(_log_message_, _log_title_) LOG(_log_message_, _log_title_, templog::sev_warning, templog::aud_developer)
-#define LOG_ERROR(_log_message_, _log_title_) LOG(_log_message_, _log_title_, templog::sev_error, templog::aud_user)
-#define LOG_FATAL(_log_message_, _log_title_) \
+
+// Debug   : Used to check values, locations, etc. (sort of a replacement for printf)
+// Info    : For logging interesting, but expected, information
+// Message : For logging more detailed informational messages
+// Warning : For logging information of concern, which may cause issues
+// Error   : For logging errors that do not prevent the program from continuing
+// Fatal   : For logging fatal errors that prevent the program from continuing
+
+#define LOG_DEBUG(_log_message_) LOG(_log_message_, "Debug", templog::sev_debug, templog::aud_developer)
+#define LOG_INFO(_log_message_) LOG(_log_message_, "Information", templog::sev_info, templog::aud_developer)
+#define LOG_MESSAGE(_log_message_) LOG(_log_message_, "Message", templog::sev_message, templog::aud_developer)
+#define LOG_WARNING(_log_message_) LOG(_log_message_, "Warning", templog::sev_warning, templog::aud_developer)
+#define LOG_ERROR(_log_message_) LOG(_log_message_, "Error", templog::sev_error, templog::aud_user)
+#define LOG_FATAL(_log_message_) \
 do { \
-   LOG(_log_message_, _log_title_, templog::sev_fatal, templog::aud_user); \
+   LOG(_log_message_, "Fatal Error", templog::sev_fatal, templog::aud_user); \
    abort(); \
 } while(0)
 
