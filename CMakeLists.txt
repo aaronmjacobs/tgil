@@ -27,6 +27,7 @@ configure_file (
 
 # Source content
 set(SOURCES
+   ${SRC_DIR}/AssetManager.cpp
    ${SRC_DIR}/Context.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/IOUtils.cpp
@@ -37,6 +38,7 @@ set(SOURCES
 
 set(HEADERS
    ${BIN_INCLUDE_DIR}/Constants.h
+   ${SRC_DIR}/AssetManager.h
    ${SRC_DIR}/Context.h
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/GLIncludes.h
