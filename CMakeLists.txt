@@ -50,6 +50,11 @@ set(HEADERS
    ${SRC_DIR}/Types.h
 )
 
+set(SHADERS
+   ${DATA_DIR}/shaders/phong_vert.glsl
+   ${DATA_DIR}/shaders/phong_frag.glsl
+)
+
 ### Libraries ###
 
 # GLFW
@@ -267,7 +272,7 @@ set(LIBRARIES
 )
 
 # Binary
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${SHADERS})
 
 # Link
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
