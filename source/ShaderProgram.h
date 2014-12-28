@@ -49,12 +49,12 @@ public:
    /**
     * Sets the program as the active program
     */
-   void use();
+   void use() const;
 
    /**
     * Disables the program
     */
-   void disable();
+   void disable() const;
 
    /**
     * Adds the attribute with the given name to the attribute map
@@ -70,22 +70,22 @@ public:
     * Gets the location of the attribute with the given name from the attribute
     * map
     */
-   GLint getAttribute(const std::string &name);
+   GLint getAttribute(const std::string &name) const;
 
    /**
     * Gets the location of the uniform with the given name from the uniform map
     */
-   GLint getUniform(const std::string &name);
+   GLint getUniform(const std::string &name) const;
 
    /**
     * Returns whether the program has an attribute with the given name
     */
-   bool hasAttribute(const std::string &name);
+   bool hasAttribute(const std::string &name) const;
 
    /**
     * Returns whether the program has a uniform with the given name
     */
-   bool hasUniform(const std::string &name);
+   bool hasUniform(const std::string &name) const;
 };
 
 #endif

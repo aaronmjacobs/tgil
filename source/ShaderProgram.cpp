@@ -27,11 +27,11 @@ bool ShaderProgram::link() {
    return linkStatus == GL_TRUE;
 }
 
-void ShaderProgram::use() {
+void ShaderProgram::use() const {
    glUseProgram(id);
 }
 
-void ShaderProgram::disable() {
+void ShaderProgram::disable() const {
    glUseProgram(0);
 }
 
@@ -55,24 +55,24 @@ GLint ShaderProgram::addUniform(const std::string &name) {
    return location;
 }
 
-GLint ShaderProgram::getAttribute(const std::string &name) {
+GLint ShaderProgram::getAttribute(const std::string &name) const {
    // Make sure the attribute exists in the map
    ASSERT(hasAttribute(name), "Unable to find attribute: %s", name.c_str());
 
-   return attributeMap[name];
+   return attributeMap.at(name);
 }
 
-GLint ShaderProgram::getUniform(const std::string &name) {
+GLint ShaderProgram::getUniform(const std::string &name) const {
    // Make sure the uniform exists in the map
    ASSERT(hasUniform(name), "Unable to find uniform: %s", name.c_str());
 
-   return uniformMap[name];
+   return uniformMap.at(name);
 }
 
-bool ShaderProgram::hasAttribute(const std::string &name) {
+bool ShaderProgram::hasAttribute(const std::string &name) const {
    return attributeMap.count(name) > 0;
 }
 
-bool ShaderProgram::hasUniform(const std::string &name) {
+bool ShaderProgram::hasUniform(const std::string &name) const {
    return uniformMap.count(name) > 0;
 }
