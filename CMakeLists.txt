@@ -32,6 +32,7 @@ set(SOURCES
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/IOUtils.cpp
    ${SRC_DIR}/Mesh.cpp
+   ${SRC_DIR}/Model.cpp
    ${SRC_DIR}/MeshAssetManager.cpp
    ${SRC_DIR}/PhongMaterial.cpp
    ${SRC_DIR}/Renderer.cpp
@@ -50,6 +51,7 @@ set(HEADERS
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/Material.h
    ${SRC_DIR}/Mesh.h
+   ${SRC_DIR}/Model.h
    ${SRC_DIR}/MeshAssetManager.h
    ${SRC_DIR}/PhongMaterial.h
    ${SRC_DIR}/Renderer.h
