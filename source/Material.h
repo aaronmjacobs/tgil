@@ -29,7 +29,7 @@ public:
     */
    virtual void disable() = 0;
 
-   const ShaderProgram& getShaderProgram() {
+   const ShaderProgram& getShaderProgram() const {
       return *shaderProgram;
    }
 };

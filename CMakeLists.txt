@@ -29,6 +29,8 @@ configure_file (
 set(SOURCES
    ${SRC_DIR}/AssetManager.cpp
    ${SRC_DIR}/Context.cpp
+   ${SRC_DIR}/GameObject.cpp
+   ${SRC_DIR}/GeometricGraphicsComponent.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/IOUtils.cpp
    ${SRC_DIR}/Mesh.cpp
@@ -44,9 +46,13 @@ set(SOURCES
 set(HEADERS
    ${BIN_INCLUDE_DIR}/Constants.h
    ${SRC_DIR}/AssetManager.h
+   ${SRC_DIR}/Component.h
    ${SRC_DIR}/Context.h
    ${SRC_DIR}/FancyAssert.h
+   ${SRC_DIR}/GameObject.h
+   ${SRC_DIR}/GeometricGraphicsComponent.h
    ${SRC_DIR}/GLIncludes.h
+   ${SRC_DIR}/GraphicsComponent.h
    ${SRC_DIR}/IOUtils.h
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/Material.h
