@@ -10,6 +10,8 @@ protected:
 public:
    virtual ~FlyCameraComponent();
 
+   virtual glm::vec3 getFrontVector(GameObject &gameObject) const;
+
    virtual glm::mat4 getViewMatrix(GameObject &gameObject) const;
 
    virtual const glm::vec3& getCameraPosition(GameObject &gameObject) const;
