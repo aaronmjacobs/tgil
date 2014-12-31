@@ -1,4 +1,6 @@
 #include "GameObject.h"
+#include "Material.h"
+#include "Model.h"
 #include "Scene.h"
 
 Scene::Scene() {
@@ -19,4 +21,9 @@ void Scene::addLight(SPtr<GameObject> light) {
 
 void Scene::addObject(SPtr<GameObject> object) {
    objects.push_back(object);
+
+   SPtr<Model> model = object->getModel();
+   if (model) {
+      shaderPrograms.insert(model->getMaterial().getShaderProgram());
+   }
 }

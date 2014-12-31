@@ -1,4 +1,5 @@
 #include "Constants.h"
+#include "Context.h"
 #include "GLIncludes.h"
 #include "LogHelper.h"
 #include "Renderer.h"
@@ -9,6 +10,7 @@
 
 namespace {
 
+Context context;
 Renderer renderer;
 
 void errorCallback(int error, const char* description) {
@@ -59,7 +61,7 @@ int main(int argc, char *argv[]) {
          accumulator -= dt;
       }
 
-      renderer.render();
+      renderer.render(context);
 
       glfwSwapBuffers(window);
 

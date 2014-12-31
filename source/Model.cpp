@@ -15,20 +15,20 @@ Model::~Model() {
 void Model::draw() {
    // Apply the material properties (and enable the shader)
    material->apply(*mesh);
-   const ShaderProgram &shaderProgram = material->getShaderProgram();
+   SPtr<ShaderProgram> shaderProgram = material->getShaderProgram();
 
    // Prepare the vertex buffer object
    glBindBuffer(GL_ARRAY_BUFFER, mesh->getVBO());
-   GLint aPosition = shaderProgram.getAttribute("aPosition");
+   GLint aPosition = shaderProgram->getAttribute("aPosition");
    glEnableVertexAttribArray(aPosition);
    glVertexAttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
    // Prepare the normal buffer object
    GLint aNormal = 0;
-   bool hasNormals = shaderProgram.hasAttribute("aNormal");
+   bool hasNormals = shaderProgram->hasAttribute("aNormal");
    if (hasNormals) {
       glBindBuffer(GL_ARRAY_BUFFER, mesh->getNBO());
-      aNormal = shaderProgram.getAttribute("aNormal");
+      aNormal = shaderProgram->getAttribute("aNormal");
       glEnableVertexAttribArray(aNormal);
       glVertexAttribPointer(aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
    }

@@ -15,10 +15,10 @@ void PointLightComponent::draw(GameObject &gameObject, const ShaderProgram &shad
    ss << "uLights[" << index << "]";
    const std::string &lightName = ss.str();
 
-   glUniform1i(shaderProgram.getUniform("uNumLights"), 1);
+   shaderProgram.use();
    glUniform3fv(shaderProgram.getUniform(lightName + ".color"), 1, glm::value_ptr(color));
    glUniform3fv(shaderProgram.getUniform(lightName + ".position"), 1, glm::value_ptr(gameObject.getPosition()));
-   glUniform1f(shaderProgram.getUniform(lightName + ".constFalloff"), 0.01f);
-   glUniform1f(shaderProgram.getUniform(lightName + ".linearFalloff"), 0.01f);
-   glUniform1f(shaderProgram.getUniform(lightName + ".squareFalloff"), 0.001f);
+   glUniform1f(shaderProgram.getUniform(lightName + ".constFalloff"), constFalloff);
+   glUniform1f(shaderProgram.getUniform(lightName + ".linearFalloff"), linearFalloff);
+   glUniform1f(shaderProgram.getUniform(lightName + ".squareFalloff"), squareFalloff);
 }

@@ -1,8 +1,16 @@
+#include "Context.h"
+#include "GameObject.h"
 #include "GLIncludes.h"
+#include "GraphicsComponent.h"
+#include "LightComponent.h"
 #include "LogHelper.h"
 #include "Renderer.h"
+#include "Scene.h"
+#include "ShaderProgram.h"
 
+#include <set>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -58,8 +66,30 @@ void Renderer::prepare() {
    glCullFace(GL_BACK);
 }
 
-void Renderer::render() {
-   checkGLError();
+void Renderer::render(const Context &context) {
+   checkGLError(); // TODO Only in debug builds
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   Scene &scene = context.getScene();
+
+   // Lights
+   const std::vector<SPtr<GameObject>>& lights = scene.getLights();
+   const std::set<SPtr<ShaderProgram>>& shaderPrograms = scene.getShaderPrograms();
+   for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
+      shaderProgram->use();
+      glUniform1i(shaderProgram->getUniform("uNumLights"), lights.size());
+
+      unsigned int lightIndex = 0;
+      for (SPtr<GameObject> light : lights) {
+         LightComponent &lightComponent = light->getLightComponent();
+         lightComponent.draw(*light, *shaderProgram, lightIndex++);
+      }
+   }
+
+   // Objects
+   const std::vector<SPtr<GameObject>>& gameObjects = scene.getObjects();
+   for (SPtr<GameObject> gameObject : gameObjects) {
+      gameObject->getGraphicsComponent().draw(*gameObject);
+   }
 }

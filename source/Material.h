@@ -29,8 +29,8 @@ public:
     */
    virtual void disable() = 0;
 
-   const ShaderProgram& getShaderProgram() const {
-      return *shaderProgram;
+   SPtr<ShaderProgram> getShaderProgram() const {
+      return shaderProgram;
    }
 };
 

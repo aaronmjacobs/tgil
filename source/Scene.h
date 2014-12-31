@@ -3,15 +3,18 @@
 
 #include "Types.h"
 
+#include <set>
 #include <vector>
 
 class GameObject;
+class ShaderProgram;
 
 class Scene {
 protected:
    SPtr<GameObject> camera;
    std::vector<SPtr<GameObject>> lights;
    std::vector<SPtr<GameObject>> objects;
+   std::set<SPtr<ShaderProgram>> shaderPrograms;
 
 public:
    Scene();
@@ -30,6 +33,10 @@ public:
 
    const std::vector<SPtr<GameObject>>& getObjects() const {
       return objects;
+   }
+
+   const std::set<SPtr<ShaderProgram>>& getShaderPrograms() const {
+      return shaderPrograms;
    }
 
    void setCamera(SPtr<GameObject> camera) {
