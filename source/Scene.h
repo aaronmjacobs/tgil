@@ -43,6 +43,10 @@ public:
       this->camera = camera;
    }
 
+   SPtr<GameObject> getCamera() {
+      return camera;
+   }
+
    void addLight(SPtr<GameObject> light);
 
    void addObject(SPtr<GameObject> object);

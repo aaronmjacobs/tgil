@@ -10,6 +10,10 @@
 
 namespace {
 
+const int WINDOW_WIDTH = 1280;
+const int WINDOW_HEIGHT = 720;
+const float FOV = 90.0f;
+
 Context context;
 Renderer renderer;
 
@@ -28,7 +32,7 @@ int main(int argc, char *argv[]) {
       LOG_FATAL("Unable to initialize GLFW");
    }
 
-   GLFWwindow *window = glfwCreateWindow(1280, 720, PROJECT_NAME, NULL, NULL);
+   GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, PROJECT_NAME, NULL, NULL);
    if (!window) {
       LOG_FATAL("Unable to create GLFW window");
    }
@@ -41,7 +45,7 @@ int main(int argc, char *argv[]) {
       LOG_FATAL("Unable to initialize glad");
    }
 
-   renderer.prepare();
+   renderer.prepare(FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
 
    // Timing values
    double lastTime = glfwGetTime();

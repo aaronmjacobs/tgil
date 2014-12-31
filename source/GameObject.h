@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+class CameraComponent;
 class GraphicsComponent;
 class LightComponent;
 class Model;
@@ -19,6 +20,7 @@ protected:
    SPtr<Model> model;
 
    // Components
+   UPtr<CameraComponent> cameraComponent;
    UPtr<GraphicsComponent> graphicsComponent;
    UPtr<LightComponent> lightComponent;
 
@@ -62,9 +64,11 @@ public:
       this->model = model;
    }
 
+   CameraComponent& getCameraComponent();
    GraphicsComponent& getGraphicsComponent();
    LightComponent& getLightComponent();
 
+   void setCameraComponent(UPtr<CameraComponent> cameraComponent);
    void setGraphicsComponent(UPtr<GraphicsComponent> graphicsComponent);
    void setLightComponent(UPtr<LightComponent> lightComponent);
 };

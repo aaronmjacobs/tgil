@@ -1,3 +1,4 @@
+#include "CameraComponent.h"
 #include "Context.h"
 #include "GameObject.h"
 #include "GLIncludes.h"
@@ -7,6 +8,9 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <set>
 #include <string>
@@ -54,7 +58,7 @@ Renderer::Renderer() {
 Renderer::~Renderer() {
 }
 
-void Renderer::prepare() {
+void Renderer::prepare(float fov, int width, int height) {
    glClearColor(0.15f, 0.6f, 0.4f, 1.0f);
 
    // Depth Buffer Setup
@@ -64,6 +68,13 @@ void Renderer::prepare() {
 
    // Back face culling
    glCullFace(GL_BACK);
+
+   this->fov = fov;
+   onWindowSizeChange(width, height);
+}
+
+void Renderer::onWindowSizeChange(int width, int height) {
+   projectionMatrix = glm::perspective(glm::radians(fov), (float)width / height, 0.1f, 100.0f);
 }
 
 void Renderer::render(const Context &context) {
@@ -73,13 +84,28 @@ void Renderer::render(const Context &context) {
 
    Scene &scene = context.getScene();
 
-   // Lights
+   // Set up shaders
+   SPtr<GameObject> camera = scene.getCamera();
+   const CameraComponent &cameraComponent = camera->getCameraComponent();
    const std::vector<SPtr<GameObject>>& lights = scene.getLights();
    const std::set<SPtr<ShaderProgram>>& shaderPrograms = scene.getShaderPrograms();
    for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
       shaderProgram->use();
-      glUniform1i(shaderProgram->getUniform("uNumLights"), lights.size());
 
+      // Projection matrix
+      GLint uProjMatrix = shaderProgram->getUniform("uProjMatrix");
+      glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+      // View matrix
+      GLint uViewMatrix = shaderProgram->getUniform("uViewMatrix");
+      glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(cameraComponent.getViewMatrix(*camera)));
+
+      // Camera position
+      GLint uCameraPos = shaderProgram->getUniform("uCameraPos");
+      glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraComponent.getCameraPosition(*camera)));
+
+      // Lights
+      glUniform1i(shaderProgram->getUniform("uNumLights"), lights.size());
       unsigned int lightIndex = 0;
       for (SPtr<GameObject> light : lights) {
          LightComponent &lightComponent = light->getLightComponent();
