@@ -7,6 +7,8 @@ class GameObject;
 
 class GraphicsComponent : public Component {
 public:
+   virtual ~GraphicsComponent() {}
+
    virtual void draw(GameObject &gameObject) = 0;
 };
 

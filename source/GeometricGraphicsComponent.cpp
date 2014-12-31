@@ -11,6 +11,9 @@
 
 #include <string>
 
+GeometricGraphicsComponent::~GeometricGraphicsComponent() {
+}
+
 void GeometricGraphicsComponent::draw(GameObject &gameObject) {
    const glm::mat4 &transMatrix = glm::translate(gameObject.getPosition());
    const glm::mat4 &rotMatrix = glm::toMat4(gameObject.getOrientation());
