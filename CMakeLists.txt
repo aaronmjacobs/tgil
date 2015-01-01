@@ -267,6 +267,19 @@ set(STB_INCLUDE_DIR "${STB_DIR}/include")
 set(CEREAL_DIR "${DEP_DIR}/cereal")
 set(CEREAL_INCLUDE_DIR "${CEREAL_DIR}/include")
 
+# bullet
+set(BULLET_DIR "${DEP_DIR}/bullet")
+set(BULLET_INCLUDE_DIR "${BULLET_DIR}/include" "${BULLET_DIR}/include/bullet")
+
+if (APPLE)
+   set(BULLET_LIBRARIES
+      ${BULLET_DIR}/lib/osx/libLinearMath.a
+      ${BULLET_DIR}/lib/osx/libBulletCollision.a
+      ${BULLET_DIR}/lib/osx/libBulletDynamics.a
+      ${BULLET_DIR}/lib/osx/libBulletSoftBody.a
+   )
+endif (APPLE)
+
 ### Building ###
 
 # C++11
@@ -299,6 +312,7 @@ include_directories(
    ${FMOD_INCLUDE_DIR}
    ${STB_INCLUDE_DIR}
    ${CEREAL_INCLUDE_DIR}
+   ${BULLET_INCLUDE_DIR}
 )
 
 # Libraries
@@ -309,6 +323,7 @@ set(LIBRARIES
    ${BOXER_LIBRARY}
    ${ASSIMP_LIBRARY}
    ${FMOD_LIBRARY}
+   ${BULLET_LIBRARIES}
 )
 
 # Binary
