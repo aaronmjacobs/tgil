@@ -62,8 +62,8 @@ const InputValues& ControllerInputMap::getInputValues(int player) {
    inputValues.moveLeft = glm::max(0.0f, -getAxisValue(axes, map.horizontalMoveAxis));
    inputValues.moveRight = glm::max(0.0f, getAxisValue(axes, map.horizontalMoveAxis));
 
-   inputValues.lookY = getAxisValue(axes, map.verticalLookAxis);
-   inputValues.lookX = getAxisValue(axes, map.horizontalLookAxis);
+   inputValues.lookY = getAxisValue(axes, map.verticalLookAxis) * map.lookSensitivity * (map.invertYAxis ? -1.0f : 1.0f);
+   inputValues.lookX = getAxisValue(axes, map.horizontalLookAxis) * map.lookSensitivity;
 
    inputValues.action = buttons[map.actionButton] == GLFW_PRESS;
    inputValues.jump = buttons[map.jumpButton] == GLFW_PRESS;

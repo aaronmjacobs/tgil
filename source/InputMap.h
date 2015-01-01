@@ -10,9 +10,9 @@ struct InputValues {
    float moveLeft;
    float moveRight;
 
-   // Range from -1 to 1
-   float lookX; // -1 = left, 1 = right
-   float lookY; // -1 = up, 1 = down
+   // Full float range
+   float lookX; // Negative = left, positive = right
+   float lookY; // Negative = up, positive = down
 
    bool action;
    bool jump;
