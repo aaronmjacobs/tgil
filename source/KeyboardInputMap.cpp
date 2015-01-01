@@ -4,13 +4,9 @@
 namespace {
 
 const float SENSITIVITY_ADJUST = 0.1f;
-const KeyMouseMap DEFAULT_KEY_MOUSE_MAP(false, false, 1.0f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_E, GLFW_KEY_SPACE);
+const KeyMouseMap DEFAULT_KEY_MOUSE_MAP { false, false, 1.0f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_E, GLFW_KEY_SPACE };
 
 } // namespace
-
-KeyMouseMap::KeyMouseMap(bool invertMouseY, bool swapMouseButtons, float mouseSensitivity, int moveForwardKey, int moveBackwardKey, int moveLeftKey, int moveRightKey, int actionKey, int jumpKey)
-   : invertMouseY(invertMouseY), swapMouseButtons(swapMouseButtons), mouseSensitivity(mouseSensitivity), moveForwardKey(moveForwardKey), moveBackwardKey(moveBackwardKey), moveLeftKey(moveLeftKey), moveRightKey(moveRightKey), actionKey(actionKey), jumpKey(jumpKey) {
-}
 
 KeyboardInputMap::KeyboardInputMap(GLFWwindow* const window)
    : InputMap(window), map(DEFAULT_KEY_MOUSE_MAP), mouseInit(false) {
