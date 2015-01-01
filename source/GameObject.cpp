@@ -4,11 +4,11 @@
 #include "InputComponent.h"
 #include "LightComponent.h"
 
-GameObject::GameObject() {
-   cameraComponent = CameraComponent::getNullComponent();
-   graphicsComponent = GraphicsComponent::getNullComponent();
-   inputComponent = InputComponent::getNullComponent();
-   lightComponent = LightComponent::getNullComponent();
+GameObject::GameObject()
+   : cameraComponent(CameraComponent::getNullComponent()),
+     graphicsComponent(GraphicsComponent::getNullComponent()),
+     inputComponent(InputComponent::getNullComponent()),
+     lightComponent(LightComponent::getNullComponent()) {
 }
 
 GameObject::~GameObject() {
