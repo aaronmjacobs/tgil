@@ -5,6 +5,9 @@
 
 InputHandler::InputHandler(GLFWwindow* const window)
    : window(window) {
+   // Hide / lock the mouse
+   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
    if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
       inputMap = std::make_shared<ControllerInputMap>(window);
    } else {
