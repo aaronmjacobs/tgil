@@ -22,6 +22,7 @@ class KeyboardInputMap : public InputMap {
 protected:
    KeyMouseMap map;
    double lastMouseX, lastMouseY;
+   bool mouseInit;
 
 public:
    KeyboardInputMap(GLFWwindow* const window);

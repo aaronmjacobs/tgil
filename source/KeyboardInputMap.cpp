@@ -3,6 +3,7 @@
 
 namespace {
 
+const float SENSITIVITY_ADJUST = 0.1f;
 const KeyMouseMap DEFAULT_KEY_MOUSE_MAP(false, false, 1.0f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_E, GLFW_KEY_SPACE);
 
 } // namespace
@@ -12,7 +13,7 @@ KeyMouseMap::KeyMouseMap(bool invertMouseY, bool swapMouseButtons, float mouseSe
 }
 
 KeyboardInputMap::KeyboardInputMap(GLFWwindow* const window)
-   : InputMap(window), map(DEFAULT_KEY_MOUSE_MAP) {
+   : InputMap(window), map(DEFAULT_KEY_MOUSE_MAP), mouseInit(false) {
    glfwGetCursorPos(window, &lastMouseX, &lastMouseY);
 }
 
@@ -27,8 +28,16 @@ const InputValues& KeyboardInputMap::getInputValues(int player) {
 
    double mouseX, mouseY;
    glfwGetCursorPos(window, &mouseX, &mouseY);
-   inputValues.lookY = (float)(mouseY - lastMouseY) * map.mouseSensitivity * (map.invertMouseY ? -1.0f : 1.0f);
-   inputValues.lookX = (float)(mouseX - lastMouseX) * map.mouseSensitivity;
+   if (mouseInit) {
+      inputValues.lookY = (float)(mouseY - lastMouseY) * map.mouseSensitivity * SENSITIVITY_ADJUST * (map.invertMouseY ? -1.0f : 1.0f);
+      inputValues.lookX = (float)(mouseX - lastMouseX) * map.mouseSensitivity * SENSITIVITY_ADJUST;
+   } else {
+      inputValues.lookY = inputValues.lookX = 0.0f;
+
+      // Don't count input until we have received actual mouse movement, to prevent the view from "jumping"
+      mouseInit = mouseX != lastMouseX || mouseY != lastMouseY;
+   }
+
    lastMouseX = mouseX;
    lastMouseY = mouseY;
 
