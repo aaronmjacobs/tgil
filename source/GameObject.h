@@ -8,6 +8,7 @@
 
 class CameraComponent;
 class GraphicsComponent;
+class InputComponent;
 class LightComponent;
 class Model;
 
@@ -22,6 +23,7 @@ protected:
    // Components
    UPtr<CameraComponent> cameraComponent;
    UPtr<GraphicsComponent> graphicsComponent;
+   UPtr<InputComponent> inputComponent;
    UPtr<LightComponent> lightComponent;
 
    // TODO Make 'null' subclasses for each component which do nothing, and create singletons of each
@@ -66,10 +68,12 @@ public:
 
    CameraComponent& getCameraComponent();
    GraphicsComponent& getGraphicsComponent();
+   InputComponent& getInputComponent();
    LightComponent& getLightComponent();
 
    void setCameraComponent(UPtr<CameraComponent> cameraComponent);
    void setGraphicsComponent(UPtr<GraphicsComponent> graphicsComponent);
+   void setInputComponent(UPtr<InputComponent> inputComponent);
    void setLightComponent(UPtr<LightComponent> lightComponent);
 };
 

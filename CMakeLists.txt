@@ -29,10 +29,14 @@ configure_file (
 set(SOURCES
    ${SRC_DIR}/AssetManager.cpp
    ${SRC_DIR}/Context.cpp
+   ${SRC_DIR}/ControllerInputMap.cpp
    ${SRC_DIR}/FlyCameraComponent.cpp
    ${SRC_DIR}/GameObject.cpp
    ${SRC_DIR}/GeometricGraphicsComponent.cpp
+   ${SRC_DIR}/HumanInputComponent.cpp
+   ${SRC_DIR}/InputHandler.cpp
    ${SRC_DIR}/IOUtils.cpp
+   ${SRC_DIR}/KeyboardInputMap.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/Mesh.cpp
    ${SRC_DIR}/Model.cpp
@@ -52,13 +56,19 @@ set(HEADERS
    ${SRC_DIR}/CameraComponent.h
    ${SRC_DIR}/Component.h
    ${SRC_DIR}/Context.h
+   ${SRC_DIR}/ControllerInputMap.h
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/FlyCameraComponent.h
    ${SRC_DIR}/GameObject.h
    ${SRC_DIR}/GeometricGraphicsComponent.h
    ${SRC_DIR}/GLIncludes.h
    ${SRC_DIR}/GraphicsComponent.h
+   ${SRC_DIR}/HumanInputComponent.h
+   ${SRC_DIR}/InputComponent.h
+   ${SRC_DIR}/InputHandler.h
+   ${SRC_DIR}/InputMap.h
    ${SRC_DIR}/IOUtils.h
+   ${SRC_DIR}/KeyboardInputMap.h
    ${SRC_DIR}/LightComponent.h
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/Material.h

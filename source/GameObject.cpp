@@ -1,6 +1,7 @@
 #include "CameraComponent.h"
 #include "GameObject.h"
 #include "GraphicsComponent.h"
+#include "InputComponent.h"
 #include "LightComponent.h"
 
 GameObject::GameObject() {
@@ -23,6 +24,14 @@ GraphicsComponent& GameObject::getGraphicsComponent() {
 
 void GameObject::setGraphicsComponent(UPtr<GraphicsComponent> graphicsComponent) {
    this->graphicsComponent = std::move(graphicsComponent);
+}
+
+InputComponent& GameObject::getInputComponent() {
+   return *inputComponent;
+}
+
+void GameObject::setInputComponent(UPtr<InputComponent> inputComponent) {
+   this->inputComponent = std::move(inputComponent);
 }
 
 LightComponent& GameObject::getLightComponent() {
