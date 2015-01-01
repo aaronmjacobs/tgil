@@ -3,16 +3,23 @@
 
 #include "InputMap.h"
 
+struct ControllerAxis {
+   int index;
+   bool invert;
+   bool edgeDeadzone;
+   bool centerDeadzone;
+};
+
 struct ControllerMap {
    bool invertYAxis;
    float lookSensitivity;
 
-   int horizontalMoveAxis;
-   int verticalMoveAxis;
-   int horizontalLookAxis;
-   int verticalLookAxis;
-   int primaryTriggerAxis;
-   int secondaryTriggerAxis;
+   ControllerAxis horizontalMoveAxis;
+   ControllerAxis verticalMoveAxis;
+   ControllerAxis horizontalLookAxis;
+   ControllerAxis verticalLookAxis;
+   ControllerAxis primaryTriggerAxis;
+   ControllerAxis secondaryTriggerAxis;
 
    int actionButton;
    int jumpButton;

@@ -4,7 +4,34 @@
 
 namespace {
 
-const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, 0, 1, 2, 3, 5, 4, 1, 0 };
+const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, { 0, false, true, true }, { 1, false, true, true }, { 2, false, true, true }, { 3, false, true, true }, { 5, false, true, false }, { 4, false, true, false }, 1, 0 };
+
+// TODO Make deadzone configurable
+const float DEADZONE = 0.1f;
+const float AXIS_MIN = -1.0f;
+const float AXIS_MAX = 1.0f;
+const float AXIS_CENTER = AXIS_MIN + AXIS_MAX;
+
+float applyDeadzone(float f, bool edge, bool center) {
+   if (edge) {
+      if (f < AXIS_MIN + DEADZONE) {
+         return AXIS_MIN;
+      }
+      if (f > AXIS_MAX - DEADZONE) {
+         return AXIS_MAX;
+      }
+   }
+
+   if (center && f < AXIS_CENTER + DEADZONE && f > AXIS_CENTER - DEADZONE) {
+      return AXIS_CENTER;
+   }
+
+   return f;
+}
+
+float getAxisValue(const float* axes, const ControllerAxis &axis) {
+   return applyDeadzone(axes[axis.index], axis.edgeDeadzone, axis.centerDeadzone) * (axis.invert ? -1.0f : 1.0f);
+}
 
 } // namespace
 
@@ -30,15 +57,13 @@ const InputValues& ControllerInputMap::getInputValues(int player) {
 
    // TODO Ensure no mapped index goes outside the bounds of the buttons / axes arrays
 
-   // TODO Apply deadzone
+   inputValues.moveForward = glm::max(0.0f, -getAxisValue(axes, map.verticalMoveAxis));
+   inputValues.moveBackward = glm::max(0.0f, getAxisValue(axes, map.verticalMoveAxis));
+   inputValues.moveLeft = glm::max(0.0f, -getAxisValue(axes, map.horizontalMoveAxis));
+   inputValues.moveRight = glm::max(0.0f, getAxisValue(axes, map.horizontalMoveAxis));
 
-   inputValues.moveForward = glm::max(0.0f, -axes[map.verticalMoveAxis]);
-   inputValues.moveBackward = glm::max(0.0f, axes[map.verticalMoveAxis]);
-   inputValues.moveLeft = glm::max(0.0f, -axes[map.horizontalMoveAxis]);
-   inputValues.moveRight = glm::max(0.0f, axes[map.horizontalMoveAxis]);
-
-   inputValues.lookY = -axes[map.verticalLookAxis];
-   inputValues.lookX = axes[map.horizontalLookAxis];
+   inputValues.lookY = getAxisValue(axes, map.verticalLookAxis);
+   inputValues.lookX = getAxisValue(axes, map.horizontalLookAxis);
 
    inputValues.action = buttons[map.actionButton] == GLFW_PRESS;
    inputValues.jump = buttons[map.jumpButton] == GLFW_PRESS;
