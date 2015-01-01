@@ -21,10 +21,10 @@ protected:
    SPtr<Model> model;
 
    // Components
-   UPtr<CameraComponent> cameraComponent;
-   UPtr<GraphicsComponent> graphicsComponent;
-   UPtr<InputComponent> inputComponent;
-   UPtr<LightComponent> lightComponent;
+   SPtr<CameraComponent> cameraComponent;
+   SPtr<GraphicsComponent> graphicsComponent;
+   SPtr<InputComponent> inputComponent;
+   SPtr<LightComponent> lightComponent;
 
    // TODO Make 'null' subclasses for each component which do nothing, and create singletons of each
    // Will allow each component pointer to be guaranteed non-null
@@ -71,10 +71,10 @@ public:
    InputComponent& getInputComponent();
    LightComponent& getLightComponent();
 
-   void setCameraComponent(UPtr<CameraComponent> cameraComponent);
-   void setGraphicsComponent(UPtr<GraphicsComponent> graphicsComponent);
-   void setInputComponent(UPtr<InputComponent> inputComponent);
-   void setLightComponent(UPtr<LightComponent> lightComponent);
+   void setCameraComponent(SPtr<CameraComponent> cameraComponent);
+   void setGraphicsComponent(SPtr<GraphicsComponent> graphicsComponent);
+   void setInputComponent(SPtr<InputComponent> inputComponent);
+   void setLightComponent(SPtr<LightComponent> lightComponent);
 };
 
 #endif

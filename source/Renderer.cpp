@@ -1,5 +1,6 @@
 #include "CameraComponent.h"
 #include "Context.h"
+#include "FancyAssert.h"
 #include "GameObject.h"
 #include "GLIncludes.h"
 #include "GraphicsComponent.h"
@@ -84,8 +85,13 @@ void Renderer::render(const Context &context) {
 
    Scene &scene = context.getScene();
 
-   // Set up shaders
    SPtr<GameObject> camera = scene.getCamera();
+   ASSERT(camera, "Scene must have camera to render");
+   if (!camera) {
+      return;
+   }
+
+   // Set up shaders
    const CameraComponent &cameraComponent = camera->getCameraComponent();
    const std::vector<SPtr<GameObject>>& lights = scene.getLights();
    const std::set<SPtr<ShaderProgram>>& shaderPrograms = scene.getShaderPrograms();
