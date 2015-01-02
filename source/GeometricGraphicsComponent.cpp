@@ -11,10 +11,6 @@
 
 #include <string>
 
-GeometricGraphicsComponent::GeometricGraphicsComponent(GameObject &gameObject)
-   : GraphicsComponent(gameObject) {
-}
-
 GeometricGraphicsComponent::~GeometricGraphicsComponent() {
 }
 

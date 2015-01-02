@@ -1,6 +1,8 @@
+#include "GameObject.h"
 #include "MeshPhysicsComponent.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
+#include <glm/glm.hpp>
 
 namespace {
 
@@ -14,12 +16,12 @@ glm::quat toGlm(btQuaternion quat) {
 
 } // namespace
 
-MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass)
+MeshPhysicsComponent::MeshPhysicsComponent(SPtr<GameObject> gameObject, float mass)
    : PhysicsComponent(gameObject, mass) {
    // TODO get shape from mesh
    collisionShape = new btBoxShape(btVector3(0.5f, 0.5f, 0.5f));
 
-   const glm::quat &orientation = gameObject.getOrientation();
+   const glm::quat &orientation = gameObject->getOrientation();
    motionState = new btDefaultMotionState(btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w)));
 
    btVector3 fallInertia(0, 0, 0);
@@ -37,7 +39,7 @@ MeshPhysicsComponent::~MeshPhysicsComponent() {
    delete collisionShape;
 }
 
-void MeshPhysicsComponent::tick() {
+void MeshPhysicsComponent::tick(GameObject &gameObject) {
    btTransform trans;
    rigidBody->getMotionState()->getWorldTransform(trans);
 

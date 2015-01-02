@@ -4,6 +4,7 @@
 #include "Component.h"
 
 class btRigidBody;
+class GameObject;
 class NullPhysicsComponent;
 class PhysicsManager;
 
@@ -12,12 +13,12 @@ protected:
    btRigidBody *rigidBody;
 
 public:
-   PhysicsComponent(GameObject &gameObject, float mass)
-      : Component(gameObject), rigidBody(nullptr) {}
+   PhysicsComponent(SPtr<GameObject> gameObject, float mass)
+      : rigidBody(nullptr) {}
 
    virtual ~PhysicsComponent() {}
 
-   virtual void tick() = 0;
+   virtual void tick(GameObject &gameObject) = 0;
 
    btRigidBody* getRigidBody() {
       return rigidBody;
@@ -27,11 +28,11 @@ public:
 class NullPhysicsComponent : public PhysicsComponent {
 public:
    NullPhysicsComponent()
-      : PhysicsComponent(PhysicsComponent::getNullGameObject(), 0.0f) {}
+      : PhysicsComponent(nullptr, 0.0f) {}
 
    virtual ~NullPhysicsComponent() {}
 
-   virtual void tick() {}
+   virtual void tick(GameObject &gameObject) {}
 };
 
 #endif

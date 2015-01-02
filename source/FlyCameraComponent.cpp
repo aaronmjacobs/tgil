@@ -3,10 +3,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-FlyCameraComponent::FlyCameraComponent(GameObject& gameObject)
-   : CameraComponent(gameObject) {
-}
-
 FlyCameraComponent::~FlyCameraComponent() {
 }
 

@@ -12,11 +12,11 @@ protected:
    btMotionState *motionState;
 
 public:
-   MeshPhysicsComponent(GameObject &gameObject, float mass);
+   MeshPhysicsComponent(SPtr<GameObject> gameObject, float mass);
 
    virtual ~MeshPhysicsComponent();
 
-   virtual void tick();
+   virtual void tick(GameObject &gameObject);
 };
 
 #endif

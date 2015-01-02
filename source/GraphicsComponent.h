@@ -3,13 +3,11 @@
 
 #include "Component.h"
 
+class GameObject;
 class NullGraphicsComponent;
 
 class GraphicsComponent : public Component<GraphicsComponent, NullGraphicsComponent> {
 public:
-   GraphicsComponent(GameObject& gameObject)
-      : Component(gameObject) {}
-
    virtual ~GraphicsComponent() {}
 
    virtual void draw(GameObject &gameObject) = 0;
@@ -17,9 +15,6 @@ public:
 
 class NullGraphicsComponent : public GraphicsComponent {
 public:
-   NullGraphicsComponent()
-      : GraphicsComponent(GraphicsComponent::getNullGameObject()) {}
-
    virtual ~NullGraphicsComponent() {}
 
    virtual void draw(GameObject &gameObject) {}
