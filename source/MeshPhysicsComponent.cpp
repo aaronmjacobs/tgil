@@ -22,7 +22,8 @@ MeshPhysicsComponent::MeshPhysicsComponent(SPtr<GameObject> gameObject, float ma
    collisionShape = new btBoxShape(btVector3(0.5f, 0.5f, 0.5f));
 
    const glm::quat &orientation = gameObject->getOrientation();
-   motionState = new btDefaultMotionState(btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w)));
+   const glm::vec3 &position = gameObject->getPosition();
+   motionState = new btDefaultMotionState(btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), btVector3(position.x, position.y, position.z)));
 
    btVector3 fallInertia(0, 0, 0);
    collisionShape->calculateLocalInertia(mass, fallInertia);
