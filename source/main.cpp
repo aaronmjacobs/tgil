@@ -3,6 +3,7 @@
 #include "GLIncludes.h"
 #include "LogHelper.h"
 #include "Renderer.h"
+#include "Scene.h"
 
 #include <glm/glm.hpp>
 
@@ -61,7 +62,7 @@ int main(int argc, char *argv[]) {
 
       accumulator += frameTime;
       while (accumulator >= dt) {
-         // TODO tick
+         context->getScene().tick(dt);
 
          accumulator -= dt;
       }

@@ -1,3 +1,5 @@
+#include "GameObject.h"
+#include "PhysicsComponent.h"
 #include "PhysicsManager.h"
 
 PhysicsManager::PhysicsManager() {
@@ -15,6 +17,24 @@ PhysicsManager::~PhysicsManager() {
    delete collisionDispatcher;
    delete collisionConfiguration;
    delete broadphase;
+}
+
+void PhysicsManager::tick(const float dt) {
+   dynamicsWorld->stepSimulation(dt, 15);
+}
+
+void PhysicsManager::addObject(SPtr<GameObject> gameObject) {
+   btRigidBody *rigidBody = gameObject->getPhysicsComponent().getRigidBody();
+   if (rigidBody) {
+      dynamicsWorld->addRigidBody(rigidBody);
+   }
+}
+
+void PhysicsManager::removeObject(SPtr<GameObject> gameObject) {
+   btRigidBody *rigidBody = gameObject->getPhysicsComponent().getRigidBody();
+   if (rigidBody) {
+      dynamicsWorld->removeRigidBody(rigidBody);
+   }
 }
 
 btDynamicsWorld& PhysicsManager::getDynamicsWorld() {

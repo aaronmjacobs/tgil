@@ -17,6 +17,10 @@ GameObject::GameObject()
 GameObject::~GameObject() {
 }
 
+void GameObject::tick(const float dt) {
+   physicsComponent->tick(*this);
+}
+
 CameraComponent& GameObject::getCameraComponent() {
    return *cameraComponent;
 }

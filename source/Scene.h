@@ -23,7 +23,7 @@ public:
 
    virtual ~Scene();
 
-   void tick(const double dt);
+   void tick(const float dt);
 
    PhysicsManager& getPhysicsManager() const {
       return *physicsManager;

@@ -1,6 +1,7 @@
 #include "GameObject.h"
 #include "Material.h"
 #include "Model.h"
+#include "PhysicsComponent.h"
 #include "PhysicsManager.h"
 #include "Scene.h"
 
@@ -11,9 +12,11 @@ Scene::Scene()
 Scene::~Scene() {
 }
 
-void Scene::tick(const double dt) {
+void Scene::tick(const float dt) {
+   physicsManager->tick(dt);
+
    for (SPtr<GameObject> object : objects) {
-      // TODO Tick
+      object->tick(dt);
    }
 }
 
@@ -22,6 +25,8 @@ void Scene::addLight(SPtr<GameObject> light) {
 }
 
 void Scene::addObject(SPtr<GameObject> object) {
+   physicsManager->addObject(object);
+
    objects.push_back(object);
 
    SPtr<Model> model = object->getModel();

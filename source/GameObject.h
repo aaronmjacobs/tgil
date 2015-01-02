@@ -33,6 +33,8 @@ public:
 
    virtual ~GameObject();
 
+   virtual void tick(const float dt);
+
    const glm::vec3& getPosition() const {
       return position;
    }
