@@ -3,12 +3,15 @@
 #include "GraphicsComponent.h"
 #include "InputComponent.h"
 #include "LightComponent.h"
+#include "PhysicsComponent.h"
+#include "PhysicsManager.h"
 
 GameObject::GameObject()
    : cameraComponent(CameraComponent::getNullComponent()),
      graphicsComponent(GraphicsComponent::getNullComponent()),
      inputComponent(InputComponent::getNullComponent()),
-     lightComponent(LightComponent::getNullComponent()) {
+     lightComponent(LightComponent::getNullComponent()),
+     physicsComponent(PhysicsComponent::getNullComponent()) {
 }
 
 GameObject::~GameObject() {
@@ -44,4 +47,12 @@ LightComponent& GameObject::getLightComponent() {
 
 void GameObject::setLightComponent(SPtr<LightComponent> lightComponent) {
    this->lightComponent = lightComponent;
+}
+
+PhysicsComponent& GameObject::getPhysicsComponent() {
+   return *physicsComponent;
+}
+
+void GameObject::setPhysicsComponent(SPtr<PhysicsComponent> physicsComponent) {
+   this->physicsComponent = physicsComponent;
 }

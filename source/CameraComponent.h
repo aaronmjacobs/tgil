@@ -5,11 +5,13 @@
 
 #include <glm/glm.hpp>
 
-class GameObject;
 class NullCameraComponent;
 
 class CameraComponent : public Component<CameraComponent, NullCameraComponent> {
 public:
+   CameraComponent(GameObject& gameObject)
+      : Component(gameObject) {}
+
    virtual ~CameraComponent() {}
 
    virtual glm::vec3 getFrontVector(GameObject &gameObject) const = 0;
@@ -27,6 +29,9 @@ private:
    const glm::mat4 DEFAULT_MAT4;
 
 public:
+   NullCameraComponent()
+      : CameraComponent(CameraComponent::getNullGameObject()) {}
+
    virtual ~NullCameraComponent() {}
 
    virtual glm::vec3 getFrontVector(GameObject &gameObject) const {

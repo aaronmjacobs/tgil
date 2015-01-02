@@ -8,6 +8,8 @@ protected:
    glm::mat4 projectionMatrix;
 
 public:
+   FlyCameraComponent(GameObject& gameObject);
+
    virtual ~FlyCameraComponent();
 
    virtual glm::vec3 getFrontVector(GameObject &gameObject) const;

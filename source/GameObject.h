@@ -11,6 +11,7 @@ class GraphicsComponent;
 class InputComponent;
 class LightComponent;
 class Model;
+class PhysicsComponent;
 
 class GameObject {
 protected:
@@ -25,9 +26,7 @@ protected:
    SPtr<GraphicsComponent> graphicsComponent;
    SPtr<InputComponent> inputComponent;
    SPtr<LightComponent> lightComponent;
-
-   // TODO Make 'null' subclasses for each component which do nothing, and create singletons of each
-   // Will allow each component pointer to be guaranteed non-null
+   SPtr<PhysicsComponent> physicsComponent;
 
 public:
    GameObject();
@@ -70,11 +69,13 @@ public:
    GraphicsComponent& getGraphicsComponent();
    InputComponent& getInputComponent();
    LightComponent& getLightComponent();
+   PhysicsComponent& getPhysicsComponent();
 
    void setCameraComponent(SPtr<CameraComponent> cameraComponent);
    void setGraphicsComponent(SPtr<GraphicsComponent> graphicsComponent);
    void setInputComponent(SPtr<InputComponent> inputComponent);
    void setLightComponent(SPtr<LightComponent> lightComponent);
+   void setPhysicsComponent(SPtr<PhysicsComponent> physicsComponent);
 };
 
 #endif

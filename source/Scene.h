@@ -7,10 +7,12 @@
 #include <vector>
 
 class GameObject;
+class PhysicsManager;
 class ShaderProgram;
 
 class Scene {
 protected:
+   const UPtr<PhysicsManager> physicsManager;
    SPtr<GameObject> camera;
    std::vector<SPtr<GameObject>> lights;
    std::vector<SPtr<GameObject>> objects;
@@ -22,6 +24,10 @@ public:
    virtual ~Scene();
 
    void tick(const double dt);
+
+   PhysicsManager& getPhysicsManager() const {
+      return *physicsManager;
+   }
 
    SPtr<GameObject> getCamera() const {
       return camera;

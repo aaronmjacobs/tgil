@@ -5,6 +5,8 @@
 
 class GeometricGraphicsComponent : public GraphicsComponent {
 public:
+   GeometricGraphicsComponent(GameObject &gameObject);
+
    virtual ~GeometricGraphicsComponent();
 
    virtual void draw(GameObject &gameObject);

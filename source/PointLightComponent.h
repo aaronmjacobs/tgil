@@ -10,6 +10,8 @@ protected:
    float squareFalloff;
 
 public:
+   PointLightComponent(GameObject &gameObject);
+
    virtual ~PointLightComponent();
 
    virtual void draw(GameObject &gameObject, const ShaderProgram &shaderProgram, const unsigned int index);

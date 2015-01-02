@@ -2,6 +2,10 @@
 #include "InputHandler.h"
 #include "HumanInputComponent.h"
 
+HumanInputComponent::HumanInputComponent(GameObject &gameObject)
+   : InputComponent(gameObject) {
+}
+
 HumanInputComponent::~HumanInputComponent() {
 }
 

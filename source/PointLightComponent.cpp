@@ -7,6 +7,10 @@
 #include <string>
 #include <sstream>
 
+PointLightComponent::PointLightComponent(GameObject &gameObject)
+   : LightComponent(gameObject) {
+}
+
 PointLightComponent::~PointLightComponent() {
 }
 

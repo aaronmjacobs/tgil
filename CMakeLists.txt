@@ -39,9 +39,11 @@ set(SOURCES
    ${SRC_DIR}/KeyboardInputMap.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/Mesh.cpp
+   ${SRC_DIR}/MeshPhysicsComponent.cpp
    ${SRC_DIR}/Model.cpp
    ${SRC_DIR}/MeshAssetManager.cpp
    ${SRC_DIR}/PhongMaterial.cpp
+   ${SRC_DIR}/PhysicsManager.cpp
    ${SRC_DIR}/PointLightComponent.cpp
    ${SRC_DIR}/Renderer.cpp
    ${SRC_DIR}/Scene.cpp
@@ -73,9 +75,12 @@ set(HEADERS
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/Material.h
    ${SRC_DIR}/Mesh.h
+   ${SRC_DIR}/MeshPhysicsComponent.h
    ${SRC_DIR}/Model.h
    ${SRC_DIR}/MeshAssetManager.h
    ${SRC_DIR}/PhongMaterial.h
+   ${SRC_DIR}/PhysicsComponent.h
+   ${SRC_DIR}/PhysicsManager.h
    ${SRC_DIR}/PointLightComponent.h
    ${SRC_DIR}/Renderer.h
    ${SRC_DIR}/Scene.h

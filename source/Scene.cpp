@@ -1,9 +1,11 @@
 #include "GameObject.h"
 #include "Material.h"
 #include "Model.h"
+#include "PhysicsManager.h"
 #include "Scene.h"
 
-Scene::Scene() {
+Scene::Scene()
+   : physicsManager(new PhysicsManager) {
 }
 
 Scene::~Scene() {

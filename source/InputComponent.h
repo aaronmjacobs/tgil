@@ -5,11 +5,13 @@
 #include "InputHandler.h"
 
 class Context;
-class GameObject;
 class NullInputComponent;
 
 class InputComponent : public Component<InputComponent, NullInputComponent> {
 public:
+   InputComponent(GameObject &gameObject)
+      : Component(gameObject) {}
+
    virtual ~InputComponent() {}
 
    virtual void pollInput(const Context &context, GameObject &gameObject) = 0;
@@ -23,7 +25,8 @@ private:
 
 public:
    NullInputComponent()
-      : INPUT_VALUES({ 0 }) {}
+      : InputComponent(InputComponent::getNullGameObject()), INPUT_VALUES({ 0 }) {}
+
    virtual ~NullInputComponent() {}
 
    virtual void pollInput(const Context &context, GameObject &gameObject) {}
