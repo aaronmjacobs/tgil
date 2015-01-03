@@ -11,11 +11,11 @@ const btVector3 DEFAULT_GRAVITY(0.0f, -9.8f, 0.0f);
 
 class PhysicsManager {
 protected:
-   btBroadphaseInterface *broadphase;
-   btCollisionConfiguration *collisionConfiguration;
-   btCollisionDispatcher *collisionDispatcher;
-   btConstraintSolver *constraintSolver;
-   btDynamicsWorld *dynamicsWorld;
+   UPtr<btBroadphaseInterface> broadphase;
+   UPtr<btCollisionConfiguration> collisionConfiguration;
+   UPtr<btCollisionDispatcher> collisionDispatcher;
+   UPtr<btConstraintSolver> constraintSolver;
+   UPtr<btDynamicsWorld> dynamicsWorld;
 
 public:
    PhysicsManager();
@@ -28,7 +28,7 @@ public:
 
    virtual void removeObject(SPtr<GameObject> gameObject);
 
-   btDynamicsWorld& getDynamicsWorld();
+   btDynamicsWorld& getDynamicsWorld() const;
 };
 
 #endif

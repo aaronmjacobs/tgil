@@ -3,20 +3,21 @@
 #include "PhysicsManager.h"
 
 PhysicsManager::PhysicsManager() {
-   broadphase = new btDbvtBroadphase;
-   collisionConfiguration = new btDefaultCollisionConfiguration;
-   collisionDispatcher = new btCollisionDispatcher(collisionConfiguration);
-   constraintSolver = new btSequentialImpulseConstraintSolver;
-   dynamicsWorld = new btDiscreteDynamicsWorld(collisionDispatcher, broadphase, constraintSolver, collisionConfiguration);
+   broadphase = UPtr<btDbvtBroadphase>(new btDbvtBroadphase);
+   collisionConfiguration = UPtr<btCollisionConfiguration>(new btDefaultCollisionConfiguration);
+   collisionDispatcher = UPtr<btCollisionDispatcher>(new btCollisionDispatcher(collisionConfiguration.get()));
+   constraintSolver = UPtr<btConstraintSolver>(new btSequentialImpulseConstraintSolver);
+   dynamicsWorld = UPtr<btDynamicsWorld>(new btDiscreteDynamicsWorld(collisionDispatcher.get(), broadphase.get(), constraintSolver.get(), collisionConfiguration.get()));
    dynamicsWorld->setGravity(DEFAULT_GRAVITY);
 }
 
 PhysicsManager::~PhysicsManager() {
-   delete dynamicsWorld;
-   delete constraintSolver;
-   delete collisionDispatcher;
-   delete collisionConfiguration;
-   delete broadphase;
+   // Clean up in reverse order
+   dynamicsWorld.reset();
+   constraintSolver.reset();
+   collisionDispatcher.reset();
+   collisionConfiguration.reset();
+   broadphase.reset();
 }
 
 void PhysicsManager::tick(const float dt) {
@@ -37,6 +38,6 @@ void PhysicsManager::removeObject(SPtr<GameObject> gameObject) {
    }
 }
 
-btDynamicsWorld& PhysicsManager::getDynamicsWorld() {
+btDynamicsWorld& PhysicsManager::getDynamicsWorld() const {
    return *dynamicsWorld;
 }

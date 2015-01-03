@@ -6,6 +6,11 @@
 Mesh::Mesh(const aiMesh* aiMesh) {
    ASSERT(aiMesh, "Given null aiMesh");
 
+   // Copy the vertices
+   numVertices = aiMesh->mNumVertices;
+   vertices = UPtr<float[]>(new float[sizeof(float) * 3 * numVertices]);
+   memcpy(vertices.get(), aiMesh->mVertices, sizeof(float) * 3 * numVertices);
+
    // Parse the faces
    numIndices = aiMesh->mNumFaces * 3;
    unsigned int *faceArray = new unsigned int[numIndices];

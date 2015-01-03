@@ -10,26 +10,20 @@ class PhysicsManager;
 
 class PhysicsComponent : public Component<PhysicsComponent, NullPhysicsComponent> {
 protected:
-   btRigidBody *rigidBody;
+   UPtr<btRigidBody> rigidBody;
 
 public:
-   PhysicsComponent(SPtr<GameObject> gameObject, float mass)
-      : rigidBody(nullptr) {}
-
    virtual ~PhysicsComponent() {}
 
    virtual void tick(GameObject &gameObject) = 0;
 
-   btRigidBody* getRigidBody() {
-      return rigidBody;
+   btRigidBody* getRigidBody() const {
+      return rigidBody.get();
    }
 };
 
 class NullPhysicsComponent : public PhysicsComponent {
 public:
-   NullPhysicsComponent()
-      : PhysicsComponent(nullptr, 0.0f) {}
-
    virtual ~NullPhysicsComponent() {}
 
    virtual void tick(GameObject &gameObject) {}

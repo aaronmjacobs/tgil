@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include "GLIncludes.h"
+#include "Types.h"
 
 struct aiMesh;
 
@@ -37,6 +38,16 @@ protected:
     */
    unsigned int numIndices;
 
+   /**
+    * Packed array of vertices
+    */
+   UPtr<float[]> vertices;
+
+   /**
+    * Number of vertices
+    */
+   unsigned int numVertices;
+
 public:
    Mesh(const aiMesh* aiMesh);
 
@@ -58,6 +69,14 @@ public:
 
    unsigned int getNumIndices() const {
      return numIndices;
+   }
+
+   float* getVertices() const {
+      return vertices.get();
+   }
+
+   unsigned int getNumVertices() const {
+      return numVertices;
    }
 };
 

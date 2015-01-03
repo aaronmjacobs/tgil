@@ -8,11 +8,11 @@ class btMotionState;
 
 class MeshPhysicsComponent : public PhysicsComponent {
 protected:
-   btCollisionShape *collisionShape;
-   btMotionState *motionState;
+   UPtr<btCollisionShape> collisionShape;
+   UPtr<btMotionState> motionState;
 
 public:
-   MeshPhysicsComponent(SPtr<GameObject> gameObject, float mass);
+   MeshPhysicsComponent(GameObject &gameObject, float mass);
 
    virtual ~MeshPhysicsComponent();
 
