@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
    // Timing values
    double lastTime = glfwGetTime();
    const double dt = 1.0 / 60.0;
-   double accumulator = dt;
+   double accumulator = 0.0;
 
    while (!glfwWindowShouldClose(window)) {
       // Calculate the frame time

@@ -12,7 +12,7 @@ class ShaderProgram;
 
 class Scene {
 protected:
-   const UPtr<PhysicsManager> physicsManager;
+   const SPtr<PhysicsManager> physicsManager;
    SPtr<GameObject> camera;
    std::vector<SPtr<GameObject>> lights;
    std::vector<SPtr<GameObject>> objects;

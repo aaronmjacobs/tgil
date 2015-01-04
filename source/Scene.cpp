@@ -6,7 +6,7 @@
 #include "Scene.h"
 
 Scene::Scene()
-   : physicsManager(new PhysicsManager) {
+   : physicsManager(std::make_shared<PhysicsManager>()) {
 }
 
 Scene::~Scene() {
@@ -25,7 +25,10 @@ void Scene::addLight(SPtr<GameObject> light) {
 }
 
 void Scene::addObject(SPtr<GameObject> object) {
-   physicsManager->addObject(object);
+   PhysicsComponent &physicsComponent = object->getPhysicsComponent();
+   if (physicsComponent.getRigidBody()) {
+      physicsManager->addObject(physicsComponent);
+   }
 
    objects.push_back(object);
 

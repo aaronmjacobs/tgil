@@ -1,3 +1,4 @@
+#include "FancyAssert.h"
 #include "GameObject.h"
 #include "PhysicsComponent.h"
 #include "PhysicsManager.h"
@@ -24,15 +25,18 @@ void PhysicsManager::tick(const float dt) {
    dynamicsWorld->stepSimulation(dt, 15);
 }
 
-void PhysicsManager::addObject(SPtr<GameObject> gameObject) {
-   btRigidBody *rigidBody = gameObject->getPhysicsComponent().getRigidBody();
+void PhysicsManager::addObject(PhysicsComponent &physicsComponent) {
+   btRigidBody *rigidBody = physicsComponent.getRigidBody();
+   ASSERT(rigidBody, "Trying to add null body to PhysicsManager");
    if (rigidBody) {
       dynamicsWorld->addRigidBody(rigidBody);
+      physicsComponent.onAdd(shared_from_this());
    }
 }
 
-void PhysicsManager::removeObject(SPtr<GameObject> gameObject) {
-   btRigidBody *rigidBody = gameObject->getPhysicsComponent().getRigidBody();
+void PhysicsManager::removeObject(PhysicsComponent &physicsComponent) {
+   btRigidBody *rigidBody = physicsComponent.getRigidBody();
+   ASSERT(rigidBody, "Trying to remove null body from PhysicsManager");
    if (rigidBody) {
       dynamicsWorld->removeRigidBody(rigidBody);
    }

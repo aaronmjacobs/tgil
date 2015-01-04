@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "MeshPhysicsComponent.h"
+#include "PhysicsManager.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
@@ -51,7 +52,11 @@ MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass) {
 }
 
 MeshPhysicsComponent::~MeshPhysicsComponent() {
-   // TODO Figure out if the rigid body needs to be removed from the scene
+   // Remove the rigid body from the physics manager
+   SPtr<PhysicsManager> currentPhysicsManager = physicsManager.lock();
+   if (currentPhysicsManager) {
+      currentPhysicsManager->removeObject(*this);
+   }
 
    // Clean up in reverse order
    rigidBody.reset();
@@ -65,4 +70,13 @@ void MeshPhysicsComponent::tick(GameObject &gameObject) {
 
    gameObject.setPosition(toGlm(trans.getOrigin()));
    gameObject.setOrientation(toGlm(trans.getRotation()));
+}
+
+void MeshPhysicsComponent::onAdd(SPtr<PhysicsManager> physicsManager) {
+   SPtr<PhysicsManager> currentPhysicsManager = this->physicsManager.lock();
+   if (currentPhysicsManager) {
+      currentPhysicsManager->removeObject(*this);
+   }
+
+   this->physicsManager = physicsManager;
 }

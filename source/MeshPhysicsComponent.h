@@ -17,6 +17,8 @@ public:
    virtual ~MeshPhysicsComponent();
 
    virtual void tick(GameObject &gameObject);
+
+   virtual void onAdd(SPtr<PhysicsManager> physicsManager);
 };
 
 #endif

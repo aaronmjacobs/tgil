@@ -5,11 +5,11 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
-class GameObject;
+class PhysicsComponent;
 
 const btVector3 DEFAULT_GRAVITY(0.0f, -9.8f, 0.0f);
 
-class PhysicsManager {
+class PhysicsManager : public std::enable_shared_from_this<PhysicsManager> {
 protected:
    UPtr<btBroadphaseInterface> broadphase;
    UPtr<btCollisionConfiguration> collisionConfiguration;
@@ -24,9 +24,9 @@ public:
 
    virtual void tick(const float dt);
 
-   virtual void addObject(SPtr<GameObject> gameObject);
+   virtual void addObject(PhysicsComponent &physicsComponent);
 
-   virtual void removeObject(SPtr<GameObject> gameObject);
+   virtual void removeObject(PhysicsComponent &physicsComponent);
 
    btDynamicsWorld& getDynamicsWorld() const;
 };
