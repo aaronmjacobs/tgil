@@ -87,6 +87,7 @@ set(HEADERS
    ${SRC_DIR}/Shader.h
    ${SRC_DIR}/ShaderAssetManager.h
    ${SRC_DIR}/ShaderProgram.h
+   ${SRC_DIR}/Transform.h
    ${SRC_DIR}/Types.h
 )
 

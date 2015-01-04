@@ -6,7 +6,6 @@
 class btRigidBody;
 class GameObject;
 class NullPhysicsComponent;
-class PhysicsManager;
 
 class PhysicsComponent : public Component<PhysicsComponent, NullPhysicsComponent> {
 protected:

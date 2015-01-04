@@ -1,6 +1,7 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
+#include "Transform.h"
 #include "Types.h"
 
 #include <glm/glm.hpp>
@@ -15,9 +16,7 @@ class PhysicsComponent;
 
 class GameObject {
 protected:
-   glm::vec3 position;
-   glm::quat orientation;
-   glm::vec3 scale;
+   Transform transform;
 
    SPtr<Model> model;
 
@@ -36,15 +35,15 @@ public:
    virtual void tick(const float dt);
 
    const glm::vec3& getPosition() const {
-      return position;
+      return transform.position;
    }
 
    const glm::quat& getOrientation() const {
-      return orientation;
+      return transform.orientation;
    }
 
    const glm::vec3& getScale() const {
-      return scale;
+      return transform.scale;
    }
 
    SPtr<Model> getModel() {
@@ -52,15 +51,15 @@ public:
    }
 
    void setPosition(const glm::vec3 &position) {
-      this->position = position;
+      transform.position = position;
    }
 
    void setOrientation(const glm::quat &orientation) {
-      this->orientation = orientation;
+      transform.orientation = orientation;
    }
 
    void setScale(const glm::vec3 &scale) {
-      this->scale = scale;
+      transform.scale = scale;
    }
 
    void setModel(SPtr<Model> model) {
