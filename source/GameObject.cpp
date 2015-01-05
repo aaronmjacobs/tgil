@@ -19,6 +19,8 @@ GameObject::~GameObject() {
 
 void GameObject::tick(const float dt) {
    physicsComponent->tick(*this);
+   inputComponent->pollInput(*this);
+   cameraComponent->tick(*this, dt);
 }
 
 void GameObject::setScene(WPtr<Scene> scene) {

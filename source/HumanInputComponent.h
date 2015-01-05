@@ -10,7 +10,7 @@ protected:
 public:
    virtual ~HumanInputComponent();
 
-   virtual void pollInput(const Context &context, GameObject &gameObject);
+   virtual void pollInput(GameObject &gameObject);
 
    virtual const InputValues& getInputValues(GameObject &gameObject);
 };

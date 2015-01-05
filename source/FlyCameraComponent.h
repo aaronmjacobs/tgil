@@ -10,6 +10,8 @@ protected:
 public:
    virtual ~FlyCameraComponent();
 
+   virtual void tick(GameObject &gameObject, const float dt);
+
    virtual glm::vec3 getFrontVector(GameObject &gameObject) const;
 
    virtual glm::vec3 getRightVector(GameObject &gameObject) const;

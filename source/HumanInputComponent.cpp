@@ -5,8 +5,8 @@
 HumanInputComponent::~HumanInputComponent() {
 }
 
-void HumanInputComponent::pollInput(const Context &context, GameObject &gameObject) {
-   inputValues = context.getInputHandler().getInputValues(0); // TODO Multiple players
+void HumanInputComponent::pollInput(GameObject &gameObject) {
+   inputValues = Context::getInstance().getInputHandler().getInputValues(0); // TODO Multiple players
 }
 
 const InputValues& HumanInputComponent::getInputValues(GameObject &gameObject) {

@@ -12,7 +12,7 @@ class InputComponent : public Component<InputComponent, NullInputComponent> {
 public:
    virtual ~InputComponent() {}
 
-   virtual void pollInput(const Context &context, GameObject &gameObject) = 0;
+   virtual void pollInput(GameObject &gameObject) = 0;
 
    virtual const InputValues& getInputValues(GameObject &gameObject) = 0;
 };
@@ -27,7 +27,7 @@ public:
 
    virtual ~NullInputComponent() {}
 
-   virtual void pollInput(const Context &context, GameObject &gameObject) {}
+   virtual void pollInput(GameObject &gameObject) {}
 
    virtual const InputValues& getInputValues(GameObject &gameObject) {
       return INPUT_VALUES;
