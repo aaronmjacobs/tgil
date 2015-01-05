@@ -78,6 +78,7 @@ set(HEADERS
    ${SRC_DIR}/MeshPhysicsComponent.h
    ${SRC_DIR}/Model.h
    ${SRC_DIR}/MeshAssetManager.h
+   ${SRC_DIR}/Observer.h
    ${SRC_DIR}/PhongMaterial.h
    ${SRC_DIR}/PhysicsComponent.h
    ${SRC_DIR}/PhysicsManager.h
@@ -87,6 +88,7 @@ set(HEADERS
    ${SRC_DIR}/Shader.h
    ${SRC_DIR}/ShaderAssetManager.h
    ${SRC_DIR}/ShaderProgram.h
+   ${SRC_DIR}/Subject.h
    ${SRC_DIR}/Transform.h
    ${SRC_DIR}/Types.h
 )
