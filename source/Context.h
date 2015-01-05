@@ -9,13 +9,19 @@ class Scene;
 struct GLFWwindow;
 
 class Context {
+private:
+   static UPtr<Context> instance;
+
+   Context(GLFWwindow* const window);
+
 protected:
    const UPtr<AssetManager> assetManager;
    const UPtr<InputHandler> inputHandler;
    const UPtr<Scene> scene;
 
 public:
-   Context(GLFWwindow* const window);
+   static void load(GLFWwindow* const window);
+   static const Context& getInstance();
 
    virtual ~Context();
 

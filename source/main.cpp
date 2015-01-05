@@ -15,7 +15,6 @@ const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
 const float FOV = 90.0f;
 
-UPtr<Context> context;
 Renderer renderer;
 
 void errorCallback(int error, const char* description) {
@@ -46,7 +45,8 @@ int main(int argc, char *argv[]) {
       LOG_FATAL("Unable to initialize glad");
    }
 
-   context = std::move(UPtr<Context>(new Context(window)));
+   Context::load(window);
+   const Context &context = Context::getInstance();
    renderer.prepare(FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
 
    // Timing values
@@ -62,12 +62,12 @@ int main(int argc, char *argv[]) {
 
       accumulator += frameTime;
       while (accumulator >= dt) {
-         context->getScene().tick(dt);
+         context.getScene().tick(dt);
 
          accumulator -= dt;
       }
 
-      renderer.render(*context);
+      renderer.render(context);
 
       glfwSwapBuffers(window);
 
