@@ -30,7 +30,6 @@ void PhysicsManager::addObject(PhysicsComponent &physicsComponent) {
    ASSERT(rigidBody, "Trying to add null body to PhysicsManager");
    if (rigidBody) {
       dynamicsWorld->addRigidBody(rigidBody);
-      physicsComponent.onAdd(shared_from_this());
    }
 }
 
