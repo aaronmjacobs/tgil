@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "MeshPhysicsComponent.h"
 #include "PhysicsManager.h"
+#include "Scene.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
@@ -29,6 +30,9 @@ btQuaternion toBt(const glm::quat &quat) {
 } // namespace
 
 MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass) {
+   // Listen for events from the game object
+   gameObject.addObserver(shared_from_this());
+
    SPtr<Model> model = gameObject.getModel();
    if (model) {
       const Mesh &mesh = model->getMesh();
@@ -72,11 +76,19 @@ void MeshPhysicsComponent::tick(GameObject &gameObject) {
    gameObject.setOrientation(toGlm(trans.getRotation()));
 }
 
-void MeshPhysicsComponent::onAdd(SPtr<PhysicsManager> physicsManager) {
-   SPtr<PhysicsManager> currentPhysicsManager = this->physicsManager.lock();
-   if (currentPhysicsManager) {
-      currentPhysicsManager->removeObject(*this);
-   }
+void MeshPhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
+   switch (event) {
+      case SET_SCENE: {
+         SPtr<PhysicsManager> currentPhysicsManager = physicsManager.lock();
+         if (currentPhysicsManager) {
+            currentPhysicsManager->removeObject(*this);
+         }
 
-   this->physicsManager = physicsManager;
+         SPtr<Scene> scene = gameObject.getScene().lock();
+         physicsManager = scene ? scene->getPhysicsManager() : SPtr<PhysicsManager>();
+         break;
+      }
+      default:
+         break;
+   }
 }

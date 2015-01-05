@@ -21,6 +21,11 @@ void GameObject::tick(const float dt) {
    physicsComponent->tick(*this);
 }
 
+void GameObject::setScene(WPtr<Scene> scene) {
+   wScene = scene;
+   notify(*this, SET_SCENE);
+}
+
 CameraComponent& GameObject::getCameraComponent() {
    return *cameraComponent;
 }

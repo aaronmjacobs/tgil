@@ -1,6 +1,7 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
+#include "Subject.h"
 #include "Transform.h"
 #include "Types.h"
 
@@ -13,11 +14,14 @@ class InputComponent;
 class LightComponent;
 class Model;
 class PhysicsComponent;
+class Scene;
 
-class GameObject {
+class GameObject : public Subject<GameObject> {
 protected:
-   Transform transform;
+   // The scene that the object resides in
+   WPtr<Scene> wScene;
 
+   Transform transform;
    SPtr<Model> model;
 
    // Components
@@ -46,7 +50,13 @@ public:
       return transform.scale;
    }
 
-   SPtr<Model> getModel() {
+   void setScene(WPtr<Scene> scene);
+
+   WPtr<Scene> getScene() const {
+      return wScene;
+   }
+
+   SPtr<Model> getModel() const {
       return model;
    }
 

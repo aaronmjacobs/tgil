@@ -1,12 +1,13 @@
 #ifndef MESH_PHYSICS_COMPONENT_H
 #define MESH_PHYSICS_COMPONENT_H
 
+#include "Observer.h"
 #include "PhysicsComponent.h"
 
 class btCollisionShape;
 class btMotionState;
 
-class MeshPhysicsComponent : public PhysicsComponent {
+class MeshPhysicsComponent : public PhysicsComponent, public Observer<GameObject>, public std::enable_shared_from_this<MeshPhysicsComponent> {
 protected:
    UPtr<btCollisionShape> collisionShape;
    UPtr<btMotionState> motionState;
@@ -18,7 +19,7 @@ public:
 
    virtual void tick(GameObject &gameObject);
 
-   virtual void onAdd(SPtr<PhysicsManager> physicsManager);
+   virtual void onNotify(const GameObject &gameObject, Event event);
 };
 
 #endif

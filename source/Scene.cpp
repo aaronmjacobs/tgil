@@ -20,8 +20,14 @@ void Scene::tick(const float dt) {
    }
 }
 
+void Scene::setCamera(SPtr<GameObject> camera) {
+   this->camera = camera;
+   addObject(camera);
+}
+
 void Scene::addLight(SPtr<GameObject> light) {
    lights.push_back(light);
+   addObject(light);
 }
 
 void Scene::addObject(SPtr<GameObject> object) {
@@ -36,4 +42,6 @@ void Scene::addObject(SPtr<GameObject> object) {
    if (model) {
       shaderPrograms.insert(model->getMaterial().getShaderProgram());
    }
+
+   object->setScene(shared_from_this());
 }

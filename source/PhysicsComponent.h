@@ -18,8 +18,6 @@ public:
 
    virtual void tick(GameObject &gameObject) = 0;
 
-   virtual void onAdd(SPtr<PhysicsManager> physicsManager) = 0;
-
    btRigidBody* getRigidBody() const {
       return rigidBody.get();
    }
@@ -30,8 +28,6 @@ public:
    virtual ~NullPhysicsComponent() {}
 
    virtual void tick(GameObject &gameObject) {}
-
-   virtual void onAdd(SPtr<PhysicsManager> physicsManager) {}
 };
 
 #endif

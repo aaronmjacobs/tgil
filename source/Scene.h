@@ -10,7 +10,7 @@ class GameObject;
 class PhysicsManager;
 class ShaderProgram;
 
-class Scene {
+class Scene : public std::enable_shared_from_this<Scene> {
 protected:
    const SPtr<PhysicsManager> physicsManager;
    SPtr<GameObject> camera;
@@ -25,8 +25,8 @@ public:
 
    void tick(const float dt);
 
-   PhysicsManager& getPhysicsManager() const {
-      return *physicsManager;
+   SPtr<PhysicsManager> getPhysicsManager() const {
+      return physicsManager;
    }
 
    SPtr<GameObject> getCamera() const {
@@ -45,9 +45,7 @@ public:
       return shaderPrograms;
    }
 
-   void setCamera(SPtr<GameObject> camera) {
-      this->camera = camera;
-   }
+   void setCamera(SPtr<GameObject> camera);
 
    SPtr<GameObject> getCamera() {
       return camera;
