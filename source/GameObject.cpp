@@ -64,4 +64,5 @@ PhysicsComponent& GameObject::getPhysicsComponent() {
 
 void GameObject::setPhysicsComponent(SPtr<PhysicsComponent> physicsComponent) {
    this->physicsComponent = physicsComponent;
+   physicsComponent->init(*this);
 }

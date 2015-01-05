@@ -17,7 +17,7 @@ private:
 protected:
    const UPtr<AssetManager> assetManager;
    const UPtr<InputHandler> inputHandler;
-   const UPtr<Scene> scene;
+   const SPtr<Scene> scene;
 
 public:
    static void load(GLFWwindow* const window);

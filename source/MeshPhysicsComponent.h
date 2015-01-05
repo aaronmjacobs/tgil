@@ -17,6 +17,8 @@ public:
 
    virtual ~MeshPhysicsComponent();
 
+   virtual void init(GameObject &gameObject);
+
    virtual void tick(GameObject &gameObject);
 
    virtual void onNotify(const GameObject &gameObject, Event event);

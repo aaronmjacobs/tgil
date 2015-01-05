@@ -16,6 +16,8 @@ protected:
 public:
    virtual ~PhysicsComponent() {}
 
+   virtual void init(GameObject &gameObject) = 0;
+
    virtual void tick(GameObject &gameObject) = 0;
 
    btRigidBody* getRigidBody() const {
@@ -26,6 +28,8 @@ public:
 class NullPhysicsComponent : public PhysicsComponent {
 public:
    virtual ~NullPhysicsComponent() {}
+
+   virtual void init(GameObject &gameObject) {}
 
    virtual void tick(GameObject &gameObject) {}
 };

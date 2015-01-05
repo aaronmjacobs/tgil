@@ -30,9 +30,6 @@ btQuaternion toBt(const glm::quat &quat) {
 } // namespace
 
 MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass) {
-   // Listen for events from the game object
-   gameObject.addObserver(shared_from_this());
-
    SPtr<Model> model = gameObject.getModel();
    if (model) {
       const Mesh &mesh = model->getMesh();
@@ -66,6 +63,11 @@ MeshPhysicsComponent::~MeshPhysicsComponent() {
    rigidBody.reset();
    motionState.reset();
    collisionShape.reset();
+}
+
+void MeshPhysicsComponent::init(GameObject &gameObject) {
+   // Listen for events from the game object
+   gameObject.addObserver(shared_from_this());
 }
 
 void MeshPhysicsComponent::tick(GameObject &gameObject) {
