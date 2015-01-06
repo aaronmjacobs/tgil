@@ -21,6 +21,20 @@ void errorCallback(int error, const char* description) {
    LOG_FATAL("GLFW error " << error << ": " << description);
 }
 
+void focusCallback(GLFWwindow* window, GLint focused) {
+   if (focused) {
+      Context::getInstance().onWindowFocusGained();
+   }
+}
+
+void windowSizeCallback(GLFWwindow* window, int width, int height) {
+   renderer.onWindowSizeChange(width, height);
+}
+
+void monitorCallback(GLFWmonitor *monitor, int event) {
+   renderer.onMonitorChange();
+}
+
 } // namespace
 
 int main(int argc, char *argv[]) {
@@ -48,6 +62,10 @@ int main(int argc, char *argv[]) {
    Context::load(window);
    const Context &context = Context::getInstance();
    renderer.prepare(FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+   glfwSetWindowSizeCallback(window, windowSizeCallback);
+   glfwSetMonitorCallback(monitorCallback);
+   glfwSetWindowFocusCallback(window, focusCallback);
 
    // Timing values
    double lastTime = glfwGetTime();

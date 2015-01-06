@@ -29,6 +29,10 @@ Context::Context(GLFWwindow* const window)
 Context::~Context() {
 }
 
+void Context::onWindowFocusGained() const {
+   assetManager->reloadAssets();
+}
+
 AssetManager& Context::getAssetManager() const {
    return *assetManager;
 }

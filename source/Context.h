@@ -25,6 +25,8 @@ public:
 
    virtual ~Context();
 
+   void onWindowFocusGained() const;
+
    AssetManager& getAssetManager() const;
    InputHandler& getInputHandler() const;
    Scene& getScene() const;

@@ -78,6 +78,10 @@ void Renderer::onWindowSizeChange(int width, int height) {
    projectionMatrix = glm::perspective(glm::radians(fov), (float)width / height, 0.1f, 100.0f);
 }
 
+void Renderer::onMonitorChange() {
+   // Handle recreation of any frame buffers
+}
+
 void Renderer::render(const Context &context) {
    RUN_DEBUG(checkGLError();)
 

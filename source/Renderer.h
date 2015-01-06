@@ -19,6 +19,8 @@ public:
 
    void onWindowSizeChange(int width, int height);
 
+   void onMonitorChange();
+
    void render(const Context &context);
 };
 
