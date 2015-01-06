@@ -290,6 +290,33 @@ if (APPLE)
    )
 endif (APPLE)
 
+if (WIN32)
+   if (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+      set(BULLET_LIBRARIES
+         ${BULLET_DIR}/lib/win32/release/LinearMath.lib
+         ${BULLET_DIR}/lib/win32/release/BulletCollision.lib
+         ${BULLET_DIR}/lib/win32/release/BulletDynamics.lib
+         ${BULLET_DIR}/lib/win32/release/BulletSoftBody.lib
+      )
+   else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+      set(BULLET_LIBRARIES
+         ${BULLET_DIR}/lib/win32/debug/LinearMath_Debug.lib
+         ${BULLET_DIR}/lib/win32/debug/BulletCollision_Debug.lib
+         ${BULLET_DIR}/lib/win32/debug/BulletDynamics_Debug.lib
+         ${BULLET_DIR}/lib/win32/debug/BulletSoftBody_Debug.lib
+      )
+   endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+endif (WIN32)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   set(BULLET_LIBRARIES
+      ${BULLET_DIR}/lib/linux/libBulletSoftBody.a
+      ${BULLET_DIR}/lib/linux/libBulletDynamics.a
+      ${BULLET_DIR}/lib/linux/libBulletCollision.a
+      ${BULLET_DIR}/lib/linux/libLinearMath.a
+   )
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 ### Building ###
 
 # C++11
