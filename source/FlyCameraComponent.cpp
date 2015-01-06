@@ -7,6 +7,7 @@
 namespace {
 
 const float CAMERA_SPEED = 5.0f;
+const float Y_LOOK_BOUND = 0.99f;
 
 } // namespace
 
@@ -22,7 +23,6 @@ void FlyCameraComponent::tick(GameObject &gameObject, const float dt) {
    glm::vec3 front = getFrontVector(gameObject);
    glm::vec3 right = getRightVector(gameObject);
 
-   const float Y_LOOK_BOUND = 0.99f;
    if (front.y - pitchAmount > Y_LOOK_BOUND) {
       pitchAmount = front.y - Y_LOOK_BOUND;
    }

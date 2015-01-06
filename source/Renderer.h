@@ -12,6 +12,7 @@ protected:
 
 public:
    Renderer();
+
    virtual ~Renderer();
 
    void prepare(float fov, int width, int height);

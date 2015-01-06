@@ -1,3 +1,4 @@
+#include "FancyAssert.h"
 #include "IOUtils.h"
 
 #include <fstream>
@@ -5,14 +6,17 @@
 namespace IOUtils {
 
 bool canRead(const std::string &fileName) {
+   ASSERT(!fileName.empty(), "Trying to check empty file name");
    return !!std::ifstream(fileName);
 }
 
 bool canReadData(const std::string &fileName) {
+   ASSERT(!fileName.empty(), "Trying to check empty file name");
    return canRead(dataPath(fileName));
 }
 
 folly::Optional<std::string> readFromFile(const std::string& fileName) {
+   ASSERT(!fileName.empty(), "Trying to read from empty file name");
    std::ifstream in(fileName);
    if (!in) {
       return folly::none;
@@ -22,6 +26,7 @@ folly::Optional<std::string> readFromFile(const std::string& fileName) {
 }
 
 bool writeToFile(const std::string &fileName, const std::string &data) {
+   ASSERT(!fileName.empty(), "Trying to write to empty file name");
    std::ofstream out(fileName);
    if (!out) {
       return false;
@@ -32,10 +37,12 @@ bool writeToFile(const std::string &fileName, const std::string &data) {
 }
 
 folly::Optional<std::string> readFromDataFile(const std::string &fileName) {
+   ASSERT(!fileName.empty(), "Trying to read from empty file name");
    return readFromFile(dataPath(fileName));
 }
 
 bool writeToDataFile(const std::string &fileName, const std::string &data) {
+   ASSERT(!fileName.empty(), "Trying to write to empty file name");
    return writeToFile(dataPath(fileName), data);
 }
 

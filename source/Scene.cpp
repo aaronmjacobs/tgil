@@ -1,3 +1,4 @@
+#include "FancyAssert.h"
 #include "GameObject.h"
 #include "Material.h"
 #include "Model.h"
@@ -21,16 +22,19 @@ void Scene::tick(const float dt) {
 }
 
 void Scene::setCamera(SPtr<GameObject> camera) {
+   ASSERT(camera, "Trying to set null camera in scene");
    this->camera = camera;
    addObject(camera);
 }
 
 void Scene::addLight(SPtr<GameObject> light) {
+   ASSERT(light, "Trying to add null light in scene");
    lights.push_back(light);
    addObject(light);
 }
 
 void Scene::addObject(SPtr<GameObject> object) {
+   ASSERT(object, "Trying to add null object in scene");
    PhysicsComponent &physicsComponent = object->getPhysicsComponent();
    if (physicsComponent.getRigidBody()) {
       physicsManager->addObject(physicsComponent);

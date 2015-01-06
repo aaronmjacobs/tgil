@@ -16,4 +16,10 @@
 #define ASSERT_USED_FATAL     PPK_ASSERT_USED_FATAL
 #define ASSERT_USED_CUSTOM    PPK_ASSERT_USED_CUSTOM
 
+#ifdef NDEBUG
+#define RUN_DEBUG(...)
+#else
+#define RUN_DEBUG(...) do { __VA_ARGS__ } while(0);
+#endif
+
 #endif

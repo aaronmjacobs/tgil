@@ -79,15 +79,15 @@ void Renderer::onWindowSizeChange(int width, int height) {
 }
 
 void Renderer::render(const Context &context) {
-   checkGLError(); // TODO Only in debug builds
+   RUN_DEBUG(checkGLError();)
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
    Scene &scene = context.getScene();
 
    SPtr<GameObject> camera = scene.getCamera();
-   ASSERT(camera, "Scene must have camera to render");
    if (!camera) {
+      LOG_WARNING("Scene must have camera to render");
       return;
    }
 

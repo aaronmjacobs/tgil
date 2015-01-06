@@ -1,3 +1,4 @@
+#include "FancyAssert.h"
 #include "GLIncludes.h"
 #include "KeyboardInputMap.h"
 
@@ -17,6 +18,7 @@ KeyboardInputMap::~KeyboardInputMap() {
 }
 
 const InputValues& KeyboardInputMap::getInputValues(int player) {
+   ASSERT(player >= 0, "Player index should be nonnegative");
    inputValues.moveForward = glfwGetKey(window, map.moveForwardKey) == GLFW_PRESS ? 1.0f : 0.0f;
    inputValues.moveBackward = glfwGetKey(window, map.moveBackwardKey) == GLFW_PRESS ? 1.0f : 0.0f;
    inputValues.moveLeft = glfwGetKey(window, map.moveLeftKey) == GLFW_PRESS ? 1.0f : 0.0f;

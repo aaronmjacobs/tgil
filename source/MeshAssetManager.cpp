@@ -34,7 +34,6 @@ SPtr<Mesh> getDefaultMesh(Assimp::Importer &assimpImporter) {
       return nullptr;
    }
 
-   // TODO Support for multiple meshes
    DEFAULT_MESH = std::make_shared<Mesh>(scene->mMeshes[0]);
    return DEFAULT_MESH;
 }

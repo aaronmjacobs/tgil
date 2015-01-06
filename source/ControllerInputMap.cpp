@@ -1,4 +1,5 @@
 #include "ControllerInputMap.h"
+#include "FancyAssert.h"
 
 #include <glm/glm.hpp>
 
@@ -43,6 +44,7 @@ ControllerInputMap::~ControllerInputMap() {
 }
 
 const InputValues& ControllerInputMap::getInputValues(int player) {
+   ASSERT(player >= 0, "Player index should be nonnegative");
    int buttonCount, axisCount;
 
    // TODO Map players onto controllers correctly

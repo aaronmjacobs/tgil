@@ -23,7 +23,7 @@ const Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-: assetManager(new AssetManager), inputHandler(new InputHandler(window)), scene(std::make_shared<Scene>()) {
+   : assetManager(new AssetManager), inputHandler(new InputHandler(window)), scene(std::make_shared<Scene>()) {
 }
 
 Context::~Context() {
