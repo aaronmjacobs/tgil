@@ -108,6 +108,8 @@ if (APPLE)
    set(GLFW_LIBRARY ${GLFW_DIR}/lib/osx/libglfw.3.1.dylib)
    list(APPEND COPY_LIBRARIES
       ${GLFW_DIR}/lib/osx/libglfw.3.1.dylib
+      ${GLFW_DIR}/lib/osx/libglfw.3.dylib
+      ${GLFW_DIR}/lib/osx/libglfw.dylib
    )
 endif (APPLE)
 
