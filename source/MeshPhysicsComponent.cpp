@@ -53,21 +53,6 @@ MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass) {
 }
 
 MeshPhysicsComponent::~MeshPhysicsComponent() {
-   // Remove the rigid body from the physics manager
-   SPtr<PhysicsManager> currentPhysicsManager = physicsManager.lock();
-   if (currentPhysicsManager) {
-      currentPhysicsManager->removeObject(*this);
-   }
-
-   // Clean up in reverse order
-   rigidBody.reset();
-   motionState.reset();
-   collisionShape.reset();
-}
-
-void MeshPhysicsComponent::init(GameObject &gameObject) {
-   // Listen for events from the game object
-   gameObject.addObserver(shared_from_this());
 }
 
 void MeshPhysicsComponent::tick(GameObject &gameObject) {
@@ -76,21 +61,4 @@ void MeshPhysicsComponent::tick(GameObject &gameObject) {
 
    gameObject.setPosition(toGlm(trans.getOrigin()));
    gameObject.setOrientation(toGlm(trans.getRotation()));
-}
-
-void MeshPhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
-   switch (event) {
-      case SET_SCENE: {
-         SPtr<PhysicsManager> currentPhysicsManager = physicsManager.lock();
-         if (currentPhysicsManager) {
-            currentPhysicsManager->removeObject(*this);
-         }
-
-         SPtr<Scene> scene = gameObject.getScene().lock();
-         physicsManager = scene ? scene->getPhysicsManager() : SPtr<PhysicsManager>();
-         break;
-      }
-      default:
-         break;
-   }
 }

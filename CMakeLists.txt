@@ -43,7 +43,9 @@ set(SOURCES
    ${SRC_DIR}/Model.cpp
    ${SRC_DIR}/MeshAssetManager.cpp
    ${SRC_DIR}/PhongMaterial.cpp
+   ${SRC_DIR}/PhysicsComponent.cpp
    ${SRC_DIR}/PhysicsManager.cpp
+   ${SRC_DIR}/PlayerPhysicsComponent.cpp
    ${SRC_DIR}/PointLightComponent.cpp
    ${SRC_DIR}/Renderer.cpp
    ${SRC_DIR}/Scene.cpp
@@ -82,6 +84,7 @@ set(HEADERS
    ${SRC_DIR}/PhongMaterial.h
    ${SRC_DIR}/PhysicsComponent.h
    ${SRC_DIR}/PhysicsManager.h
+   ${SRC_DIR}/PlayerPhysicsComponent.h
    ${SRC_DIR}/PointLightComponent.h
    ${SRC_DIR}/Renderer.h
    ${SRC_DIR}/Scene.h
