@@ -45,6 +45,7 @@ set(SOURCES
    ${SRC_DIR}/PhongMaterial.cpp
    ${SRC_DIR}/PhysicsComponent.cpp
    ${SRC_DIR}/PhysicsManager.cpp
+   ${SRC_DIR}/PlayerCameraComponent.cpp
    ${SRC_DIR}/PlayerPhysicsComponent.cpp
    ${SRC_DIR}/PointLightComponent.cpp
    ${SRC_DIR}/Renderer.cpp
@@ -61,6 +62,7 @@ set(HEADERS
    ${SRC_DIR}/Component.h
    ${SRC_DIR}/Context.h
    ${SRC_DIR}/ControllerInputMap.h
+   ${SRC_DIR}/Conversions.h
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/FlyCameraComponent.h
    ${SRC_DIR}/GameObject.h
@@ -84,6 +86,7 @@ set(HEADERS
    ${SRC_DIR}/PhongMaterial.h
    ${SRC_DIR}/PhysicsComponent.h
    ${SRC_DIR}/PhysicsManager.h
+   ${SRC_DIR}/PlayerCameraComponent.h
    ${SRC_DIR}/PlayerPhysicsComponent.h
    ${SRC_DIR}/PointLightComponent.h
    ${SRC_DIR}/Renderer.h

@@ -1,11 +1,11 @@
-#ifndef FLY_CAMERA_COMPONENT
-#define FLY_CAMERA_COMPONENT
+#ifndef PLAYER_CAMERA_COMPONENT_H
+#define PLAYER_CAMERA_COMPONENT_H
 
 #include "CameraComponent.h"
 
-class FlyCameraComponent : public CameraComponent {
+class PlayerCameraComponent : public CameraComponent {
 public:
-   virtual ~FlyCameraComponent();
+   virtual ~PlayerCameraComponent();
 
    virtual void tick(GameObject &gameObject, const float dt);
 
@@ -17,5 +17,6 @@ public:
 
    virtual glm::vec3 getCameraPosition(GameObject &gameObject) const;
 };
+
 
 #endif

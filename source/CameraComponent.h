@@ -20,7 +20,7 @@ public:
 
    virtual glm::mat4 getViewMatrix(GameObject &gameObject) const = 0;
 
-   virtual const glm::vec3& getCameraPosition(GameObject &gameObject) const = 0;
+   virtual glm::vec3 getCameraPosition(GameObject &gameObject) const = 0;
 };
 
 class NullCameraComponent : public CameraComponent {
@@ -45,7 +45,7 @@ public:
       return DEFAULT_MAT4;
    }
 
-   virtual const glm::vec3& getCameraPosition(GameObject &gameObject) const {
+   virtual glm::vec3 getCameraPosition(GameObject &gameObject) const {
       return DEFAULT_VEC3;
    }
 };

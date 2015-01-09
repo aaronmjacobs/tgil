@@ -15,7 +15,7 @@ FlyCameraComponent::~FlyCameraComponent() {
 }
 
 void FlyCameraComponent::tick(GameObject &gameObject, const float dt) {
-   InputValues inputValues = gameObject.getInputComponent().getInputValues(gameObject);
+   const InputValues &inputValues = gameObject.getInputComponent().getInputValues(gameObject);
 
    float amount = dt * CAMERA_SPEED;
    float pitchAmount = amount * inputValues.lookY;
@@ -26,7 +26,6 @@ void FlyCameraComponent::tick(GameObject &gameObject, const float dt) {
    if (front.y - pitchAmount > Y_LOOK_BOUND) {
       pitchAmount = front.y - Y_LOOK_BOUND;
    }
-
    if (front.y - pitchAmount < -Y_LOOK_BOUND) {
       pitchAmount = front.y + Y_LOOK_BOUND;
    }
@@ -54,6 +53,6 @@ glm::mat4 FlyCameraComponent::getViewMatrix(GameObject &gameObject) const {
                       glm::vec3(0.0f, 1.0f, 0.0f)); // Up vector
 }
 
-const glm::vec3& FlyCameraComponent::getCameraPosition(GameObject &gameObject) const {
+glm::vec3 FlyCameraComponent::getCameraPosition(GameObject &gameObject) const {
    return gameObject.getPosition();
 }
