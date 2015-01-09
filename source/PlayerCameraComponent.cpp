@@ -41,7 +41,7 @@ bool onGround(SPtr<Scene> scene, const btRigidBody &rigidBody) {
    }
 
    btVector3 hitPoint = res.m_hitPointWorld;
-   return glm::distance(toGlm(from), toGlm(to)) <= GROUND_DISTANCE;
+   return glm::distance(toGlm(from), toGlm(hitPoint)) <= GROUND_DISTANCE;
 }
 
 } // namespace
