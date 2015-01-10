@@ -16,15 +16,16 @@ const float LOOK_SPEED = 5.0f;
 const float Y_LOOK_BOUND = 0.99f;
 
 // TODO Calculate based off of physics property of player
-const float MAX_MOVE_FORCE = 400.0f;
+const float MAX_MOVE_FORCE = 150.0f;
 const float NORMAL_MOVE_FORCE = 150.0f;
+const float AIR_MOVE_MULTIPLIER = 0.05f;
 const float JUMP_FORCE = 150.0f;
 
 // TODO Calculate based off of physics property of player
 const float GROUND_DISTANCE = 0.8f;
 const float HEAD_OFFSET = 0.7f;
 
-bool onGround(SPtr<Scene> scene, const btRigidBody &rigidBody) {
+const btCollisionObject* getGround(SPtr<Scene> scene, const btRigidBody &rigidBody) {
    SPtr<PhysicsManager> physicsManager = scene->getPhysicsManager();
    btDynamicsWorld &world = physicsManager->getDynamicsWorld();
 
@@ -37,11 +38,24 @@ bool onGround(SPtr<Scene> scene, const btRigidBody &rigidBody) {
 
    world.rayTest(from, to, res);
    if(!res.hasHit()) {
-      return false;
+      return nullptr;
    }
 
    btVector3 hitPoint = res.m_hitPointWorld;
-   return glm::distance(toGlm(from), toGlm(hitPoint)) <= GROUND_DISTANCE;
+   if (glm::distance(toGlm(from), toGlm(hitPoint)) > GROUND_DISTANCE) {
+      return nullptr;
+   }
+
+   return res.m_collisionObject;
+}
+
+float calcMovementForce(glm::vec3 velocity, const btCollisionObject *ground, bool wantsToJump) {
+   velocity.y = 0.0f;
+   float speed = glm::length(velocity);
+   float forceModifier = (!ground || wantsToJump) ? AIR_MOVE_MULTIPLIER : ground->getFriction();
+   float normalMoveForce = NORMAL_MOVE_FORCE * forceModifier;
+   float maxMoveForce = MAX_MOVE_FORCE * forceModifier;
+   return speed < normalMoveForce / maxMoveForce ? maxMoveForce : glm::min(maxMoveForce, normalMoveForce / speed);
 }
 
 } // namespace
@@ -97,18 +111,17 @@ void PlayerCameraComponent::tick(GameObject &gameObject, const float dt) {
       moveIntention = glm::normalize(moveIntention);
    }
 
-   if (onGround(scene, *rigidBody)) {
-      btVector3 velocity = rigidBody->getLinearVelocity();
-      float speed = glm::length(glm::vec3(velocity.x(), 0.0f, velocity.z()));
+   btVector3 velocity = rigidBody->getLinearVelocity();
+   const btCollisionObject *ground = getGround(scene, *rigidBody);
 
-      // TODO Deal with speed / force per direction, not just as one constant
-      float forceAmount = speed < (NORMAL_MOVE_FORCE / MAX_MOVE_FORCE) ? MAX_MOVE_FORCE : glm::min(MAX_MOVE_FORCE, NORMAL_MOVE_FORCE / speed);
-      glm::vec3 force = moveIntention * forceAmount;
-      rigidBody->applyCentralForce(btVector3(force.x, force.y, force.z));
+   float forceAmount = calcMovementForce(toGlm(velocity), ground, inputValues.jump);
+   glm::vec3 force = moveIntention * glm::vec3(forceAmount);
 
-      if (inputValues.jump) {
-         rigidBody->applyCentralForce(btVector3(0.0f, JUMP_FORCE, 0.0f));
-      }
+   rigidBody->applyCentralForce(toBt(force));
+
+   // TODO Figure out hop bug
+   if (ground && inputValues.jump) {
+      rigidBody->applyCentralForce(btVector3(0.0f, JUMP_FORCE, 0.0f));
    }
 }
 
