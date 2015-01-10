@@ -11,10 +11,14 @@
 
 #include <string>
 
+GeometricGraphicsComponent::GeometricGraphicsComponent(GameObject &gameObject)
+   : GraphicsComponent(gameObject) {
+}
+
 GeometricGraphicsComponent::~GeometricGraphicsComponent() {
 }
 
-void GeometricGraphicsComponent::draw(GameObject &gameObject) {
+void GeometricGraphicsComponent::draw() {
    const glm::mat4 &transMatrix = glm::translate(gameObject.getPosition());
    const glm::mat4 &rotMatrix = glm::toMat4(gameObject.getOrientation());
    const glm::mat4 &scaleMatrix = glm::scale(gameObject.getScale());

@@ -60,10 +60,14 @@ float calcMovementForce(glm::vec3 velocity, const btCollisionObject *ground, boo
 
 } // namespace
 
+PlayerCameraComponent::PlayerCameraComponent(GameObject &gameObject)
+   : CameraComponent(gameObject) {
+}
+
 PlayerCameraComponent::~PlayerCameraComponent() {
 }
 
-void PlayerCameraComponent::tick(GameObject &gameObject, const float dt) {
+void PlayerCameraComponent::tick(const float dt) {
    SPtr<Scene> scene = gameObject.getScene().lock();
    ASSERT(scene, "PlayerCameraComponent must be in Scene to tick");
    if (!scene) {
@@ -76,14 +80,14 @@ void PlayerCameraComponent::tick(GameObject &gameObject, const float dt) {
       return;
    }
 
-   const InputValues &inputValues = gameObject.getInputComponent().getInputValues(gameObject);
+   const InputValues &inputValues = gameObject.getInputComponent().getInputValues();
 
    // Camera orientation
    float lookAmount = dt * LOOK_SPEED;
    float pitchAmount = lookAmount * inputValues.lookY;
    float yawAmount = lookAmount * inputValues.lookX;
-   glm::vec3 front = getFrontVector(gameObject);
-   glm::vec3 right = getRightVector(gameObject);
+   glm::vec3 front = getFrontVector();
+   glm::vec3 right = getRightVector();
 
    if (front.y - pitchAmount > Y_LOOK_BOUND) {
       pitchAmount = front.y - Y_LOOK_BOUND;
@@ -125,21 +129,21 @@ void PlayerCameraComponent::tick(GameObject &gameObject, const float dt) {
    }
 }
 
-glm::vec3 PlayerCameraComponent::getFrontVector(GameObject &gameObject) const {
+glm::vec3 PlayerCameraComponent::getFrontVector() const {
    return glm::vec3(0.0f, 0.0f, -1.0f) * glm::normalize(gameObject.getOrientation());
 }
 
-glm::vec3 PlayerCameraComponent::getRightVector(GameObject &gameObject) const {
+glm::vec3 PlayerCameraComponent::getRightVector() const {
    return glm::vec3(1.0f, 0.0f, 0.0f) * glm::normalize(gameObject.getOrientation());
 }
 
-glm::mat4 PlayerCameraComponent::getViewMatrix(GameObject &gameObject) const {
-   const glm::vec3 position = getCameraPosition(gameObject);
+glm::mat4 PlayerCameraComponent::getViewMatrix() const {
+   const glm::vec3 position = getCameraPosition();
    return glm::lookAt(position,
-                      position + getFrontVector(gameObject),
+                      position + getFrontVector(),
                       glm::vec3(0.0f, 1.0f, 0.0f)); // Up vector
 }
 
-glm::vec3 PlayerCameraComponent::getCameraPosition(GameObject &gameObject) const {
+glm::vec3 PlayerCameraComponent::getCameraPosition() const {
    return gameObject.getPosition() + glm::vec3(0.0f, HEAD_OFFSET, 0.0f);
 }

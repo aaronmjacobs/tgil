@@ -7,10 +7,14 @@
 #include <string>
 #include <sstream>
 
+PointLightComponent::PointLightComponent(GameObject &gameObject)
+   : LightComponent(gameObject) {
+}
+
 PointLightComponent::~PointLightComponent() {
 }
 
-void PointLightComponent::draw(GameObject &gameObject, const ShaderProgram &shaderProgram, const unsigned int index) {
+void PointLightComponent::draw(const ShaderProgram &shaderProgram, const unsigned int index) {
    std::stringstream ss;
    ss << "uLights[" << index << "]";
    const std::string &lightName = ss.str();

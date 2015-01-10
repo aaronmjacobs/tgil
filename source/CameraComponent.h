@@ -5,22 +5,22 @@
 
 #include <glm/glm.hpp>
 
-class GameObject;
-class NullCameraComponent;
-
-class CameraComponent : public Component<CameraComponent, NullCameraComponent> {
+class CameraComponent : public Component {
 public:
+   CameraComponent(GameObject &gameObject)
+      : Component(gameObject) {}
+
    virtual ~CameraComponent() {}
 
-   virtual void tick(GameObject &gameObject, const float dt) = 0;
+   virtual void tick(const float dt) = 0;
 
-   virtual glm::vec3 getFrontVector(GameObject &gameObject) const = 0;
+   virtual glm::vec3 getFrontVector() const = 0;
 
-   virtual glm::vec3 getRightVector(GameObject &gameObject) const = 0;
+   virtual glm::vec3 getRightVector() const = 0;
 
-   virtual glm::mat4 getViewMatrix(GameObject &gameObject) const = 0;
+   virtual glm::mat4 getViewMatrix() const = 0;
 
-   virtual glm::vec3 getCameraPosition(GameObject &gameObject) const = 0;
+   virtual glm::vec3 getCameraPosition() const = 0;
 };
 
 class NullCameraComponent : public CameraComponent {
@@ -29,23 +29,26 @@ private:
    const glm::mat4 DEFAULT_MAT4;
 
 public:
+   NullCameraComponent(GameObject &gameObject)
+      : CameraComponent(gameObject) {}
+
    virtual ~NullCameraComponent() {}
 
-   virtual void tick(GameObject &gameObject, const float dt) {}
+   virtual void tick(const float dt) {}
 
-   virtual glm::vec3 getFrontVector(GameObject &gameObject) const {
+   virtual glm::vec3 getFrontVector() const {
       return DEFAULT_VEC3;
    }
 
-   virtual glm::vec3 getRightVector(GameObject &gameObject) const {
+   virtual glm::vec3 getRightVector() const {
       return DEFAULT_VEC3;
    }
 
-   virtual glm::mat4 getViewMatrix(GameObject &gameObject) const {
+   virtual glm::mat4 getViewMatrix() const {
       return DEFAULT_MAT4;
    }
 
-   virtual glm::vec3 getCameraPosition(GameObject &gameObject) const {
+   virtual glm::vec3 getCameraPosition() const {
       return DEFAULT_VEC3;
    }
 };

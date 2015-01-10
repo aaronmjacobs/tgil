@@ -5,18 +5,19 @@
 
 #include <glm/glm.hpp>
 
-class GameObject;
-class NullLightComponent;
 class ShaderProgram;
 
-class LightComponent : public Component<LightComponent, NullLightComponent> {
+class LightComponent : public Component {
 protected:
    glm::vec3 color;
 
 public:
+   LightComponent(GameObject &gameObject)
+      : Component(gameObject) {}
+
    virtual ~LightComponent() {}
 
-   virtual void draw(GameObject &gameObject, const ShaderProgram &shaderProgram, const unsigned int index) = 0;
+   virtual void draw(const ShaderProgram &shaderProgram, const unsigned int index) = 0;
 
    const glm::vec3& getColor() const {
       return color;
@@ -32,9 +33,12 @@ protected:
    const glm::vec3 COLOR;
 
 public:
+   NullLightComponent(GameObject &gameObject)
+      : LightComponent(gameObject) {}
+
    virtual ~NullLightComponent() {}
 
-   virtual void draw(GameObject &gameObject, const ShaderProgram &shaderProgram, const unsigned int index) {}
+   virtual void draw(const ShaderProgram &shaderProgram, const unsigned int index) {}
 
    const glm::vec3& getColor() const {
       return COLOR;

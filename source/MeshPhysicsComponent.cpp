@@ -1,3 +1,4 @@
+#include "Conversions.h"
 #include "GameObject.h"
 #include "Mesh.h"
 #include "Model.h"
@@ -9,27 +10,8 @@
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/glm.hpp>
 
-namespace {
-
-glm::vec3 toGlm(const btVector3 &vec) {
-   return glm::vec3(vec.x(), vec.y(), vec.z());
-}
-
-glm::quat toGlm(const btQuaternion &quat) {
-   return glm::quat(quat.w(), quat.x(), quat.y(), quat.z());
-}
-
-btVector3 toBt(const glm::vec3 &vec) {
-   return btVector3(vec.x, vec.y, vec.z);
-}
-
-btQuaternion toBt(const glm::quat &quat) {
-   return btQuaternion(quat.x, quat.y, quat.z, quat.w);
-}
-
-} // namespace
-
-MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass) {
+MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass)
+   : PhysicsComponent(gameObject) {
    SPtr<Model> model = gameObject.getModel();
    if (model) {
       const Mesh &mesh = model->getMesh();
@@ -55,7 +37,7 @@ MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass) {
 MeshPhysicsComponent::~MeshPhysicsComponent() {
 }
 
-void MeshPhysicsComponent::tick(GameObject &gameObject) {
+void MeshPhysicsComponent::tick() {
    btTransform trans;
    rigidBody->getMotionState()->getWorldTransform(trans);
 

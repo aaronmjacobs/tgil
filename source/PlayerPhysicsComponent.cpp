@@ -4,7 +4,8 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
-PlayerPhysicsComponent::PlayerPhysicsComponent(GameObject &gameObject, float mass) {
+PlayerPhysicsComponent::PlayerPhysicsComponent(GameObject &gameObject, float mass)
+   : PhysicsComponent(gameObject) {
    collisionShape = UPtr<btCollisionShape>(new btCapsuleShape(0.25f, 1.0f));
    collisionShape->setLocalScaling(toBt(gameObject.getScale()));
 
@@ -22,7 +23,7 @@ PlayerPhysicsComponent::PlayerPhysicsComponent(GameObject &gameObject, float mas
 PlayerPhysicsComponent::~PlayerPhysicsComponent() {
 }
 
-void PlayerPhysicsComponent::tick(GameObject &gameObject) {
+void PlayerPhysicsComponent::tick() {
    btTransform trans;
    rigidBody->getMotionState()->getWorldTransform(trans);
 

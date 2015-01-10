@@ -8,11 +8,13 @@ protected:
    InputValues inputValues;
 
 public:
+   HumanInputComponent(GameObject &gameObject);
+
    virtual ~HumanInputComponent();
 
-   virtual void pollInput(GameObject &gameObject);
+   virtual void pollInput();
 
-   virtual const InputValues& getInputValues(GameObject &gameObject);
+   virtual const InputValues& getInputValues();
 };
 
 #endif

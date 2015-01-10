@@ -7,20 +7,20 @@
 #include "PhysicsManager.h"
 
 GameObject::GameObject()
-   : cameraComponent(CameraComponent::getNullComponent()),
-     graphicsComponent(GraphicsComponent::getNullComponent()),
-     inputComponent(InputComponent::getNullComponent()),
-     lightComponent(LightComponent::getNullComponent()),
-     physicsComponent(PhysicsComponent::getNullComponent()) {
+: cameraComponent(std::make_shared<NullCameraComponent>(*this)),
+     graphicsComponent(std::make_shared<NullGraphicsComponent>(*this)),
+     inputComponent(std::make_shared<NullInputComponent>(*this)),
+     lightComponent(std::make_shared<NullLightComponent>(*this)),
+     physicsComponent(std::make_shared<NullPhysicsComponent>(*this)) {
 }
 
 GameObject::~GameObject() {
 }
 
 void GameObject::tick(const float dt) {
-   physicsComponent->tick(*this);
-   inputComponent->pollInput(*this);
-   cameraComponent->tick(*this, dt);
+   physicsComponent->tick();
+   inputComponent->pollInput();
+   cameraComponent->tick(dt);
 }
 
 void GameObject::setScene(WPtr<Scene> scene) {
@@ -66,5 +66,5 @@ PhysicsComponent& GameObject::getPhysicsComponent() {
 
 void GameObject::setPhysicsComponent(SPtr<PhysicsComponent> physicsComponent) {
    this->physicsComponent = physicsComponent;
-   physicsComponent->init(*this);
+   physicsComponent->init();
 }

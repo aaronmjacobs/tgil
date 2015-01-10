@@ -5,17 +5,19 @@
 
 class FlyCameraComponent : public CameraComponent {
 public:
+   FlyCameraComponent(GameObject &gameObject);
+
    virtual ~FlyCameraComponent();
 
-   virtual void tick(GameObject &gameObject, const float dt);
+   virtual void tick(const float dt);
 
-   virtual glm::vec3 getFrontVector(GameObject &gameObject) const;
+   virtual glm::vec3 getFrontVector() const;
 
-   virtual glm::vec3 getRightVector(GameObject &gameObject) const;
+   virtual glm::vec3 getRightVector() const;
 
-   virtual glm::mat4 getViewMatrix(GameObject &gameObject) const;
+   virtual glm::mat4 getViewMatrix() const;
 
-   virtual glm::vec3 getCameraPosition(GameObject &gameObject) const;
+   virtual glm::vec3 getCameraPosition() const;
 };
 
 #endif

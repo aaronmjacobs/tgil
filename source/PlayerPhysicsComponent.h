@@ -17,7 +17,7 @@ public:
 
    virtual ~PlayerPhysicsComponent();
 
-   virtual void tick(GameObject &gameObject);
+   virtual void tick();
 };
 
 #endif

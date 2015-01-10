@@ -13,7 +13,7 @@ PhysicsComponent::~PhysicsComponent() {
    }
 }
 
-void PhysicsComponent::init(GameObject &gameObject) {
+void PhysicsComponent::init() {
    // Listen for events from the game object
    gameObject.addObserver(shared_from_this());
 }

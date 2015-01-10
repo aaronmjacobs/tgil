@@ -108,24 +108,23 @@ void Renderer::render(const Context &context) {
 
       // View matrix
       GLint uViewMatrix = shaderProgram->getUniform("uViewMatrix");
-      glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(cameraComponent.getViewMatrix(*camera)));
+      glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(cameraComponent.getViewMatrix()));
 
       // Camera position
       GLint uCameraPos = shaderProgram->getUniform("uCameraPos");
-      glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraComponent.getCameraPosition(*camera)));
+      glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraComponent.getCameraPosition()));
 
       // Lights
       glUniform1i(shaderProgram->getUniform("uNumLights"), lights.size());
       unsigned int lightIndex = 0;
       for (SPtr<GameObject> light : lights) {
-         LightComponent &lightComponent = light->getLightComponent();
-         lightComponent.draw(*light, *shaderProgram, lightIndex++);
+         light->getLightComponent().draw(*shaderProgram, lightIndex++);
       }
    }
 
    // Objects
    const std::vector<SPtr<GameObject>>& gameObjects = scene.getObjects();
    for (SPtr<GameObject> gameObject : gameObjects) {
-      gameObject->getGraphicsComponent().draw(*gameObject);
+      gameObject->getGraphicsComponent().draw();
    }
 }
