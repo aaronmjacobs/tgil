@@ -32,6 +32,7 @@ set(SOURCES
    ${SRC_DIR}/ControllerInputMap.cpp
    ${SRC_DIR}/FlyCameraComponent.cpp
    ${SRC_DIR}/GameObject.cpp
+   ${SRC_DIR}/GameObjectMotionState.cpp
    ${SRC_DIR}/GeometricGraphicsComponent.cpp
    ${SRC_DIR}/HumanInputComponent.cpp
    ${SRC_DIR}/InputHandler.cpp
@@ -39,9 +40,9 @@ set(SOURCES
    ${SRC_DIR}/KeyboardInputMap.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/Mesh.cpp
+   ${SRC_DIR}/MeshAssetManager.cpp
    ${SRC_DIR}/MeshPhysicsComponent.cpp
    ${SRC_DIR}/Model.cpp
-   ${SRC_DIR}/MeshAssetManager.cpp
    ${SRC_DIR}/PhongMaterial.cpp
    ${SRC_DIR}/PhysicsComponent.cpp
    ${SRC_DIR}/PhysicsManager.cpp
@@ -66,6 +67,7 @@ set(HEADERS
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/FlyCameraComponent.h
    ${SRC_DIR}/GameObject.h
+   ${SRC_DIR}/GameObjectMotionState.h
    ${SRC_DIR}/GeometricGraphicsComponent.h
    ${SRC_DIR}/GLIncludes.h
    ${SRC_DIR}/GraphicsComponent.h

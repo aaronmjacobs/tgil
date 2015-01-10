@@ -16,8 +16,6 @@ public:
    MeshPhysicsComponent(GameObject &gameObject, float mass);
 
    virtual ~MeshPhysicsComponent();
-
-   virtual void tick();
 };
 
 #endif

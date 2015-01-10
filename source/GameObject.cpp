@@ -18,7 +18,6 @@ GameObject::~GameObject() {
 }
 
 void GameObject::tick(const float dt) {
-   physicsComponent->tick();
    inputComponent->pollInput();
    cameraComponent->tick(dt);
 }

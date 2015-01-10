@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "MeshPhysicsComponent.h"
+#include "GameObjectMotionState.h"
 #include "PhysicsManager.h"
 #include "Scene.h"
 
@@ -25,7 +26,7 @@ MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass)
 
    collisionShape->setLocalScaling(toBt(gameObject.getScale()));
 
-   motionState = UPtr<btMotionState>(new btDefaultMotionState(btTransform(toBt(gameObject.getOrientation()), toBt(gameObject.getPosition()))));
+   motionState = UPtr<btMotionState>(new GameObjectMotionState(gameObject));
 
    btVector3 fallInertia(0, 0, 0);
    collisionShape->calculateLocalInertia(mass, fallInertia);
@@ -35,12 +36,4 @@ MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass)
 }
 
 MeshPhysicsComponent::~MeshPhysicsComponent() {
-}
-
-void MeshPhysicsComponent::tick() {
-   btTransform trans;
-   rigidBody->getMotionState()->getWorldTransform(trans);
-
-   gameObject.setPosition(toGlm(trans.getOrigin()));
-   gameObject.setOrientation(toGlm(trans.getRotation()));
 }

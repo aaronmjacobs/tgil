@@ -20,8 +20,6 @@ public:
 
    virtual void init();
 
-   virtual void tick() = 0;
-
    btRigidBody* getRigidBody() const {
       return rigidBody.get();
    }
@@ -37,8 +35,6 @@ public:
    virtual ~NullPhysicsComponent() {}
 
    virtual void init() {}
-
-   virtual void tick() {}
 
    virtual void onNotify(const GameObject &gameObject, Event event) {}
 };

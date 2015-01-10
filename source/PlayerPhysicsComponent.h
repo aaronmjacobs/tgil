@@ -16,8 +16,6 @@ public:
    PlayerPhysicsComponent(GameObject &gameObject, float mass);
 
    virtual ~PlayerPhysicsComponent();
-
-   virtual void tick();
 };
 
 #endif
