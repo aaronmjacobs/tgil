@@ -11,6 +11,12 @@
 #include <string>
 #include <vector>
 
+namespace {
+
+const float DEBUG_POINT_SIZE = 10.0f;
+
+} // namespace
+
 DebugRenderer::DebugRenderer()
    : shaderProgram(new ShaderProgram) {
    glGenBuffers(1, &vbo);
@@ -89,6 +95,8 @@ void DebugRenderer::render(const DebugDrawer &drawer, const glm::mat4 &viewMatri
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
    // Draw
+   glPointSize(DEBUG_POINT_SIZE);
+   glDrawElements(GL_POINTS, indices.size(), GL_UNSIGNED_INT, 0);
    glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 
    // Unbind
