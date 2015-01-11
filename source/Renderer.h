@@ -30,6 +30,10 @@ public:
    void enableDebugRendering(bool enabled) {
       renderDebug = enabled;
    }
+
+   bool debugRenderingEnabled() const {
+      return renderDebug;
+   }
 };
 
 #endif

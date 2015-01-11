@@ -3,7 +3,7 @@
 #include "LogHelper.h"
 
 DebugDrawer::DebugDrawer()
-   : debugMode(DBG_DrawWireframe) {
+   : debugMode(DBG_MAX_DEBUG_DRAW_MODE) {
 }
 
 DebugDrawer::~DebugDrawer() {
