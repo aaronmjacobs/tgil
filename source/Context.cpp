@@ -51,6 +51,8 @@ void Context::handleSpecialInputs(const InputValues &inputValues) const {
 }
 
 void Context::tick(const float dt) const {
+   inputHandler->pollInput();
+
    handleSpecialInputs(inputHandler->getInputValues(0));
 
    scene->tick(dt);
