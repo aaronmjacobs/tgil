@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 
       accumulator += frameTime;
       while (accumulator >= dt) {
-         context.getScene().tick(dt);
+         context.tick(dt);
 
          accumulator -= dt;
       }

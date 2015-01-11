@@ -5,6 +5,8 @@
 #include "Renderer.h"
 #include "Scene.h"
 
+#include <boxer/boxer.h>
+
 // Static members
 
 UPtr<Context> Context::instance;
@@ -25,7 +27,7 @@ const Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : assetManager(new AssetManager), inputHandler(new InputHandler(window)), renderer(new Renderer) {
+   : window(window), assetManager(new AssetManager), inputHandler(new InputHandler(window)), renderer(new Renderer) {
 }
 
 Context::~Context() {
@@ -33,6 +35,25 @@ Context::~Context() {
 
 void Context::init() {
    scene = std::make_shared<Scene>();
+}
+
+void Context::handleSpecialInputs(const InputValues &inputValues) const {
+   if (inputValues.quit) {
+      // TODO Prevent cursor from being locked for all message boxes
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      boxer::Selection selection = boxer::show("Do you want to quit?", "Quit", boxer::Style::Question, boxer::Buttons::YesNo);
+      if (selection == boxer::Selection::Yes) {
+         glfwSetWindowShouldClose(window, true);
+      } else {
+         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      }
+   }
+}
+
+void Context::tick(const float dt) const {
+   handleSpecialInputs(inputHandler->getInputValues(0));
+
+   scene->tick(dt);
 }
 
 void Context::onWindowFocusGained() const {

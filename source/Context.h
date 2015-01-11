@@ -8,6 +8,7 @@ class InputHandler;
 class Renderer;
 class Scene;
 struct GLFWwindow;
+struct InputValues;
 
 class Context {
 private:
@@ -16,10 +17,13 @@ private:
    Context(GLFWwindow* const window);
 
 protected:
+   GLFWwindow* const window;
    const UPtr<AssetManager> assetManager;
    const UPtr<InputHandler> inputHandler;
    const UPtr<Renderer> renderer;
    SPtr<Scene> scene;
+
+   void handleSpecialInputs(const InputValues &inputValues) const;
 
 public:
    static void load(GLFWwindow* const window);
@@ -28,6 +32,8 @@ public:
    virtual ~Context();
 
    void init();
+
+   void tick(const float dt) const;
 
    void onWindowFocusGained() const;
 
