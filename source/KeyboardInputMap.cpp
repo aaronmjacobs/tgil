@@ -5,7 +5,7 @@
 namespace {
 
 const float SENSITIVITY_ADJUST = 0.1f;
-const KeyMouseMap DEFAULT_KEY_MOUSE_MAP { false, false, 1.0f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_E, GLFW_KEY_SPACE };
+const KeyMouseMap DEFAULT_KEY_MOUSE_MAP { false, false, 1.0f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_E, GLFW_KEY_SPACE, GLFW_KEY_ESCAPE };
 
 } // namespace
 
@@ -41,6 +41,7 @@ const InputValues& KeyboardInputMap::getInputValues(int player) {
 
    inputValues.action = glfwGetKey(window, map.actionKey) == GLFW_PRESS;
    inputValues.jump = glfwGetKey(window, map.jumpKey) == GLFW_PRESS;
+   inputValues.quit = glfwGetKey(window, map.quitKey) == GLFW_PRESS;
 
    return inputValues;
 }

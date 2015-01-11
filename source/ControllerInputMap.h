@@ -23,6 +23,7 @@ struct ControllerMap {
 
    int actionButton;
    int jumpButton;
+   int quitButton;
 };
 
 class ControllerInputMap : public InputMap {

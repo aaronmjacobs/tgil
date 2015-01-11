@@ -3,6 +3,8 @@
 #include "InputHandler.h"
 #include "KeyboardInputMap.h"
 
+#include <boxer/boxer.h>
+
 InputHandler::InputHandler(GLFWwindow* const window)
    : window(window) {
    // Hide / lock the mouse
@@ -20,5 +22,18 @@ InputHandler::~InputHandler() {
 
 const InputValues& InputHandler::getInputValues(int player) const {
    // TODO Handle multiple players
-   return inputMap->getInputValues(player);
+   const InputValues &inputValues = inputMap->getInputValues(player);
+
+   if (inputValues.quit) {
+      // TODO Prevent cursor from being locked for all message boxes
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      boxer::Selection selection = boxer::show("Do you want to quit?", "Quit", boxer::Style::Question, boxer::Buttons::YesNo);
+      if (selection == boxer::Selection::Yes) {
+         glfwSetWindowShouldClose(window, true);
+      } else {
+         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      }
+   }
+
+   return inputValues;
 }

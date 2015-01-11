@@ -16,6 +16,7 @@ struct InputValues {
 
    bool action;
    bool jump;
+   bool quit;
 };
 
 class InputMap {

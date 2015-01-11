@@ -14,6 +14,7 @@ struct KeyMouseMap {
    int moveRightKey;
    int actionKey;
    int jumpKey;
+   int quitKey;
 };
 
 class KeyboardInputMap : public InputMap {
