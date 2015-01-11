@@ -22,6 +22,10 @@ public:
 
    virtual ~PhysicsManager();
 
+   void setDebugDrawer(btIDebugDraw *debugDrawer);
+
+   void debugDraw();
+
    virtual void tick(const float dt);
 
    virtual void addObject(PhysicsComponent &physicsComponent);

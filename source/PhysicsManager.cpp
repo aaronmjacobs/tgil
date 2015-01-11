@@ -21,6 +21,14 @@ PhysicsManager::~PhysicsManager() {
    broadphase.reset();
 }
 
+void PhysicsManager::setDebugDrawer(btIDebugDraw *debugDrawer) {
+   dynamicsWorld->setDebugDrawer(debugDrawer);
+}
+
+void PhysicsManager::debugDraw() {
+   dynamicsWorld->debugDrawWorld();
+}
+
 void PhysicsManager::tick(const float dt) {
    dynamicsWorld->stepSimulation(dt, 15);
 }

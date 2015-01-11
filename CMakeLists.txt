@@ -30,6 +30,8 @@ set(SOURCES
    ${SRC_DIR}/AssetManager.cpp
    ${SRC_DIR}/Context.cpp
    ${SRC_DIR}/ControllerInputMap.cpp
+   ${SRC_DIR}/DebugDrawer.cpp
+   ${SRC_DIR}/DebugRenderer.cpp
    ${SRC_DIR}/FlyCameraComponent.cpp
    ${SRC_DIR}/GameObject.cpp
    ${SRC_DIR}/GameObjectMotionState.cpp
@@ -64,6 +66,8 @@ set(HEADERS
    ${SRC_DIR}/Context.h
    ${SRC_DIR}/ControllerInputMap.h
    ${SRC_DIR}/Conversions.h
+   ${SRC_DIR}/DebugDrawer.h
+   ${SRC_DIR}/DebugRenderer.h
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/FlyCameraComponent.h
    ${SRC_DIR}/GameObject.h

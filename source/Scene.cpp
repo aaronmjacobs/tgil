@@ -1,3 +1,4 @@
+#include "DebugDrawer.h"
 #include "FancyAssert.h"
 #include "GameObject.h"
 #include "Material.h"
@@ -7,7 +8,8 @@
 #include "Scene.h"
 
 Scene::Scene()
-   : physicsManager(std::make_shared<PhysicsManager>()) {
+   : physicsManager(std::make_shared<PhysicsManager>()), debugDrawer(new DebugDrawer) {
+   physicsManager->setDebugDrawer(debugDrawer.get());
 }
 
 Scene::~Scene() {

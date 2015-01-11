@@ -1,11 +1,12 @@
 #include "CameraComponent.h"
-#include "Context.h"
+#include "DebugDrawer.h"
 #include "FancyAssert.h"
 #include "GameObject.h"
 #include "GLIncludes.h"
 #include "GraphicsComponent.h"
 #include "LightComponent.h"
 #include "LogHelper.h"
+#include "PhysicsManager.h"
 #include "Renderer.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
@@ -59,7 +60,7 @@ Renderer::Renderer() {
 Renderer::~Renderer() {
 }
 
-void Renderer::prepare(float fov, int width, int height) {
+void Renderer::init(float fov, int width, int height) {
    glClearColor(0.15f, 0.6f, 0.4f, 1.0f);
 
    // Depth Buffer Setup
@@ -72,6 +73,8 @@ void Renderer::prepare(float fov, int width, int height) {
 
    this->fov = fov;
    onWindowSizeChange(width, height);
+
+   debugRenderer.init();
 }
 
 void Renderer::onWindowSizeChange(int width, int height) {
@@ -82,12 +85,10 @@ void Renderer::onMonitorChange() {
    // Handle recreation of any frame buffers
 }
 
-void Renderer::render(const Context &context) {
+void Renderer::render(Scene &scene) {
    RUN_DEBUG(checkGLError();)
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-   Scene &scene = context.getScene();
 
    SPtr<GameObject> camera = scene.getCamera();
    if (!camera) {
@@ -97,6 +98,8 @@ void Renderer::render(const Context &context) {
 
    // Set up shaders
    const CameraComponent &cameraComponent = camera->getCameraComponent();
+   const glm::mat4 &viewMatrix = cameraComponent.getViewMatrix();
+   const glm::vec3 &cameraPosition = cameraComponent.getCameraPosition();
    const std::vector<SPtr<GameObject>>& lights = scene.getLights();
    const std::set<SPtr<ShaderProgram>>& shaderPrograms = scene.getShaderPrograms();
    for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
@@ -108,11 +111,11 @@ void Renderer::render(const Context &context) {
 
       // View matrix
       GLint uViewMatrix = shaderProgram->getUniform("uViewMatrix");
-      glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(cameraComponent.getViewMatrix()));
+      glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
       // Camera position
       GLint uCameraPos = shaderProgram->getUniform("uCameraPos");
-      glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraComponent.getCameraPosition()));
+      glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraPosition));
 
       // Lights
       glUniform1i(shaderProgram->getUniform("uNumLights"), lights.size());
@@ -126,5 +129,18 @@ void Renderer::render(const Context &context) {
    const std::vector<SPtr<GameObject>>& gameObjects = scene.getObjects();
    for (SPtr<GameObject> gameObject : gameObjects) {
       gameObject->getGraphicsComponent().draw();
+   }
+
+   if (renderDebug) {
+      DebugDrawer &debugDrawer = scene.getDebugDrawer();
+
+      // Instruct Bullet to generate debug drawing data
+      scene.getPhysicsManager()->debugDraw();
+
+      // Render the data
+      debugRenderer.render(debugDrawer, viewMatrix, projectionMatrix);
+
+      // Clear the data
+      debugDrawer.clear();
    }
 }

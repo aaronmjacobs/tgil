@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
    Context::load(window);
    const Context &context = Context::getInstance();
    Renderer &renderer = context.getRenderer();
-   renderer.prepare(FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
+   renderer.init(FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
 
    glfwSetWindowSizeCallback(window, windowSizeCallback);
    glfwSetMonitorCallback(monitorCallback);

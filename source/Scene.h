@@ -6,6 +6,7 @@
 #include <set>
 #include <vector>
 
+class DebugDrawer;
 class GameObject;
 class PhysicsManager;
 class ShaderProgram;
@@ -13,6 +14,7 @@ class ShaderProgram;
 class Scene : public std::enable_shared_from_this<Scene> {
 protected:
    const SPtr<PhysicsManager> physicsManager;
+   const UPtr<DebugDrawer> debugDrawer;
    SPtr<GameObject> camera;
    std::vector<SPtr<GameObject>> lights;
    std::vector<SPtr<GameObject>> objects;
@@ -27,6 +29,10 @@ public:
 
    SPtr<PhysicsManager> getPhysicsManager() const {
       return physicsManager;
+   }
+
+   DebugDrawer& getDebugDrawer() {
+      return *debugDrawer;
    }
 
    SPtr<GameObject> getCamera() const {
