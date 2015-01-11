@@ -5,6 +5,7 @@
 
 class AssetManager;
 class InputHandler;
+class Renderer;
 class Scene;
 struct GLFWwindow;
 
@@ -17,7 +18,8 @@ private:
 protected:
    const UPtr<AssetManager> assetManager;
    const UPtr<InputHandler> inputHandler;
-   const SPtr<Scene> scene;
+   const UPtr<Renderer> renderer;
+   SPtr<Scene> scene;
 
 public:
    static void load(GLFWwindow* const window);
@@ -25,10 +27,13 @@ public:
 
    virtual ~Context();
 
+   void init();
+
    void onWindowFocusGained() const;
 
    AssetManager& getAssetManager() const;
    InputHandler& getInputHandler() const;
+   Renderer& getRenderer() const;
    Scene& getScene() const;
 };
 

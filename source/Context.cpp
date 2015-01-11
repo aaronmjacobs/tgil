@@ -2,6 +2,7 @@
 #include "Context.h"
 #include "FancyAssert.h"
 #include "InputHandler.h"
+#include "Renderer.h"
 #include "Scene.h"
 
 // Static members
@@ -12,6 +13,7 @@ void Context::load(GLFWwindow *const window) {
    ASSERT(!instance, "Trying to reload existing Context");
    if (!instance) {
       instance = std::move(UPtr<Context>(new Context(window)));
+      instance->init();
    }
 }
 
@@ -23,10 +25,14 @@ const Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : assetManager(new AssetManager), inputHandler(new InputHandler(window)), scene(std::make_shared<Scene>()) {
+   : assetManager(new AssetManager), inputHandler(new InputHandler(window)), renderer(new Renderer) {
 }
 
 Context::~Context() {
+}
+
+void Context::init() {
+   scene = std::make_shared<Scene>();
 }
 
 void Context::onWindowFocusGained() const {
@@ -39,6 +45,10 @@ AssetManager& Context::getAssetManager() const {
 
 InputHandler& Context::getInputHandler() const {
    return *inputHandler;
+}
+
+Renderer& Context::getRenderer() const {
+   return *renderer;
 }
 
 Scene& Context::getScene() const {
