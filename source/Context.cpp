@@ -48,6 +48,17 @@ void Context::handleSpecialInputs(const InputValues &inputValues) const {
          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       }
    }
+
+   static bool actionHeld = false;
+   if (inputValues.action) {
+      if (!actionHeld) {
+         renderer->enableDebugRendering(!renderer->debugRenderingEnabled());
+      }
+
+      actionHeld = true;
+   } else {
+      actionHeld = false;
+   }
 }
 
 void Context::tick(const float dt) const {
