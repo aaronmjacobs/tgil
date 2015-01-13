@@ -4,6 +4,9 @@
 #include "CameraComponent.h"
 
 class PlayerCameraComponent : public CameraComponent {
+protected:
+   bool wasJumpingLastFrame;
+
 public:
    PlayerCameraComponent(GameObject &gameObject);
 

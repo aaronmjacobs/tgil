@@ -19,7 +19,7 @@ const float Y_LOOK_BOUND = 0.99f;
 const float MAX_MOVE_FORCE = 150.0f;
 const float NORMAL_MOVE_FORCE = 150.0f;
 const float AIR_MOVE_MULTIPLIER = 0.05f;
-const float JUMP_FORCE = 150.0f;
+const float JUMP_FORCE = 400.0f;
 
 // TODO Calculate based off of physics property of player
 const float GROUND_DISTANCE = 0.8f;
@@ -29,8 +29,7 @@ const btCollisionObject* getGround(SPtr<Scene> scene, const btRigidBody &rigidBo
    SPtr<PhysicsManager> physicsManager = scene->getPhysicsManager();
    btDynamicsWorld &world = physicsManager->getDynamicsWorld();
 
-   btTransform trans;
-   rigidBody.getMotionState()->getWorldTransform(trans);
+   btTransform trans = rigidBody.getWorldTransform();
 
    btVector3 from = trans.getOrigin();
    btVector3 to(from.x(), -10000.0, from.z());
@@ -61,7 +60,7 @@ float calcMovementForce(glm::vec3 velocity, const btCollisionObject *ground, boo
 } // namespace
 
 PlayerCameraComponent::PlayerCameraComponent(GameObject &gameObject)
-   : CameraComponent(gameObject) {
+   : CameraComponent(gameObject), wasJumpingLastFrame(false) {
 }
 
 PlayerCameraComponent::~PlayerCameraComponent() {
@@ -124,8 +123,13 @@ void PlayerCameraComponent::tick(const float dt) {
    rigidBody->applyCentralForce(toBt(force));
 
    // TODO Figure out hop bug
-   if (ground && inputValues.jump) {
+   if (ground && inputValues.jump && !wasJumpingLastFrame) {
+      wasJumpingLastFrame = true;
       rigidBody->applyCentralForce(btVector3(0.0f, JUMP_FORCE, 0.0f));
+   }
+
+   if (!inputValues.jump) {
+      wasJumpingLastFrame = false;
    }
 }
 
