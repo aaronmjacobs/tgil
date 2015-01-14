@@ -5,6 +5,7 @@
 #include "Observer.h"
 
 class btCollisionObject;
+class btCollisionShape;
 class PhysicsManager;
 
 namespace CollisionType {
@@ -21,6 +22,7 @@ class PhysicsComponent : public Component, public Observer<GameObject>, public s
 protected:
    const CollisionType::Type collisionType;
    UPtr<btCollisionObject> collisionObject;
+   UPtr<btCollisionShape> collisionShape;
    WPtr<PhysicsManager> physicsManager;
 
 public:

@@ -8,7 +8,6 @@ class btMotionState;
 
 class MeshPhysicsComponent : public PhysicsComponent {
 protected:
-   UPtr<btCollisionShape> collisionShape;
    UPtr<btMotionState> motionState;
 
 public:

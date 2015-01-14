@@ -9,7 +9,6 @@ class btMotionState;
 
 class PlayerPhysicsComponent : public PhysicsComponent {
 protected:
-   UPtr<btCollisionShape> collisionShape;
    UPtr<btMotionState> motionState;
 
 public:
