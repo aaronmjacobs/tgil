@@ -4,15 +4,13 @@
 #include "Model.h"
 #include "MeshPhysicsComponent.h"
 #include "GameObjectMotionState.h"
-#include "PhysicsManager.h"
-#include "Scene.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/glm.hpp>
 
 MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass)
-   : PhysicsComponent(gameObject) {
+   : PhysicsComponent(gameObject, mass == 0.0f ? CollisionType::Static : CollisionType::Dynamic) {
    SPtr<Model> model = gameObject.getModel();
    if (model) {
       const Mesh &mesh = model->getMesh();
@@ -28,11 +26,11 @@ MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass)
 
    motionState = UPtr<btMotionState>(new GameObjectMotionState(gameObject));
 
-   btVector3 fallInertia(0, 0, 0);
-   collisionShape->calculateLocalInertia(mass, fallInertia);
-   btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, motionState.get(), collisionShape.get(), fallInertia);
+   btVector3 inertia(0.0f, 0.0f, 0.0f);
+   collisionShape->calculateLocalInertia(mass, inertia);
+   btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, motionState.get(), collisionShape.get(), inertia);
 
-   rigidBody = UPtr<btRigidBody>(new btRigidBody(constructionInfo));
+   collisionObject = UPtr<btRigidBody>(new btRigidBody(constructionInfo));
 }
 
 MeshPhysicsComponent::~MeshPhysicsComponent() {

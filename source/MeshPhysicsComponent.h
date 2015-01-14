@@ -1,7 +1,6 @@
 #ifndef MESH_PHYSICS_COMPONENT_H
 #define MESH_PHYSICS_COMPONENT_H
 
-#include "Observer.h"
 #include "PhysicsComponent.h"
 
 class btCollisionShape;

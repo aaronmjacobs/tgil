@@ -38,19 +38,21 @@ void PlayerMotionState::setWorldTransform(const btTransform &worldTrans) {
 // PlayerPhysicsComponent
 
 PlayerPhysicsComponent::PlayerPhysicsComponent(GameObject &gameObject, float mass)
-   : PhysicsComponent(gameObject) {
+   : PhysicsComponent(gameObject, mass == 0.0f ? CollisionType::Kinematic : CollisionType::Dynamic) {
    collisionShape = UPtr<btCollisionShape>(new btCapsuleShape(0.25f, 1.0f));
    collisionShape->setLocalScaling(toBt(gameObject.getScale()));
 
    motionState = UPtr<btMotionState>(new PlayerMotionState(gameObject));
 
-   btVector3 fallInertia(0, 0, 0);
-   collisionShape->calculateLocalInertia(mass, fallInertia);
-   btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, motionState.get(), collisionShape.get(), fallInertia);
+   btVector3 inertia(0.0f, 0.0f, 0.0f);
+   collisionShape->calculateLocalInertia(mass, inertia);
+   btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, motionState.get(), collisionShape.get(), inertia);
 
-   rigidBody = UPtr<btRigidBody>(new btRigidBody(constructionInfo));
+   UPtr<btRigidBody> rigidBody(new btRigidBody(constructionInfo));
    rigidBody->setAngularFactor(0.0f); // Prevent the capsule from falling over
    rigidBody->setSleepingThresholds(0.0f, 0.0f); // Prevent the capsule from sleeping
+
+   collisionObject = std::move(rigidBody);
 }
 
 PlayerPhysicsComponent::~PlayerPhysicsComponent() {

@@ -34,3 +34,8 @@ void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
          break;
    }
 }
+
+NullPhysicsComponent::NullPhysicsComponent(GameObject &gameObject)
+   : PhysicsComponent(gameObject, CollisionType::Static) {
+   collisionObject = UPtr<btCollisionObject>(new btCollisionObject);
+}

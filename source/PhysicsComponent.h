@@ -4,24 +4,35 @@
 #include "Component.h"
 #include "Observer.h"
 
-class btRigidBody;
+class btCollisionObject;
 class PhysicsManager;
+
+namespace CollisionType {
+
+enum Type {
+   Static,
+   Dynamic,
+   Kinematic
+};
+
+} // namespace CollisionType
 
 class PhysicsComponent : public Component, public Observer<GameObject>, public std::enable_shared_from_this<PhysicsComponent> {
 protected:
-   UPtr<btRigidBody> rigidBody;
+   const CollisionType::Type collisionType;
+   UPtr<btCollisionObject> collisionObject;
    WPtr<PhysicsManager> physicsManager;
 
 public:
-   PhysicsComponent(GameObject &gameObject)
-      : Component(gameObject) {}
+   PhysicsComponent(GameObject &gameObject, const CollisionType::Type collisionType)
+      : Component(gameObject), collisionType(collisionType) {}
 
    virtual ~PhysicsComponent();
 
    virtual void init();
 
-   btRigidBody* getRigidBody() const {
-      return rigidBody.get();
+   btCollisionObject& getCollisionObject() const {
+      return *collisionObject;
    }
 
    virtual void onNotify(const GameObject &gameObject, Event event);
@@ -29,8 +40,7 @@ public:
 
 class NullPhysicsComponent : public PhysicsComponent {
 public:
-   NullPhysicsComponent(GameObject &gameObject)
-      : PhysicsComponent(gameObject) {}
+   NullPhysicsComponent(GameObject &gameObject);
 
    virtual ~NullPhysicsComponent() {}
 

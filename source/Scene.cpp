@@ -37,10 +37,7 @@ void Scene::addLight(SPtr<GameObject> light) {
 
 void Scene::addObject(SPtr<GameObject> object) {
    ASSERT(object, "Trying to add null object in scene");
-   PhysicsComponent &physicsComponent = object->getPhysicsComponent();
-   if (physicsComponent.getRigidBody()) {
-      physicsManager->addObject(physicsComponent);
-   }
+   physicsManager->addObject(object->getPhysicsComponent());
 
    objects.push_back(object);
 

@@ -34,18 +34,26 @@ void PhysicsManager::tick(const float dt) {
 }
 
 void PhysicsManager::addObject(PhysicsComponent &physicsComponent) {
-   btRigidBody *rigidBody = physicsComponent.getRigidBody();
-   ASSERT(rigidBody, "Trying to add null body to PhysicsManager");
+   // TODO Can I do this better? (without dynamic casting)
+   // TODO Deal with different types of objects (static, dynamic, kinematic)
+   btCollisionObject* collisionObject = &physicsComponent.getCollisionObject();
+   ASSERT(collisionObject, "Trying to add null object to PhysicsManager");
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject);
    if (rigidBody) {
       dynamicsWorld->addRigidBody(rigidBody);
+   } else {
+      dynamicsWorld->addCollisionObject(collisionObject);
    }
 }
 
 void PhysicsManager::removeObject(PhysicsComponent &physicsComponent) {
-   btRigidBody *rigidBody = physicsComponent.getRigidBody();
-   ASSERT(rigidBody, "Trying to remove null body from PhysicsManager");
+   btCollisionObject* collisionObject = &physicsComponent.getCollisionObject();
+   ASSERT(collisionObject, "Trying to add null object to PhysicsManager");
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject);
    if (rigidBody) {
       dynamicsWorld->removeRigidBody(rigidBody);
+   } else {
+      dynamicsWorld->removeCollisionObject(collisionObject);
    }
 }
 

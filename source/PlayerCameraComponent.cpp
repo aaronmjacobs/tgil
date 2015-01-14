@@ -73,7 +73,8 @@ void PlayerCameraComponent::tick(const float dt) {
       return;
    }
 
-   btRigidBody *rigidBody = gameObject.getPhysicsComponent().getRigidBody();
+   btCollisionObject* collisionObject = &gameObject.getPhysicsComponent().getCollisionObject();
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject);
    ASSERT(rigidBody, "Player rigid body should not be null");
    if (!rigidBody) {
       return;
