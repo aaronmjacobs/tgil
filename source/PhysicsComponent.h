@@ -13,9 +13,10 @@ class PhysicsManager;
 namespace CollisionType {
 
 enum Type {
-   Static,
-   Dynamic,
-   Kinematic
+   Dynamic = 0,
+   Static = BIT(0),
+   Kinematic = BIT(1),
+   NoContact = BIT(2)
 };
 
 } // namespace CollisionType
@@ -52,15 +53,15 @@ public:
 
    virtual void init();
 
-   const CollisionType::Type& getCollisionType() const {
+   const CollisionType::Type getCollisionType() const {
       return collisionType;
    }
 
-   const CollisionGroup::Group& getCollisionGroup() const {
+   const CollisionGroup::Group getCollisionGroup() const {
       return collisionGroup;
    }
 
-   const CollisionGroup::Group& getCollisionMask() const {
+   const CollisionGroup::Group getCollisionMask() const {
       return collisionMask;
    }
 
