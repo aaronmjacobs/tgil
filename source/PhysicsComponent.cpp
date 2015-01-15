@@ -36,7 +36,7 @@ void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
 }
 
 NullPhysicsComponent::NullPhysicsComponent(GameObject &gameObject)
-   : PhysicsComponent(gameObject, CollisionType::Static) {
+   : PhysicsComponent(gameObject, CollisionType::Static, CollisionGroup::Nothing, CollisionGroup::Nothing) {
    collisionShape = UPtr<btCollisionShape>(new btSphereShape(0.0f));
    collisionObject = UPtr<btCollisionObject>(new btCollisionObject);
    collisionObject->setCollisionShape(collisionShape.get());

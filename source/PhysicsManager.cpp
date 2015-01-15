@@ -40,9 +40,9 @@ void PhysicsManager::addObject(PhysicsComponent &physicsComponent) {
    ASSERT(collisionObject, "Trying to add null object to PhysicsManager");
    btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject);
    if (rigidBody) {
-      dynamicsWorld->addRigidBody(rigidBody);
+      dynamicsWorld->addRigidBody(rigidBody, physicsComponent.getCollisionGroup(), physicsComponent.getCollisionMask());
    } else {
-      dynamicsWorld->addCollisionObject(collisionObject);
+      dynamicsWorld->addCollisionObject(collisionObject, physicsComponent.getCollisionGroup(), physicsComponent.getCollisionMask());
    }
 }
 
