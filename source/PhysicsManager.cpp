@@ -3,11 +3,28 @@
 #include "PhysicsComponent.h"
 #include "PhysicsManager.h"
 
+#include <bullet/btBulletDynamicsCommon.h>
+#include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+
+namespace {
+
+const btVector3 DEFAULT_GRAVITY(0.0f, -9.8f, 0.0f);
+
+} // namespace
+
 PhysicsManager::PhysicsManager() {
    broadphase = UPtr<btDbvtBroadphase>(new btDbvtBroadphase);
+
+   // Add support for ghost objects
+   ghostPairCallback = UPtr<btGhostPairCallback>(new btGhostPairCallback);
+   broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(ghostPairCallback.get());
+
    collisionConfiguration = UPtr<btCollisionConfiguration>(new btDefaultCollisionConfiguration);
+
    collisionDispatcher = UPtr<btCollisionDispatcher>(new btCollisionDispatcher(collisionConfiguration.get()));
+
    constraintSolver = UPtr<btConstraintSolver>(new btSequentialImpulseConstraintSolver);
+
    dynamicsWorld = UPtr<btDynamicsWorld>(new btDiscreteDynamicsWorld(collisionDispatcher.get(), broadphase.get(), constraintSolver.get(), collisionConfiguration.get()));
    dynamicsWorld->setGravity(DEFAULT_GRAVITY);
 }
@@ -18,6 +35,7 @@ PhysicsManager::~PhysicsManager() {
    constraintSolver.reset();
    collisionDispatcher.reset();
    collisionConfiguration.reset();
+   ghostPairCallback.reset();
    broadphase.reset();
 }
 

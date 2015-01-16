@@ -3,11 +3,14 @@
 
 #include "Types.h"
 
-#include <bullet/btBulletDynamicsCommon.h>
-
+class btBroadphaseInterface;
+class btCollisionConfiguration;
+class btCollisionDispatcher;
+class btConstraintSolver;
+class btDynamicsWorld;
+class btGhostPairCallback;
+class btIDebugDraw;
 class PhysicsComponent;
-
-const btVector3 DEFAULT_GRAVITY(0.0f, -9.8f, 0.0f);
 
 class PhysicsManager : public std::enable_shared_from_this<PhysicsManager> {
 protected:
@@ -16,6 +19,7 @@ protected:
    UPtr<btCollisionDispatcher> collisionDispatcher;
    UPtr<btConstraintSolver> constraintSolver;
    UPtr<btDynamicsWorld> dynamicsWorld;
+   UPtr<btGhostPairCallback> ghostPairCallback;
 
 public:
    PhysicsManager();
