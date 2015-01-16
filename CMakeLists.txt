@@ -33,6 +33,7 @@ set(SOURCES
    ${SRC_DIR}/DebugDrawer.cpp
    ${SRC_DIR}/DebugRenderer.cpp
    ${SRC_DIR}/FlyCameraComponent.cpp
+   ${SRC_DIR}/FlyCameraLogicComponent.cpp
    ${SRC_DIR}/GameObject.cpp
    ${SRC_DIR}/GameObjectMotionState.cpp
    ${SRC_DIR}/GeometricGraphicsComponent.cpp
@@ -49,6 +50,7 @@ set(SOURCES
    ${SRC_DIR}/PhysicsComponent.cpp
    ${SRC_DIR}/PhysicsManager.cpp
    ${SRC_DIR}/PlayerCameraComponent.cpp
+   ${SRC_DIR}/PlayerLogicComponent.cpp
    ${SRC_DIR}/PlayerPhysicsComponent.cpp
    ${SRC_DIR}/PointLightComponent.cpp
    ${SRC_DIR}/Renderer.cpp
@@ -71,6 +73,7 @@ set(HEADERS
    ${SRC_DIR}/DebugRenderer.h
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/FlyCameraComponent.h
+   ${SRC_DIR}/FlyCameraLogicComponent.h
    ${SRC_DIR}/GameObject.h
    ${SRC_DIR}/GameObjectMotionState.h
    ${SRC_DIR}/GeometricGraphicsComponent.h
@@ -95,6 +98,7 @@ set(HEADERS
    ${SRC_DIR}/PhysicsComponent.h
    ${SRC_DIR}/PhysicsManager.h
    ${SRC_DIR}/PlayerCameraComponent.h
+   ${SRC_DIR}/PlayerLogicComponent.h
    ${SRC_DIR}/PlayerPhysicsComponent.h
    ${SRC_DIR}/PointLightComponent.h
    ${SRC_DIR}/Renderer.h

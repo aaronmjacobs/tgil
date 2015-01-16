@@ -21,7 +21,6 @@ GameObject::~GameObject() {
 
 void GameObject::tick(const float dt) {
    inputComponent->pollInput();
-   cameraComponent->tick(dt);
    logicComponent->tick(dt);
 
    if (tickCallback) {

@@ -38,7 +38,7 @@ void PlayerMotionState::setWorldTransform(const btTransform &worldTrans) {
 // PlayerPhysicsComponent
 
 PlayerPhysicsComponent::PlayerPhysicsComponent(GameObject &gameObject, float mass)
-: PhysicsComponent(gameObject, mass == 0.0f ? btCollisionObject::CF_KINEMATIC_OBJECT : 0, CollisionGroup::Players, CollisionGroup::Everything) {
+   : PhysicsComponent(gameObject, mass == 0.0f ? btCollisionObject::CF_KINEMATIC_OBJECT : 0, CollisionGroup::Players, CollisionGroup::Everything) {
    collisionShape = UPtr<btCollisionShape>(new btCapsuleShape(0.25f, 1.0f));
    collisionShape->setLocalScaling(toBt(gameObject.getScale()));
 

@@ -12,8 +12,6 @@ public:
 
    virtual ~CameraComponent() {}
 
-   virtual void tick(const float dt) = 0;
-
    virtual glm::vec3 getFrontVector() const = 0;
 
    virtual glm::vec3 getRightVector() const = 0;
@@ -33,8 +31,6 @@ public:
       : CameraComponent(gameObject) {}
 
    virtual ~NullCameraComponent() {}
-
-   virtual void tick(const float dt) {}
 
    virtual glm::vec3 getFrontVector() const {
       return DEFAULT_VEC3;

@@ -9,8 +9,6 @@ public:
 
    virtual ~FlyCameraComponent();
 
-   virtual void tick(const float dt);
-
    virtual glm::vec3 getFrontVector() const;
 
    virtual glm::vec3 getRightVector() const;
