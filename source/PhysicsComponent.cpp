@@ -5,25 +5,9 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
-namespace {
-
-int getCollisionFlags(const CollisionType::Type collisionType) {
-   int flags = 0;
-
-   if (collisionType & CollisionType::Static) {
-      flags |= btCollisionObject::CF_STATIC_OBJECT;
-   }
-   if (collisionType & CollisionType::Kinematic) {
-      flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
-   }
-   if (collisionType & CollisionType::NoContact) {
-      flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
-   }
-
-   return flags;
+PhysicsComponent::PhysicsComponent(GameObject &gameObject, int collisionType, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask)
+   : Component(gameObject), collisionType(collisionType), collisionGroup(collisionGroup), collisionMask(collisionMask) {
 }
-
-} // namespace
 
 PhysicsComponent::~PhysicsComponent() {
    // Remove the rigid body from the physics manager
@@ -34,7 +18,8 @@ PhysicsComponent::~PhysicsComponent() {
 }
 
 void PhysicsComponent::init() {
-   collisionObject->setCollisionFlags(collisionObject->getCollisionFlags() | getCollisionFlags(collisionType));
+   collisionObject->setCollisionFlags(collisionObject->getCollisionFlags() | collisionType);
+   collisionObject->setUserPointer(&gameObject);
 
    // Listen for events from the game object
    gameObject.addObserver(shared_from_this());
@@ -58,7 +43,7 @@ void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
 }
 
 NullPhysicsComponent::NullPhysicsComponent(GameObject &gameObject)
-   : PhysicsComponent(gameObject, CollisionType::Static, CollisionGroup::Nothing, CollisionGroup::Nothing) {
+   : PhysicsComponent(gameObject, btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE, CollisionGroup::Nothing, CollisionGroup::Nothing) {
    collisionShape = UPtr<btCollisionShape>(new btSphereShape(0.0f));
    collisionObject = UPtr<btCollisionObject>(new btCollisionObject);
    collisionObject->setCollisionShape(collisionShape.get());

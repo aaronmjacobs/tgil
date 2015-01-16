@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 
 MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask)
-   : PhysicsComponent(gameObject, mass == 0.0f ? CollisionType::Static : CollisionType::Dynamic, collisionGroup, collisionMask) {
+: PhysicsComponent(gameObject, mass == 0.0f ? btCollisionObject::CF_STATIC_OBJECT : 0, collisionGroup, collisionMask) {
    SPtr<Model> model = gameObject.getModel();
    if (model) {
       const Mesh &mesh = model->getMesh();

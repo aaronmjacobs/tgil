@@ -10,17 +10,6 @@ class btCollisionObject;
 class btCollisionShape;
 class PhysicsManager;
 
-namespace CollisionType {
-
-enum Type {
-   Dynamic = 0,
-   Static = BIT(0),
-   Kinematic = BIT(1),
-   NoContact = BIT(2)
-};
-
-} // namespace CollisionType
-
 namespace CollisionGroup {
 
 // Represented internally in Bullet as a short, so we have 16 groups
@@ -29,7 +18,7 @@ enum Group {
    StaticBodies = BIT(0),
    DynamicBodies = BIT(1),
    Triggers = BIT(2),
-   Players = BIT(3) | DynamicBodies,
+   Players = BIT(3),
    Everything = -1
 };
 
@@ -38,7 +27,7 @@ enum Group {
 // TODO Handle CollisionTypes and CollisionGroups
 class PhysicsComponent : public Component, public Observer<GameObject>, public std::enable_shared_from_this<PhysicsComponent> {
 protected:
-   const CollisionType::Type collisionType;
+   const int collisionType;
    const CollisionGroup::Group collisionGroup;
    const CollisionGroup::Group collisionMask;
    UPtr<btCollisionObject> collisionObject;
@@ -46,16 +35,11 @@ protected:
    WPtr<PhysicsManager> physicsManager;
 
 public:
-   PhysicsComponent(GameObject &gameObject, const CollisionType::Type collisionType, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask)
-      : Component(gameObject), collisionType(collisionType), collisionGroup(collisionGroup), collisionMask(collisionMask) {}
+   PhysicsComponent(GameObject &gameObject, int collisionType, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask);
 
    virtual ~PhysicsComponent();
 
    virtual void init();
-
-   const CollisionType::Type getCollisionType() const {
-      return collisionType;
-   }
 
    const CollisionGroup::Group getCollisionGroup() const {
       return collisionGroup;
