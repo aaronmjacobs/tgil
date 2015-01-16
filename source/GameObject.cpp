@@ -23,6 +23,10 @@ void GameObject::tick(const float dt) {
    inputComponent->pollInput();
    cameraComponent->tick(dt);
    logicComponent->tick(dt);
+
+   if (tickCallback) {
+      tickCallback(*this, dt);
+   }
 }
 
 void GameObject::setScene(WPtr<Scene> scene) {

@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include <functional>
+
 class CameraComponent;
 class GraphicsComponent;
 class InputComponent;
@@ -32,6 +34,9 @@ protected:
    SPtr<LightComponent> lightComponent;
    SPtr<LogicComponent> logicComponent;
    SPtr<PhysicsComponent> physicsComponent;
+
+   // Tick callback
+   std::function<void(GameObject&, const float dt)> tickCallback;
 
 public:
    GameObject();
@@ -76,6 +81,14 @@ public:
 
    void setModel(SPtr<Model> model) {
       this->model = model;
+   }
+
+   void setTickCallback(std::function<void(GameObject&, const float dt)> tickCallback) {
+      this->tickCallback = tickCallback;
+   }
+
+   void clearTickCallback() {
+      tickCallback = nullptr;
    }
 
    CameraComponent& getCameraComponent();
