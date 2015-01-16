@@ -1,3 +1,5 @@
+#include "Conversions.h"
+#include "FancyAssert.h"
 #include "GameObject.h"
 #include "PhysicsComponent.h"
 #include "PhysicsManager.h"
@@ -18,6 +20,9 @@ PhysicsComponent::~PhysicsComponent() {
 }
 
 void PhysicsComponent::init() {
+   ASSERT(collisionObject, "Collision object not instantiated by physics component");
+   ASSERT(collisionShape, "Collision shape not instantiated by physics component");
+
    collisionObject->setCollisionFlags(collisionObject->getCollisionFlags() | collisionType);
    collisionObject->setUserPointer(&gameObject);
 
@@ -35,6 +40,10 @@ void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
 
          SPtr<Scene> scene = gameObject.getScene().lock();
          physicsManager = scene ? scene->getPhysicsManager() : SPtr<PhysicsManager>();
+         break;
+      }
+      case SCALE: {
+         collisionShape->setLocalScaling(toBt(gameObject.getScale()));
          break;
       }
       default:

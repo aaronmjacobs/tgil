@@ -77,6 +77,7 @@ public:
 
    void setScale(const glm::vec3 &scale) {
       transform.scale = scale;
+      notify(*this, SCALE);
    }
 
    void setModel(SPtr<Model> model) {

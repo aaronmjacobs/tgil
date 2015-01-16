@@ -3,7 +3,8 @@
 
 enum Event {
    NOTHING,
-   SET_SCENE
+   SET_SCENE,
+   SCALE
 };
 
 /**
