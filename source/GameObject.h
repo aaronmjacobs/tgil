@@ -12,6 +12,7 @@ class CameraComponent;
 class GraphicsComponent;
 class InputComponent;
 class LightComponent;
+class LogicComponent;
 class Model;
 class PhysicsComponent;
 class Scene;
@@ -29,6 +30,7 @@ protected:
    SPtr<GraphicsComponent> graphicsComponent;
    SPtr<InputComponent> inputComponent;
    SPtr<LightComponent> lightComponent;
+   SPtr<LogicComponent> logicComponent;
    SPtr<PhysicsComponent> physicsComponent;
 
 public:
@@ -80,12 +82,14 @@ public:
    GraphicsComponent& getGraphicsComponent();
    InputComponent& getInputComponent();
    LightComponent& getLightComponent();
+   LogicComponent& getLogicComponent();
    PhysicsComponent& getPhysicsComponent();
 
    void setCameraComponent(SPtr<CameraComponent> cameraComponent);
    void setGraphicsComponent(SPtr<GraphicsComponent> graphicsComponent);
    void setInputComponent(SPtr<InputComponent> inputComponent);
    void setLightComponent(SPtr<LightComponent> lightComponent);
+   void setLogicComponent(SPtr<LogicComponent> logicComponent);
    void setPhysicsComponent(SPtr<PhysicsComponent> physicsComponent);
 };
 

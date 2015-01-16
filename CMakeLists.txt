@@ -84,6 +84,7 @@ set(HEADERS
    ${SRC_DIR}/KeyboardInputMap.h
    ${SRC_DIR}/LightComponent.h
    ${SRC_DIR}/LogHelper.h
+   ${SRC_DIR}/LogicComponent.h
    ${SRC_DIR}/Material.h
    ${SRC_DIR}/Mesh.h
    ${SRC_DIR}/MeshPhysicsComponent.h
