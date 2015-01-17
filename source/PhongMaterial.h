@@ -13,7 +13,7 @@ protected:
    GLint uAmbient, uDiffuse, uSpecular, uEmission, uShininess;
 
 public:
-   PhongMaterial(SPtr<ShaderProgram> program,
+   PhongMaterial(const ShaderProgram &shaderProgram,
                  const glm::vec3 &ambient,
                  const glm::vec3 &diffuse,
                  const glm::vec3 &specular,
@@ -23,8 +23,6 @@ public:
    virtual ~PhongMaterial();
 
    virtual void apply(const Mesh &mesh);
-
-   virtual void disable();
 };
 
 #endif

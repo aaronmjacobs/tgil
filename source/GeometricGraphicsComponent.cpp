@@ -2,6 +2,7 @@
 #include "GeometricGraphicsComponent.h"
 #include "Material.h"
 #include "Model.h"
+#include "ShaderProgram.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -30,7 +31,7 @@ void GeometricGraphicsComponent::draw() {
       return;
    }
 
-   SPtr<ShaderProgram> shaderProgram = model->getMaterial().getShaderProgram();
+   SPtr<ShaderProgram> shaderProgram = model->getShaderProgram();
    shaderProgram->use();
 
    glUniformMatrix4fv(shaderProgram->getUniform("uModelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));

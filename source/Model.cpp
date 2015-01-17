@@ -2,20 +2,25 @@
 
 #include "Material.h"
 #include "Mesh.h"
+#include "ShaderProgram.h"
 
 #include <string>
 
-Model::Model(UPtr<Material> material, SPtr<Mesh> mesh)
-   : material(std::move(material)), mesh(mesh) {
+Model::Model(SPtr<ShaderProgram> shaderProgram, UPtr<Material> material, SPtr<Mesh> mesh)
+   : shaderProgram(shaderProgram), mesh(mesh) {
+   materials.push_back(std::move(material));
 }
 
 Model::~Model() {
 }
 
 void Model::draw() {
-   // Apply the material properties (and enable the shader)
-   material->apply(*mesh);
-   SPtr<ShaderProgram> shaderProgram = material->getShaderProgram();
+   shaderProgram->use();
+
+   // Apply the material properties
+   for (UPtr<Material> &material : materials) {
+      material->apply(*mesh);
+   }
 
    // Prepare the vertex buffer object
    glBindBuffer(GL_ARRAY_BUFFER, mesh->getVBO());
@@ -46,13 +51,18 @@ void Model::draw() {
    }
    glBindBuffer(GL_ARRAY_BUFFER, 0);
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-   material->disable();
+
+   shaderProgram->disable();
 }
 
-const Material& Model::getMaterial() {
-   return *material;
+void Model::attachMaterial(UPtr<Material> material) {
+   materials.push_back(std::move(material));
 }
 
-const Mesh& Model::getMesh() {
+const Mesh& Model::getMesh() const {
    return *mesh;
+}
+
+const SPtr<ShaderProgram> Model::getShaderProgram() const {
+   return shaderProgram;
 }

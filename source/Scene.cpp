@@ -43,7 +43,7 @@ void Scene::addObject(SPtr<GameObject> object) {
 
    SPtr<Model> model = object->getModel();
    if (model) {
-      shaderPrograms.insert(model->getMaterial().getShaderProgram());
+      shaderPrograms.insert(model->getShaderProgram());
    }
 
    object->setScene(shared_from_this());
