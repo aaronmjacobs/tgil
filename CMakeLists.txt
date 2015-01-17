@@ -34,6 +34,7 @@ set(SOURCES
    ${SRC_DIR}/DebugRenderer.cpp
    ${SRC_DIR}/FlyCameraComponent.cpp
    ${SRC_DIR}/FlyCameraLogicComponent.cpp
+   ${SRC_DIR}/Framebuffer.cpp
    ${SRC_DIR}/GameObject.cpp
    ${SRC_DIR}/GameObjectMotionState.cpp
    ${SRC_DIR}/GeometricGraphicsComponent.cpp
@@ -74,6 +75,7 @@ set(HEADERS
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/FlyCameraComponent.h
    ${SRC_DIR}/FlyCameraLogicComponent.h
+   ${SRC_DIR}/Framebuffer.h
    ${SRC_DIR}/GameObject.h
    ${SRC_DIR}/GameObjectMotionState.h
    ${SRC_DIR}/GeometricGraphicsComponent.h
