@@ -1,6 +1,7 @@
 #include "DebugDrawer.h"
 #include "FancyAssert.h"
 #include "GameObject.h"
+#include "GraphicsComponent.h"
 #include "Material.h"
 #include "Model.h"
 #include "PhysicsComponent.h"
@@ -41,7 +42,7 @@ void Scene::addObject(SPtr<GameObject> object) {
 
    objects.push_back(object);
 
-   SPtr<Model> model = object->getModel();
+   SPtr<Model> model = object->getGraphicsComponent().getModel();
    if (model) {
       shaderPrograms.insert(model->getShaderProgram());
    }

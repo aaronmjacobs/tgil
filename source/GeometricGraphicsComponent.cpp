@@ -20,16 +20,15 @@ GeometricGraphicsComponent::~GeometricGraphicsComponent() {
 }
 
 void GeometricGraphicsComponent::draw() {
+   if (!model) {
+      return;
+   }
+
    const glm::mat4 &transMatrix = glm::translate(gameObject.getPosition());
    const glm::mat4 &rotMatrix = glm::toMat4(gameObject.getOrientation());
    const glm::mat4 &scaleMatrix = glm::scale(gameObject.getScale());
    const glm::mat4 &modelMatrix = transMatrix * rotMatrix * scaleMatrix;
    const glm::mat4 &normalMatrix = glm::transpose(glm::inverse(modelMatrix));
-
-   SPtr<Model> model = gameObject.getModel();
-   if (!model) {
-      return;
-   }
 
    SPtr<ShaderProgram> shaderProgram = model->getShaderProgram();
    shaderProgram->use();

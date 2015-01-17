@@ -1,5 +1,6 @@
 #include "Conversions.h"
 #include "GameObject.h"
+#include "GraphicsComponent.h"
 #include "Mesh.h"
 #include "Model.h"
 #include "MeshPhysicsComponent.h"
@@ -11,7 +12,7 @@
 
 MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask)
 : PhysicsComponent(gameObject, mass == 0.0f ? btCollisionObject::CF_STATIC_OBJECT : 0, collisionGroup, collisionMask) {
-   SPtr<Model> model = gameObject.getModel();
+   SPtr<Model> model = gameObject.getGraphicsComponent().getModel();
    if (model) {
       const Mesh &mesh = model->getMesh();
       collisionShape = UPtr<btCollisionShape>(new btConvexHullShape(mesh.getVertices(), mesh.getNumVertices(), sizeof(float) * 3));

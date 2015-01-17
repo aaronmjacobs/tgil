@@ -12,8 +12,8 @@ class ShaderProgram;
 class Model {
 protected:
    std::vector<UPtr<Material>> materials;
-   SPtr<Mesh> mesh;
    SPtr<ShaderProgram> shaderProgram;
+   SPtr<Mesh> mesh;
 
 public:
    Model(SPtr<ShaderProgram> shaderProgram, UPtr<Material> material, SPtr<Mesh> mesh);

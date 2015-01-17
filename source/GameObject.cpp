@@ -5,7 +5,6 @@
 #include "LightComponent.h"
 #include "LogicComponent.h"
 #include "PhysicsComponent.h"
-#include "PhysicsManager.h"
 
 GameObject::GameObject()
    : cameraComponent(std::make_shared<NullCameraComponent>(*this)),

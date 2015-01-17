@@ -15,17 +15,16 @@ class GraphicsComponent;
 class InputComponent;
 class LightComponent;
 class LogicComponent;
-class Model;
 class PhysicsComponent;
 class Scene;
 
 class GameObject : public Subject<GameObject> {
 protected:
+   // Position and orientation
+   Transform transform;
+
    // The scene that the object resides in
    WPtr<Scene> wScene;
-
-   Transform transform;
-   SPtr<Model> model;
 
    // Components
    SPtr<CameraComponent> cameraComponent;
@@ -63,10 +62,6 @@ public:
       return wScene;
    }
 
-   SPtr<Model> getModel() const {
-      return model;
-   }
-
    void setPosition(const glm::vec3 &position) {
       transform.position = position;
    }
@@ -78,10 +73,6 @@ public:
    void setScale(const glm::vec3 &scale) {
       transform.scale = scale;
       notify(*this, SCALE);
-   }
-
-   void setModel(SPtr<Model> model) {
-      this->model = model;
    }
 
    void setTickCallback(std::function<void(GameObject&, const float dt)> tickCallback) {
