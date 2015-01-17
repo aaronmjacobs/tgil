@@ -7,6 +7,7 @@ class AssetManager;
 class InputHandler;
 class Renderer;
 class Scene;
+class TextureUnitManager;
 struct GLFWwindow;
 struct InputValues;
 
@@ -21,6 +22,7 @@ protected:
    const UPtr<AssetManager> assetManager;
    const UPtr<InputHandler> inputHandler;
    const UPtr<Renderer> renderer;
+   const UPtr<TextureUnitManager> textureUnitManager;
    SPtr<Scene> scene;
 
    void handleSpecialInputs(const InputValues &inputValues) const;
@@ -41,6 +43,7 @@ public:
    InputHandler& getInputHandler() const;
    Renderer& getRenderer() const;
    Scene& getScene() const;
+   TextureUnitManager& getTextureUnitManager() const;
 };
 
 #endif

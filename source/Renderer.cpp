@@ -1,4 +1,5 @@
 #include "CameraComponent.h"
+#include "Context.h"
 #include "DebugDrawer.h"
 #include "FancyAssert.h"
 #include "GameObject.h"
@@ -10,6 +11,7 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
+#include "TextureUnitManager.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -89,6 +91,9 @@ void Renderer::render(Scene &scene) {
    RUN_DEBUG(checkGLError();)
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   // Free all texture units
+   Context::getInstance().getTextureUnitManager().reset();
 
    SPtr<GameObject> camera = scene.getCamera();
    if (!camera) {

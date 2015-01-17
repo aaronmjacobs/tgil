@@ -4,6 +4,7 @@
 #include "InputHandler.h"
 #include "Renderer.h"
 #include "Scene.h"
+#include "TextureUnitManager.h"
 
 #include <boxer/boxer.h>
 
@@ -27,13 +28,14 @@ const Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), inputHandler(new InputHandler(window)), renderer(new Renderer) {
+   : window(window), assetManager(new AssetManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager) {
 }
 
 Context::~Context() {
 }
 
 void Context::init() {
+   textureUnitManager->init();
    scene = std::make_shared<Scene>();
 }
 
@@ -87,4 +89,8 @@ Renderer& Context::getRenderer() const {
 
 Scene& Context::getScene() const {
    return *scene;
+}
+
+TextureUnitManager& Context::getTextureUnitManager() const {
+   return *textureUnitManager;
 }

@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+class ShaderProgram;
+
 class PhongMaterial : public Material {
 protected:
    const glm::vec3 ambient, diffuse, specular, emission;
@@ -23,6 +25,8 @@ public:
    virtual ~PhongMaterial();
 
    virtual void apply(const Mesh &mesh);
+
+   virtual void disable();
 };
 
 #endif

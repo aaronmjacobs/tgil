@@ -29,3 +29,6 @@ void PhongMaterial::apply(const Mesh &mesh) {
    glUniform3fv(uEmission, 1, glm::value_ptr(emission));
    glUniform1f(uShininess, shininess);
 }
+
+void PhongMaterial::disable() {
+}
