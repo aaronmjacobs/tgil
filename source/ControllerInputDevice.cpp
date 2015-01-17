@@ -1,11 +1,11 @@
-#include "ControllerInputMap.h"
+#include "ControllerInputDevice.h"
 #include "FancyAssert.h"
 
 #include <glm/glm.hpp>
 
 namespace {
 
-const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, { 0, false, true, true }, { 1, false, true, true }, { 2, false, true, true }, { 3, false, true, true }, { 5, false, true, false }, { 4, false, true, false }, 1, 0, 12 };
+const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, { 0, false, true, true }, { 1, false, true, true }, { 2, false, true, true }, { 3, false, true, true }, { 5, false, true, false }, { 4, false, true, false }, 0, 1, 12 };
 
 // TODO Make deadzone configurable
 const float DEADZONE = 0.1f;
@@ -36,20 +36,18 @@ float getAxisValue(const float* axes, const ControllerAxis &axis) {
 
 } // namespace
 
-ControllerInputMap::ControllerInputMap(GLFWwindow* const window)
-   : InputMap(window), map(DEFAULT_CONTROLLER_MAP) {
+ControllerInputDevice::ControllerInputDevice(GLFWwindow* const window, const int controller)
+   : InputDevice(window), controller(controller), map(DEFAULT_CONTROLLER_MAP) {
 }
 
-ControllerInputMap::~ControllerInputMap() {
+ControllerInputDevice::~ControllerInputDevice() {
 }
 
-const InputValues& ControllerInputMap::getInputValues(int player) {
-   ASSERT(player >= 0, "Player index should be nonnegative");
+const InputValues& ControllerInputDevice::getInputValues() {
    int buttonCount, axisCount;
 
-   // TODO Map players onto controllers correctly
-   const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1 + player, &buttonCount);
-   const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1 + player, &axisCount);
+   const unsigned char* buttons = glfwGetJoystickButtons(controller, &buttonCount);
+   const float* axes = glfwGetJoystickAxes(controller, &axisCount);
 
    // If the controller can't be found, return the default values
    if (!buttons || !axes) {
@@ -74,6 +72,6 @@ const InputValues& ControllerInputMap::getInputValues(int player) {
    return inputValues;
 }
 
-void ControllerInputMap::setControllerMap(const ControllerMap &map) {
+void ControllerInputDevice::setControllerMap(const ControllerMap &map) {
    this->map = map;
 }

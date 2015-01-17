@@ -29,7 +29,7 @@ configure_file (
 set(SOURCES
    ${SRC_DIR}/AssetManager.cpp
    ${SRC_DIR}/Context.cpp
-   ${SRC_DIR}/ControllerInputMap.cpp
+   ${SRC_DIR}/ControllerInputDevice.cpp
    ${SRC_DIR}/DebugDrawer.cpp
    ${SRC_DIR}/DebugRenderer.cpp
    ${SRC_DIR}/FlyCameraComponent.cpp
@@ -40,7 +40,7 @@ set(SOURCES
    ${SRC_DIR}/HumanInputComponent.cpp
    ${SRC_DIR}/InputHandler.cpp
    ${SRC_DIR}/IOUtils.cpp
-   ${SRC_DIR}/KeyboardInputMap.cpp
+   ${SRC_DIR}/KeyboardInputDevice.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/Mesh.cpp
    ${SRC_DIR}/MeshAssetManager.cpp
@@ -67,7 +67,7 @@ set(HEADERS
    ${SRC_DIR}/CameraComponent.h
    ${SRC_DIR}/Component.h
    ${SRC_DIR}/Context.h
-   ${SRC_DIR}/ControllerInputMap.h
+   ${SRC_DIR}/ControllerInputDevice.h
    ${SRC_DIR}/Conversions.h
    ${SRC_DIR}/DebugDrawer.h
    ${SRC_DIR}/DebugRenderer.h
@@ -81,10 +81,10 @@ set(HEADERS
    ${SRC_DIR}/GraphicsComponent.h
    ${SRC_DIR}/HumanInputComponent.h
    ${SRC_DIR}/InputComponent.h
+   ${SRC_DIR}/InputDevice.h
    ${SRC_DIR}/InputHandler.h
-   ${SRC_DIR}/InputMap.h
    ${SRC_DIR}/IOUtils.h
-   ${SRC_DIR}/KeyboardInputMap.h
+   ${SRC_DIR}/KeyboardInputDevice.h
    ${SRC_DIR}/LightComponent.h
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/LogicComponent.h

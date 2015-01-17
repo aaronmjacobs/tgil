@@ -1,7 +1,7 @@
-#ifndef CONTROLLER_INPUT_MAP_H
-#define CONTROLLER_INPUT_MAP_H
+#ifndef CONTROLLER_INPUT_DEVICE_H
+#define CONTROLLER_INPUT_DEVICE_H
 
-#include "InputMap.h"
+#include "InputDevice.h"
 
 struct ControllerAxis {
    int index;
@@ -26,15 +26,17 @@ struct ControllerMap {
    int quitButton;
 };
 
-class ControllerInputMap : public InputMap {
+class ControllerInputDevice : public InputDevice {
 protected:
+   const int controller;
    ControllerMap map;
 
 public:
-   ControllerInputMap(GLFWwindow* const window);
-   virtual ~ControllerInputMap();
+   ControllerInputDevice(GLFWwindow* const window, const int controller);
 
-   virtual const InputValues& getInputValues(int player);
+   virtual ~ControllerInputDevice();
+
+   virtual const InputValues& getInputValues();
 
    void setControllerMap(const ControllerMap &map);
 };

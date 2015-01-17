@@ -1,6 +1,6 @@
 #include "FancyAssert.h"
 #include "GLIncludes.h"
-#include "KeyboardInputMap.h"
+#include "KeyboardInputDevice.h"
 
 namespace {
 
@@ -9,16 +9,15 @@ const KeyMouseMap DEFAULT_KEY_MOUSE_MAP { false, false, 1.0f, GLFW_KEY_W, GLFW_K
 
 } // namespace
 
-KeyboardInputMap::KeyboardInputMap(GLFWwindow* const window)
-   : InputMap(window), map(DEFAULT_KEY_MOUSE_MAP), mouseInit(false) {
+KeyboardInputDevice::KeyboardInputDevice(GLFWwindow* const window)
+   : InputDevice(window), map(DEFAULT_KEY_MOUSE_MAP), mouseInit(false) {
    glfwGetCursorPos(window, &lastMouseX, &lastMouseY);
 }
 
-KeyboardInputMap::~KeyboardInputMap() {
+KeyboardInputDevice::~KeyboardInputDevice() {
 }
 
-const InputValues& KeyboardInputMap::getInputValues(int player) {
-   ASSERT(player >= 0, "Player index should be nonnegative");
+const InputValues& KeyboardInputDevice::getInputValues() {
    inputValues.moveForward = glfwGetKey(window, map.moveForwardKey) == GLFW_PRESS ? 1.0f : 0.0f;
    inputValues.moveBackward = glfwGetKey(window, map.moveBackwardKey) == GLFW_PRESS ? 1.0f : 0.0f;
    inputValues.moveLeft = glfwGetKey(window, map.moveLeftKey) == GLFW_PRESS ? 1.0f : 0.0f;
@@ -46,6 +45,6 @@ const InputValues& KeyboardInputMap::getInputValues(int player) {
    return inputValues;
 }
 
-void KeyboardInputMap::setKeyMouseMap(const KeyMouseMap &map) {
+void KeyboardInputDevice::setKeyMouseMap(const KeyMouseMap &map) {
    this->map = map;
 }

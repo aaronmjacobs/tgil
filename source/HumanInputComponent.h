@@ -3,18 +3,13 @@
 
 #include "InputComponent.h"
 
-class HumanInputComponent : public InputComponent {
-protected:
-   InputValues inputValues;
-
+class HumanInputComponent : public InputComponent, public std::enable_shared_from_this<HumanInputComponent> {
 public:
    HumanInputComponent(GameObject &gameObject);
 
    virtual ~HumanInputComponent();
 
-   virtual void pollInput();
-
-   virtual const InputValues& getInputValues();
+   virtual void init();
 };
 
 #endif

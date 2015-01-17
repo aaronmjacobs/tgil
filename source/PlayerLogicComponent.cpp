@@ -119,6 +119,7 @@ void PlayerLogicComponent::tick(const float dt) {
    const btCollisionObject *ground = getGround(scene, *rigidBody);
 
    float forceAmount = calcMovementForce(toGlm(velocity), ground, inputValues.jump);
+
    glm::vec3 force = moveIntention * glm::vec3(forceAmount);
 
    rigidBody->applyCentralForce(toBt(force));

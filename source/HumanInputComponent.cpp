@@ -9,10 +9,6 @@ HumanInputComponent::HumanInputComponent(GameObject &gameObject)
 HumanInputComponent::~HumanInputComponent() {
 }
 
-void HumanInputComponent::pollInput() {
-   inputValues = Context::getInstance().getInputHandler().getInputValues(0); // TODO Multiple players
-}
-
-const InputValues& HumanInputComponent::getInputValues() {
-   return inputValues;
+void HumanInputComponent::init() {
+   Context::getInstance().getInputHandler().registerInputComponent(shared_from_this());
 }

@@ -1,7 +1,7 @@
-#ifndef KEYBOARD_INPUT_MAP_H
-#define KEYBOARD_INPUT_MAP_H
+#ifndef KEYBOARD_INPUT_DEVICE_H
+#define KEYBOARD_INPUT_DEVICE_H
 
-#include "InputMap.h"
+#include "InputDevice.h"
 
 struct KeyMouseMap {
    bool invertMouseY;
@@ -17,17 +17,18 @@ struct KeyMouseMap {
    int quitKey;
 };
 
-class KeyboardInputMap : public InputMap {
+class KeyboardInputDevice : public InputDevice {
 protected:
    KeyMouseMap map;
    double lastMouseX, lastMouseY;
    bool mouseInit;
 
 public:
-   KeyboardInputMap(GLFWwindow* const window);
-   virtual ~KeyboardInputMap();
+   KeyboardInputDevice(GLFWwindow* const window);
 
-   virtual const InputValues& getInputValues(int player);
+   virtual ~KeyboardInputDevice();
+
+   virtual const InputValues& getInputValues();
 
    void setKeyMouseMap(const KeyMouseMap &map);
 };

@@ -1,5 +1,5 @@
-#ifndef INPUT_MAP_H
-#define INPUT_MAP_H
+#ifndef INPUT_DEVICE_H
+#define INPUT_DEVICE_H
 
 #include "GLIncludes.h"
 
@@ -19,19 +19,19 @@ struct InputValues {
    bool quit;
 };
 
-class InputMap {
+class InputDevice {
 protected:
    GLFWwindow* const window;
    InputValues inputValues;
 
 public:
-   InputMap(GLFWwindow* const window)
+   InputDevice(GLFWwindow* const window)
       : window(window) {
    }
 
-   virtual ~InputMap() {}
+   virtual ~InputDevice() {}
 
-   virtual const InputValues& getInputValues(int player) = 0;
+   virtual const InputValues& getInputValues() = 0;
 };
 
 #endif

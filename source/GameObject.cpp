@@ -20,7 +20,6 @@ GameObject::~GameObject() {
 }
 
 void GameObject::tick(const float dt) {
-   inputComponent->pollInput();
    logicComponent->tick(dt);
 
    if (tickCallback) {
@@ -55,6 +54,7 @@ InputComponent& GameObject::getInputComponent() {
 
 void GameObject::setInputComponent(SPtr<InputComponent> inputComponent) {
    this->inputComponent = inputComponent;
+   inputComponent->init();
 }
 
 LightComponent& GameObject::getLightComponent() {

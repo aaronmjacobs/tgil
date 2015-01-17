@@ -1,17 +1,21 @@
 #ifndef INPUT_HANLDER_H
 #define INPUT_HANLDER_H
 
-#include "InputMap.h"
+#include "InputDevice.h"
 #include "Types.h"
 
 #include <vector>
 
+class InputComponent;
+
+const int MAX_PLAYERS = 4;
+
 class InputHandler {
 protected:
    GLFWwindow* const window;
-   // TODO Handle multiple input sources (which can be connected / disconnected)
-   SPtr<InputMap> inputMap;
+   std::vector<SPtr<InputDevice>> inputDevices;
    std::vector<InputValues> inputValues;
+   std::vector<WPtr<InputComponent>> inputComponents;
 
 public:
    InputHandler(GLFWwindow* const window);
@@ -19,6 +23,8 @@ public:
    virtual ~InputHandler();
 
    void pollInput();
+
+   void registerInputComponent(SPtr<InputComponent> inputComponent);
 
    const InputValues& getInputValues(int player) const;
 };

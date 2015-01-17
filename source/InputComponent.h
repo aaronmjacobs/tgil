@@ -5,32 +5,39 @@
 #include "InputHandler.h"
 
 class InputComponent : public Component {
+private:
+   InputValues inputValues;
+
+protected:
+   friend class InputHandler;
+
+   void setInputValues(const InputValues &inputValues) {
+      this->inputValues = inputValues;
+   }
+
 public:
    InputComponent(GameObject &gameObject)
       : Component(gameObject) {}
 
    virtual ~InputComponent() {}
 
-   virtual void pollInput() = 0;
+   virtual void init() = 0;
 
-   virtual const InputValues& getInputValues() = 0;
+   const InputValues& getInputValues() const {
+      return inputValues;
+   }
 };
 
 class NullInputComponent : public InputComponent {
-private:
-   const InputValues INPUT_VALUES;
-
 public:
    NullInputComponent(GameObject &gameObject)
-      : InputComponent(gameObject), INPUT_VALUES({ 0 }) {}
+      : InputComponent(gameObject) {
+      setInputValues({ 0 });
+   }
 
    virtual ~NullInputComponent() {}
 
-   virtual void pollInput() {}
-
-   virtual const InputValues& getInputValues() {
-      return INPUT_VALUES;
-   }
+   virtual void init() {}
 };
 
 #endif
