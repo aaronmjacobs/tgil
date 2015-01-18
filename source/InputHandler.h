@@ -8,8 +8,6 @@
 
 class InputComponent;
 
-const int MAX_PLAYERS = 4;
-
 class InputHandler {
 protected:
    GLFWwindow* const window;

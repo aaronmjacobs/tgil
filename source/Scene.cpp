@@ -24,9 +24,9 @@ void Scene::tick(const float dt) {
    }
 }
 
-void Scene::setCamera(SPtr<GameObject> camera) {
-   ASSERT(camera, "Trying to set null camera in scene");
-   this->camera = camera;
+void Scene::addCamera(SPtr<GameObject> camera) {
+   ASSERT(camera, "Trying to add null camera to scene");
+   cameras.push_back(camera);
    addObject(camera);
 }
 

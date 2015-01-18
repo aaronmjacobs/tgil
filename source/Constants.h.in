@@ -13,4 +13,6 @@
 
 #define DATA_DIR "@DATA_DIR@"
 
+#define MAX_PLAYERS 4
+
 #endif

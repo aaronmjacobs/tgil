@@ -31,7 +31,7 @@ void GameObject::setScene(WPtr<Scene> scene) {
    notify(*this, SET_SCENE);
 }
 
-CameraComponent& GameObject::getCameraComponent() {
+CameraComponent& GameObject::getCameraComponent() const {
    return *cameraComponent;
 }
 
@@ -39,7 +39,7 @@ void GameObject::setCameraComponent(SPtr<CameraComponent> cameraComponent) {
    this->cameraComponent = cameraComponent;
 }
 
-GraphicsComponent& GameObject::getGraphicsComponent() {
+GraphicsComponent& GameObject::getGraphicsComponent() const {
    return *graphicsComponent;
 }
 
@@ -47,7 +47,7 @@ void GameObject::setGraphicsComponent(SPtr<GraphicsComponent> graphicsComponent)
    this->graphicsComponent = graphicsComponent;
 }
 
-InputComponent& GameObject::getInputComponent() {
+InputComponent& GameObject::getInputComponent() const {
    return *inputComponent;
 }
 
@@ -56,7 +56,7 @@ void GameObject::setInputComponent(SPtr<InputComponent> inputComponent) {
    inputComponent->init();
 }
 
-LightComponent& GameObject::getLightComponent() {
+LightComponent& GameObject::getLightComponent() const {
    return *lightComponent;
 }
 
@@ -64,7 +64,7 @@ void GameObject::setLightComponent(SPtr<LightComponent> lightComponent) {
    this->lightComponent = lightComponent;
 }
 
-LogicComponent& GameObject::getLogicComponent() {
+LogicComponent& GameObject::getLogicComponent() const {
    return *logicComponent;
 }
 
@@ -72,7 +72,7 @@ void GameObject::setLogicComponent(SPtr<LogicComponent> logicComponent) {
    this->logicComponent = logicComponent;
 }
 
-PhysicsComponent& GameObject::getPhysicsComponent() {
+PhysicsComponent& GameObject::getPhysicsComponent() const {
    return *physicsComponent;
 }
 

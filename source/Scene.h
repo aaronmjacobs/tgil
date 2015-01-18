@@ -15,7 +15,7 @@ class Scene : public std::enable_shared_from_this<Scene> {
 protected:
    const SPtr<PhysicsManager> physicsManager;
    const UPtr<DebugDrawer> debugDrawer;
-   SPtr<GameObject> camera;
+   std::vector<SPtr<GameObject>> cameras;
    std::vector<SPtr<GameObject>> lights;
    std::vector<SPtr<GameObject>> objects;
    std::set<SPtr<ShaderProgram>> shaderPrograms;
@@ -35,8 +35,8 @@ public:
       return *debugDrawer;
    }
 
-   SPtr<GameObject> getCamera() const {
-      return camera;
+   const std::vector<SPtr<GameObject>> getCameras() const {
+      return cameras;
    }
 
    const std::vector<SPtr<GameObject>>& getLights() const {
@@ -51,11 +51,7 @@ public:
       return shaderPrograms;
    }
 
-   void setCamera(SPtr<GameObject> camera);
-
-   SPtr<GameObject> getCamera() {
-      return camera;
-   }
+   void addCamera(SPtr<GameObject> camera);
 
    void addLight(SPtr<GameObject> light);
 

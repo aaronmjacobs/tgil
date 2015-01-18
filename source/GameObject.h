@@ -83,12 +83,12 @@ public:
       tickCallback = nullptr;
    }
 
-   CameraComponent& getCameraComponent();
-   GraphicsComponent& getGraphicsComponent();
-   InputComponent& getInputComponent();
-   LightComponent& getLightComponent();
-   LogicComponent& getLogicComponent();
-   PhysicsComponent& getPhysicsComponent();
+   CameraComponent& getCameraComponent() const;
+   GraphicsComponent& getGraphicsComponent() const;
+   InputComponent& getInputComponent() const;
+   LightComponent& getLightComponent() const;
+   LogicComponent& getLogicComponent() const;
+   PhysicsComponent& getPhysicsComponent() const;
 
    void setCameraComponent(SPtr<CameraComponent> cameraComponent);
    void setGraphicsComponent(SPtr<GraphicsComponent> graphicsComponent);
