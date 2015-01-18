@@ -83,3 +83,13 @@ void Framebuffer::use() const {
 void Framebuffer::disable() const {
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+GLuint Framebuffer::getTextureID() const {
+   ASSERT(initialized, "Trying to get texture ID from uninitialized framebuffer");
+   return texture;
+}
+
+GLuint Framebuffer::getDepthTextureID() const {
+   ASSERT(initialized, "Trying to get texture ID from uninitialized framebuffer");
+   return depthTexture;
+}
