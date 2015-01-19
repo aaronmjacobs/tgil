@@ -22,6 +22,11 @@ public:
     * Loads the shader with the given file name and type, using a cached version if possible
     */
    SPtr<Shader> loadShader(const std::string &fileName, const GLenum type);
+
+   /**
+    * Reloads all mapped shaders from source
+    */
+   void reloadShaders();
 };
 
 #endif

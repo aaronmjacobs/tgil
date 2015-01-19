@@ -71,6 +71,20 @@ std::string getShaderCompileError(SPtr<Shader> shader) {
    return compileError;
 }
 
+const std::string& getDefaultShaderSource(const GLenum type) {
+   switch (type) {
+      case GL_VERTEX_SHADER:
+         return DEFAULT_VERTEX_SOURCE;
+      case GL_GEOMETRY_SHADER:
+         return DEFAULT_GEOMETRY_SOURCE;
+      case GL_FRAGMENT_SHADER:
+         return DEFAULT_FRAGMENT_SOURCE;
+      default:
+         ASSERT(false, "Invalid shader type: %i", type);
+         return DEFAULT_VERTEX_SOURCE;
+   }
+}
+
 SPtr<Shader> getDefaultShader(const GLenum type) {
    const std::string *source;
 
@@ -154,4 +168,27 @@ SPtr<Shader> ShaderAssetManager::loadShader(const std::string &fileName, const G
 
    shaderMap[fileName] = shader;
    return shader;
+}
+
+void ShaderAssetManager::reloadShaders() {
+   for (std::map<std::string, SPtr<Shader>>::iterator itr = shaderMap.begin(); itr != shaderMap.end(); ++itr) {
+      const std::string& fileName = itr->first;
+      SPtr<Shader> shader = itr->second;
+
+      folly::Optional<std::string> source = IOUtils::readFromDataFile(fileName);
+      if (!source) {
+         LOG_WARNING("Unable to load shader from file \"" << fileName << "\", not reloading");
+         continue;
+      }
+
+      if (!shader->compile(*source)) {
+         LOG_WARNING("Unable to compile " << getShaderTypeName(shader->getType()) << " shader loaded from file \"" << fileName << "\", reverting to default shader. Error message: \"" << getShaderCompileError(shader) << "\"");
+
+         const std::string &defaultSource = getDefaultShaderSource(shader->getType());
+         if (!shader->compile(defaultSource)) {
+            LOG_MESSAGE("Error compiling default " << getShaderTypeName(shader->getType()) << " shader: " << getShaderCompileError(shader));
+            LOG_FATAL("Unable to compile default " << getShaderTypeName(shader->getType()) << " shader");
+         }
+      }
+   }
 }
