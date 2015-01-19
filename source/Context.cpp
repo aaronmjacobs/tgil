@@ -4,6 +4,7 @@
 #include "InputHandler.h"
 #include "Renderer.h"
 #include "Scene.h"
+#include "SceneLoader.h"
 #include "TextureUnitManager.h"
 
 #include <boxer/boxer.h>
@@ -36,7 +37,7 @@ Context::~Context() {
 
 void Context::init() {
    textureUnitManager->init();
-   scene = std::make_shared<Scene>();
+   scene = SceneLoader::loadDefaultScene(*this);
 }
 
 void Context::handleSpecialInputs(const InputValues &inputValues) const {
@@ -93,4 +94,8 @@ Scene& Context::getScene() const {
 
 TextureUnitManager& Context::getTextureUnitManager() const {
    return *textureUnitManager;
+}
+
+void Context::setScene(SPtr<Scene> scene) {
+   this->scene = scene;
 }
