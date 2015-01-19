@@ -17,7 +17,7 @@ protected:
 
 public:
    InputComponent(GameObject &gameObject)
-      : Component(gameObject) {}
+      : Component(gameObject), inputValues({ 0 }) {}
 
    virtual ~InputComponent() {}
 
