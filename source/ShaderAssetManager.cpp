@@ -61,14 +61,13 @@ std::string getShaderCompileError(SPtr<Shader> shader) {
       return std::string();
    }
 
-   GLchar *strInfoLog = new GLchar[infoLogLength];
-   glGetShaderInfoLog(shader->getID(), infoLogLength, NULL, strInfoLog);
+   UPtr<GLchar[]> strInfoLog(new GLchar[infoLogLength]);
+   glGetShaderInfoLog(shader->getID(), infoLogLength, NULL, strInfoLog.get());
    if (infoLogLength >= 2 && strInfoLog[infoLogLength - 2] == '\n') {
       strInfoLog[infoLogLength - 2] = '\0'; // If the log ends in a newline, nuke it
    }
 
-   std::string compileError(strInfoLog);
-   delete[] strInfoLog;
+   std::string compileError(strInfoLog.get());
    return compileError;
 }
 
