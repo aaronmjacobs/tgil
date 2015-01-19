@@ -26,8 +26,11 @@ protected:
    std::vector<SPtr<GameObject>> camerasToAdd;
    std::vector<SPtr<GameObject>> lightsToAdd;
    std::vector<SPtr<GameObject>> objectsToAdd;
+   std::vector<SPtr<GameObject>> camerasToRemove;
+   std::vector<SPtr<GameObject>> lightsToRemove;
+   std::vector<SPtr<GameObject>> objectsToRemove;
 
-   void addPendingObjects();
+   void processPendingObjects();
 
 public:
    Scene();
@@ -65,6 +68,12 @@ public:
    void addLight(SPtr<GameObject> light);
 
    void addObject(SPtr<GameObject> object);
+
+   void removeCamera(SPtr<GameObject> camera);
+
+   void removeLight(SPtr<GameObject> light);
+
+   void removeObject(SPtr<GameObject> object);
 };
 
 #endif

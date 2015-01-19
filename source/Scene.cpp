@@ -16,8 +16,23 @@ Scene::Scene()
 Scene::~Scene() {
 }
 
-void Scene::addPendingObjects() {
-   ASSERT(!ticking, "Trying to add pending objects during tick (can cause concurrent modification issues)");
+void Scene::processPendingObjects() {
+   ASSERT(!ticking, "Trying to process pending objects during tick (can cause concurrent modification issues)");
+
+   for (SPtr<GameObject> camera : camerasToRemove) {
+      removeCamera(camera);
+   }
+   camerasToRemove.clear();
+
+   for (SPtr<GameObject> light : lightsToRemove) {
+      removeLight(light);
+   }
+   lightsToRemove.clear();
+
+   for (SPtr<GameObject> object : objectsToRemove) {
+      removeObject(object);
+   }
+   objectsToRemove.clear();
 
    for (SPtr<GameObject> camera : camerasToAdd) {
       addCamera(camera);
@@ -36,7 +51,7 @@ void Scene::addPendingObjects() {
 }
 
 void Scene::tick(const float dt) {
-   addPendingObjects();
+   processPendingObjects();
 
    ticking = true;
 
@@ -91,4 +106,48 @@ void Scene::addObject(SPtr<GameObject> object) {
    }
 
    object->setScene(shared_from_this());
+}
+
+void Scene::removeCamera(SPtr<GameObject> camera) {
+   ASSERT(camera, "Trying to remove null camera from scene");
+
+   if (ticking) {
+      camerasToRemove.push_back(camera);
+      return;
+   }
+
+   cameras.erase(std::remove(cameras.begin(), cameras.end(), camera), cameras.end());
+   removeObject(camera);
+}
+
+void Scene::removeLight(SPtr<GameObject> light) {
+   ASSERT(light, "Trying to remove null light from scene");
+
+   if (ticking) {
+      lightsToRemove.push_back(light);
+      return;
+   }
+
+   lights.erase(std::remove(lights.begin(), lights.end(), light), lights.end());
+   removeObject(light);
+}
+
+void Scene::removeObject(SPtr<GameObject> object) {
+   ASSERT(object, "Trying to remove null object from scene");
+
+   if (ticking) {
+      objectsToRemove.push_back(object);
+      return;
+   }
+
+   physicsManager->removeObject(object->getPhysicsComponent());
+
+   objects.erase(std::remove(objects.begin(), objects.end(), object), objects.end());
+
+   /*SPtr<Model> model = object->getGraphicsComponent().getModel();
+   if (model) {
+      shaderPrograms.erase(model->getShaderProgram());
+   }*/
+
+   object->setScene(WPtr<Scene>());
 }
