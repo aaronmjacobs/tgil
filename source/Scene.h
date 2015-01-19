@@ -15,10 +15,19 @@ class Scene : public std::enable_shared_from_this<Scene> {
 protected:
    const SPtr<PhysicsManager> physicsManager;
    const UPtr<DebugDrawer> debugDrawer;
+
+   std::set<SPtr<ShaderProgram>> shaderPrograms;
+
    std::vector<SPtr<GameObject>> cameras;
    std::vector<SPtr<GameObject>> lights;
    std::vector<SPtr<GameObject>> objects;
-   std::set<SPtr<ShaderProgram>> shaderPrograms;
+
+   bool ticking;
+   std::vector<SPtr<GameObject>> camerasToAdd;
+   std::vector<SPtr<GameObject>> lightsToAdd;
+   std::vector<SPtr<GameObject>> objectsToAdd;
+
+   void addPendingObjects();
 
 public:
    Scene();
