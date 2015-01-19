@@ -28,6 +28,8 @@ public:
    virtual void apply(const Mesh &mesh);
 
    virtual void disable();
+
+   void setTextureID(GLuint textureID);
 };
 
 #endif

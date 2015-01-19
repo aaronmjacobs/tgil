@@ -11,18 +11,18 @@ class ShaderProgram;
 
 class Model {
 protected:
-   std::vector<UPtr<Material>> materials;
+   std::vector<SPtr<Material>> materials;
    SPtr<ShaderProgram> shaderProgram;
    SPtr<Mesh> mesh;
 
 public:
-   Model(SPtr<ShaderProgram> shaderProgram, UPtr<Material> material, SPtr<Mesh> mesh);
+   Model(SPtr<ShaderProgram> shaderProgram, SPtr<Material> material, SPtr<Mesh> mesh);
 
    virtual ~Model();
 
    virtual void draw();
 
-   void attachMaterial(UPtr<Material> material);
+   void attachMaterial(SPtr<Material> material);
 
    const Mesh& getMesh() const;
 

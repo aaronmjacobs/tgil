@@ -6,9 +6,9 @@
 
 #include <string>
 
-Model::Model(SPtr<ShaderProgram> shaderProgram, UPtr<Material> material, SPtr<Mesh> mesh)
+Model::Model(SPtr<ShaderProgram> shaderProgram, SPtr<Material> material, SPtr<Mesh> mesh)
    : shaderProgram(shaderProgram), mesh(mesh) {
-   materials.push_back(std::move(material));
+   materials.push_back(material);
 }
 
 Model::~Model() {
@@ -18,7 +18,7 @@ void Model::draw() {
    shaderProgram->use();
 
    // Apply the material properties
-   for (UPtr<Material> &material : materials) {
+   for (SPtr<Material> material : materials) {
       material->apply(*mesh);
    }
 
@@ -55,8 +55,8 @@ void Model::draw() {
    shaderProgram->disable();
 }
 
-void Model::attachMaterial(UPtr<Material> material) {
-   materials.push_back(std::move(material));
+void Model::attachMaterial(SPtr<Material> material) {
+   materials.push_back(material);
 }
 
 const Mesh& Model::getMesh() const {

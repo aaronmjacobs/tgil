@@ -9,6 +9,7 @@ class Context;
 class Framebuffer;
 class GameObject;
 class Model;
+class TextureMaterial;
 
 class Renderer {
 protected:
@@ -43,9 +44,24 @@ protected:
    UPtr<Model> xyPlane;
 
    /**
+    * Texture material for framebuffer color attachment
+    */
+   SPtr<TextureMaterial> colorTextureMaterial;
+
+   /**
+    * Texture material for framebuffer depth attachment
+    */
+   SPtr<TextureMaterial> depthTextureMaterial;
+
+   /**
     * Loads the plane used render data from the framebuffer to the back buffer
     */
    void loadPlane();
+
+   /**
+    * Initializes the framebuffer and updates the attached texture materials
+    */
+   void initFramebuffer();
 
    /**
     * Renders the contents of the framebuffer onto the xy plane. The location / size of the rendered image are chosen based on the camera number / total number of cameras (for split-screen).

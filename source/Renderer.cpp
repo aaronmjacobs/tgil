@@ -82,11 +82,12 @@ void Renderer::init(float fov, int width, int height) {
    glCullFace(GL_BACK);
 
    this->fov = fov;
+
+   loadPlane();
+
    onWindowSizeChange(width, height);
 
    debugRenderer.init();
-
-   loadPlane();
 }
 
 void Renderer::loadPlane() {
@@ -109,24 +110,31 @@ void Renderer::loadPlane() {
    shaderProgram->addAttribute("aPosition");
    shaderProgram->addAttribute("aTexCoord");
 
-   UPtr<TextureMaterial> colorTextureMaterial(new TextureMaterial(*shaderProgram, framebuffer->getTextureID(), "uColor"));
-
-   UPtr<TextureMaterial> depthTextureMaterial(new TextureMaterial(*shaderProgram, framebuffer->getDepthTextureID(), "uDepth"));
+   colorTextureMaterial = std::make_shared<TextureMaterial>(*shaderProgram, 0, "uColor");
+   depthTextureMaterial = std::make_shared<TextureMaterial>(*shaderProgram, 0, "uDepth");
 
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xy_plane.obj");
 
-   xyPlane = UPtr<Model>(new Model(shaderProgram, std::move(colorTextureMaterial), planeMesh));
-   xyPlane->attachMaterial(std::move(depthTextureMaterial));
+   xyPlane = UPtr<Model>(new Model(shaderProgram, colorTextureMaterial, planeMesh));
+   xyPlane->attachMaterial(depthTextureMaterial);
+}
+
+void Renderer::initFramebuffer() {
+   framebuffer->init();
+
+   ASSERT(colorTextureMaterial && depthTextureMaterial, "Trying to init framebuffer texture materials before they are created");
+   colorTextureMaterial->setTextureID(framebuffer->getTextureID());
+   depthTextureMaterial->setTextureID(framebuffer->getDepthTextureID());
 }
 
 void Renderer::onWindowSizeChange(int width, int height) {
    projectionMatrix = glm::perspective(glm::radians(fov), (float)width / height, 0.1f, 100.0f);
-   framebuffer->init();
+   initFramebuffer();
 }
 
 void Renderer::onMonitorChange() {
    // Update the framebuffer to match the size of the viewport
-   framebuffer->init();
+   initFramebuffer();
 }
 
 void Renderer::render(Scene &scene) {

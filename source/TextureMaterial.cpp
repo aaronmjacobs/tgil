@@ -32,3 +32,7 @@ void TextureMaterial::disable() {
 
    Context::getInstance().getTextureUnitManager().release(textureUnit);
 }
+
+void TextureMaterial::setTextureID(GLuint textureID) {
+   this->textureID = textureID;
+}
