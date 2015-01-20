@@ -5,7 +5,7 @@
 
 namespace {
 
-const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, { 0, false, true, true }, { 1, false, true, true }, { 2, false, true, true }, { 3, false, true, true }, { 5, false, true, false }, { 4, false, true, false }, 0, 1, 12 };
+const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, { 0, false, true, true }, { 1, false, true, true }, { 2, false, true, true }, { 3, false, true, true }, { 5, false, true, false }, { 4, false, true, false }, 0, 7, 1, 12 };
 
 // TODO Make deadzone configurable
 const float DEADZONE = 0.1f;
@@ -68,6 +68,7 @@ const InputValues& ControllerInputDevice::getInputValues() {
    inputValues.action = buttons[map.actionButton] == GLFW_PRESS;
    inputValues.jump = buttons[map.jumpButton] == GLFW_PRESS;
    inputValues.quit = buttons[map.quitButton] == GLFW_PRESS;
+   inputValues.attack = buttons[map.attackButton] == GLFW_PRESS;
 
    return inputValues;
 }

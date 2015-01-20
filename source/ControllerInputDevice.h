@@ -22,6 +22,7 @@ struct ControllerMap {
    ControllerAxis secondaryTriggerAxis;
 
    int actionButton;
+   int attackButton;
    int jumpButton;
    int quitButton;
 };
