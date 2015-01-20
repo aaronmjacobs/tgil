@@ -50,14 +50,14 @@ folly::Optional<std::string> getExecutablePath() {
 #ifdef _WIN32
    TCHAR buffer[MAX_PATH];
    memset(buffer, 0, sizeof(TCHAR) * MAX_PATH);
-   int success = GetModuleFileName(NULL, buffer, MAX_PATH);
+   int success = GetModuleFileName(NULL, buffer, MAX_PATH - 1);
    int error = GetLastError();
 
    if (!success || error == ERROR_INSUFFICIENT_BUFFER) {
       const DWORD REALLY_BIG = 32768;
       TCHAR unreasonablyLargeBuffer[REALLY_BIG];
       memset(unreasonablyLargeBuffer, 0, sizeof(TCHAR) * REALLY_BIG);
-      success = GetModuleFileName(NULL, unreasonablyLargeBuffer, REALLY_BIG);
+      success = GetModuleFileName(NULL, unreasonablyLargeBuffer, REALLY_BIG - 1);
       error = GetLastError();
 
       if (!success || error == ERROR_INSUFFICIENT_BUFFER) {
