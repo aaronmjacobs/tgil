@@ -1,18 +1,21 @@
 #include "OSUtils.h"
 
 #ifdef __APPLE__
-
 #include <mach-o/dyld.h>
 #include <stdlib.h>
 #include <sys/param.h>
 #include <unistd.h>
-
 #endif // __APPLE__
 
+#ifdef __linux__
+#include <cstring>
+#include <limits.h>
+#include <unistd.h>
+#endif // __linux__
+
 #ifdef _WIN32
-
+#include <cstring>
 #include <Windows.h>
-
 #endif // _WIN32
 
 namespace OSUtils {
@@ -33,14 +36,27 @@ folly::Optional<std::string> getExecutablePath() {
    return std::string(realPath);
 #endif // __APPLE__
 
+#ifdef __linux__
+   char path[PATH_MAX];
+   memset(path, 0, sizeof(char) * PATH_MAX);
+
+   if (readlink("/proc/self/exe", path, PATH_MAX) == -1) {
+      return folly::none;
+   }
+
+   return std::string(path);
+#endif // __linux__
+
 #ifdef _WIN32
    TCHAR buffer[MAX_PATH];
+   memset(buffer, 0, sizeof(TCHAR) * MAX_PATH);
    int success = GetModuleFileName(NULL, buffer, MAX_PATH);
    int error = GetLastError();
 
    if (!success || error == ERROR_INSUFFICIENT_BUFFER) {
       const DWORD REALLY_BIG = 32768;
       TCHAR unreasonablyLargeBuffer[REALLY_BIG];
+      memset(unreasonablyLargeBuffer, 0, sizeof(TCHAR) * REALLY_BIG);
       success = GetModuleFileName(NULL, unreasonablyLargeBuffer, REALLY_BIG);
       error = GetLastError();
 
@@ -68,6 +84,10 @@ bool setWorkingDirectory(const std::string &dir) {
 #ifdef __APPLE__
    return chdir(dir.c_str()) == 0;
 #endif // __APPLE__
+
+#ifdef __linux__
+   return chdir(dir.c_str()) == 0;
+#endif // __linux__
 
 #ifdef _WIN32
    return SetCurrentDirectory(dir.c_str()) != 0;
