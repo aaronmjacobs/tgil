@@ -7,7 +7,13 @@
 #include <sys/param.h>
 #include <unistd.h>
 
-#endif
+#endif // __APPLE__
+
+#ifdef _WIN32
+
+#include <Windows.h>
+
+#endif // _WIN32
 
 namespace OSUtils {
 
@@ -25,7 +31,28 @@ folly::Optional<std::string> getExecutablePath() {
    }
 
    return std::string(realPath);
-#endif
+#endif // __APPLE__
+
+#ifdef _WIN32
+   TCHAR buffer[MAX_PATH];
+   int success = GetModuleFileName(NULL, buffer, MAX_PATH);
+   int error = GetLastError();
+
+   if (!success || error == ERROR_INSUFFICIENT_BUFFER) {
+      const DWORD REALLY_BIG = 32768;
+      TCHAR unreasonablyLargeBuffer[REALLY_BIG];
+      success = GetModuleFileName(NULL, unreasonablyLargeBuffer, REALLY_BIG);
+      error = GetLastError();
+
+      if (!success || error == ERROR_INSUFFICIENT_BUFFER) {
+         return folly::none;
+      }
+
+      return std::string(unreasonablyLargeBuffer);
+   }
+
+   return std::string(buffer);
+#endif // _WIN32
 }
 
 folly::Optional<std::string> getDirectoryFromPath(const std::string &path) {
@@ -40,7 +67,11 @@ folly::Optional<std::string> getDirectoryFromPath(const std::string &path) {
 bool setWorkingDirectory(const std::string &dir) {
 #ifdef __APPLE__
    return chdir(dir.c_str()) == 0;
-#endif
+#endif // __APPLE__
+
+#ifdef _WIN32
+   return SetCurrentDirectory(dir.c_str()) != 0;
+#endif // _WIN32
 }
 
 bool fixWorkingDirectory() {
