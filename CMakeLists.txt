@@ -47,6 +47,7 @@ set(SOURCES
    ${SRC_DIR}/MeshAssetManager.cpp
    ${SRC_DIR}/MeshPhysicsComponent.cpp
    ${SRC_DIR}/Model.cpp
+   ${SRC_DIR}/OSUtils.cpp
    ${SRC_DIR}/PhongMaterial.cpp
    ${SRC_DIR}/PhysicsComponent.cpp
    ${SRC_DIR}/PhysicsManager.cpp
@@ -98,6 +99,7 @@ set(HEADERS
    ${SRC_DIR}/Model.h
    ${SRC_DIR}/MeshAssetManager.h
    ${SRC_DIR}/Observer.h
+   ${SRC_DIR}/OSUtils.h
    ${SRC_DIR}/PhongMaterial.h
    ${SRC_DIR}/PhysicsComponent.h
    ${SRC_DIR}/PhysicsManager.h

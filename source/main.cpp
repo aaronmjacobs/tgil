@@ -2,6 +2,7 @@
 #include "Context.h"
 #include "GLIncludes.h"
 #include "LogHelper.h"
+#include "OSUtils.h"
 #include "Renderer.h"
 #include "Scene.h"
 
@@ -37,6 +38,10 @@ void monitorCallback(GLFWmonitor *monitor, int event) {
 
 int main(int argc, char *argv[]) {
    LOG_INFO(PROJECT_NAME << " " << VERSION_TYPE << " " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_MICRO << "." << VERSION_BUILD);
+
+   if (!OSUtils::fixWorkingDirectory()) {
+      LOG_ERROR("Unable to fix working directory");
+   }
 
    glfwSetErrorCallback(errorCallback);
    int glfwInitRes = glfwInit();
