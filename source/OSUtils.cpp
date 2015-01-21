@@ -37,30 +37,31 @@ folly::Optional<std::string> getExecutablePath() {
 #endif // __APPLE__
 
 #ifdef __linux__
-   char path[PATH_MAX];
-   memset(path, 0, sizeof(char) * PATH_MAX);
+   char path[PATH_MAX + 1];
 
-   if (readlink("/proc/self/exe", path, PATH_MAX) == -1) {
+   ssize_t numBytes = readlink("/proc/self/exe", path, PATH_MAX);
+   if (numBytes == -1) {
       return folly::none;
    }
+   path[numBytes] = '\0';
 
    return std::string(path);
 #endif // __linux__
 
 #ifdef _WIN32
-   TCHAR buffer[MAX_PATH];
-   memset(buffer, 0, sizeof(TCHAR) * MAX_PATH);
-   int success = GetModuleFileName(NULL, buffer, MAX_PATH - 1);
+   TCHAR buffer[MAX_PATH + 1];
+   DWORD length = GetModuleFileName(NULL, buffer, MAX_PATH);
+   buffer[length] = '\0';
    int error = GetLastError();
 
-   if (!success || error == ERROR_INSUFFICIENT_BUFFER) {
-      const DWORD REALLY_BIG = 32768;
-      TCHAR unreasonablyLargeBuffer[REALLY_BIG];
-      memset(unreasonablyLargeBuffer, 0, sizeof(TCHAR) * REALLY_BIG);
-      success = GetModuleFileName(NULL, unreasonablyLargeBuffer, REALLY_BIG - 1);
+   if (length == 0 || length == MAX_PATH || error == ERROR_INSUFFICIENT_BUFFER) {
+      const DWORD REALLY_BIG = 32767;
+      TCHAR unreasonablyLargeBuffer[REALLY_BIG + 1];
+      length = GetModuleFileName(NULL, unreasonablyLargeBuffer, REALLY_BIG);
+      unreasonablyLargeBuffer[length] = '\0';
       error = GetLastError();
 
-      if (!success || error == ERROR_INSUFFICIENT_BUFFER) {
+      if (length == 0 || length == REALLY_BIG || error == ERROR_INSUFFICIENT_BUFFER) {
          return folly::none;
       }
 
