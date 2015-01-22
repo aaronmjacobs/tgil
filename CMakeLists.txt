@@ -132,11 +132,11 @@ set(GLFW_DIR "${DEP_DIR}/GLFW")
 set(GLFW_INCLUDE_DIR "${GLFW_DIR}/include")
 
 if (APPLE)
-   set(GLFW_LIBRARY ${GLFW_DIR}/lib/osx/libglfw.3.1.dylib)
+   set(GLFW_LIBRARY_RELEASE ${GLFW_DIR}/lib/osx/release/libglfw.3.1.dylib)
+   set(GLFW_LIBRARY_DEBUG ${GLFW_DIR}/lib/osx/debug/libglfwd.3.1.dylib)
    list(APPEND COPY_LIBRARIES
-      ${GLFW_DIR}/lib/osx/libglfw.3.1.dylib
-      ${GLFW_DIR}/lib/osx/libglfw.3.dylib
-      ${GLFW_DIR}/lib/osx/libglfw.dylib
+      ${GLFW_LIBRARY_RELEASE}
+      ${GLFW_LIBRARY_DEBUG}
    )
 endif (APPLE)
 
@@ -385,7 +385,7 @@ include_directories(
 # Libraries
 set(RELEASE_LIBRARIES
    ${OPENGL_LIBRARIES}
-   ${GLFW_LIBRARY}
+   ${GLFW_LIBRARY_RELEASE}
    ${CMAKE_DL_LIBS} # Needed for glad on Linux
    ${BOXER_LIBRARY}
    ${ASSIMP_LIBRARY_RELEASE}
@@ -395,7 +395,7 @@ set(RELEASE_LIBRARIES
 
 set(DEBUG_LIBRARIES
    ${OPENGL_LIBRARIES}
-   ${GLFW_LIBRARY}
+   ${GLFW_LIBRARY_DEBUG}
    ${CMAKE_DL_LIBS} # Needed for glad on Linux
    ${BOXER_LIBRARY}
    ${ASSIMP_LIBRARY_DEBUG}
