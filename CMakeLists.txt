@@ -218,9 +218,11 @@ set(ASSIMP_DIR "${DEP_DIR}/assimp")
 set(ASSIMP_INCLUDE_DIR "${ASSIMP_DIR}/include")
 
 if (APPLE)
-   set(ASSIMP_LIBRARY "${ASSIMP_DIR}/lib/osx/libassimp.3.1.1.dylib")
+   set(ASSIMP_LIBRARY_RELEASE "${ASSIMP_DIR}/lib/osx/release/libassimp.3.1.1.dylib")
+   set(ASSIMP_LIBRARY_DEBUG "${ASSIMP_DIR}/lib/osx/debug/libassimpd.3.1.1.dylib")
    list(APPEND COPY_LIBRARIES
-      ${ASSIMP_DIR}/lib/osx/libassimp.3.1.1.dylib
+      ${ASSIMP_LIBRARY_RELEASE}
+      ${ASSIMP_LIBRARY_DEBUG}
    )
 endif (APPLE)
 
@@ -380,12 +382,22 @@ include_directories(
 )
 
 # Libraries
-set(LIBRARIES
+set(RELEASE_LIBRARIES
    ${OPENGL_LIBRARIES}
    ${GLFW_LIBRARY}
    ${CMAKE_DL_LIBS} # Needed for glad on Linux
    ${BOXER_LIBRARY}
-   ${ASSIMP_LIBRARY}
+   ${ASSIMP_LIBRARY_RELEASE}
+   ${FMOD_LIBRARY}
+   ${BULLET_LIBRARIES}
+)
+
+set(DEBUG_LIBRARIES
+   ${OPENGL_LIBRARIES}
+   ${GLFW_LIBRARY}
+   ${CMAKE_DL_LIBS} # Needed for glad on Linux
+   ${BOXER_LIBRARY}
+   ${ASSIMP_LIBRARY_DEBUG}
    ${FMOD_LIBRARY}
    ${BULLET_LIBRARIES}
 )
@@ -394,7 +406,7 @@ set(LIBRARIES
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${SHADERS})
 
 # Link
-target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
+target_link_libraries(${PROJECT_NAME} optimized ${RELEASE_LIBRARIES} debug ${DEBUG_LIBRARIES})
 
 # Copy libraries to binary dir
 if (COPY_LIBRARIES)
