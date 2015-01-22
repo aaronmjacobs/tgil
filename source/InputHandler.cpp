@@ -72,3 +72,7 @@ const InputValues& InputHandler::getInputValues(int player) const {
 
    return inputValues.at(player);
 }
+
+int InputHandler::getNumberOfPlayers() const {
+   return inputDevices.size();
+}

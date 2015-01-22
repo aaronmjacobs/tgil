@@ -7,7 +7,7 @@ AssetManager::~AssetManager() {
 }
 
 void AssetManager::reloadAssets() {
-   // TODO Reload all mapped assets
+   shaderAssetManager.reloadShaders();
 }
 
 SPtr<Shader> AssetManager::loadShader(const std::string &fileName, const GLenum type) {

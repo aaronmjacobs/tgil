@@ -25,6 +25,8 @@ public:
    void registerInputComponent(SPtr<InputComponent> inputComponent);
 
    const InputValues& getInputValues(int player) const;
+
+   int getNumberOfPlayers() const;
 };
 
 #endif

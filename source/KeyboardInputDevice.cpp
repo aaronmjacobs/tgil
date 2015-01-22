@@ -5,7 +5,7 @@
 namespace {
 
 const float SENSITIVITY_ADJUST = 0.1f;
-const KeyMouseMap DEFAULT_KEY_MOUSE_MAP { false, false, 1.0f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_E, GLFW_KEY_SPACE, GLFW_KEY_ESCAPE };
+const KeyMouseMap DEFAULT_KEY_MOUSE_MAP { false, false, 1.0f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_E, GLFW_KEY_SPACE, GLFW_KEY_ESCAPE, GLFW_MOUSE_BUTTON_LEFT };
 
 } // namespace
 
@@ -41,6 +41,8 @@ const InputValues& KeyboardInputDevice::getInputValues() {
    inputValues.action = glfwGetKey(window, map.actionKey) == GLFW_PRESS;
    inputValues.jump = glfwGetKey(window, map.jumpKey) == GLFW_PRESS;
    inputValues.quit = glfwGetKey(window, map.quitKey) == GLFW_PRESS;
+
+   inputValues.attack = glfwGetMouseButton(window, map.attackButton) == GLFW_PRESS;
 
    return inputValues;
 }

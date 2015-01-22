@@ -146,7 +146,7 @@ void Renderer::render(Scene &scene) {
    // Free all texture units
    Context::getInstance().getTextureUnitManager().reset();
 
-   const std::vector<SPtr<GameObject>> cameras = scene.getCameras();
+   const std::vector<SPtr<GameObject>> &cameras = scene.getCameras();
    if (cameras.empty()) {
       LOG_WARNING("Scene must have camera to render");
    }
@@ -176,8 +176,8 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    const CameraComponent &cameraComponent = camera.getCameraComponent();
    const glm::mat4 &viewMatrix = cameraComponent.getViewMatrix();
    const glm::vec3 &cameraPosition = cameraComponent.getCameraPosition();
-   const std::vector<SPtr<GameObject>>& lights = scene.getLights();
-   const std::set<SPtr<ShaderProgram>>& shaderPrograms = scene.getShaderPrograms();
+   const std::vector<SPtr<GameObject>> &lights = scene.getLights();
+   const std::set<SPtr<ShaderProgram>> &shaderPrograms = scene.getShaderPrograms();
    for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
       shaderProgram->use();
 
@@ -202,7 +202,7 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    }
 
    // Objects
-   const std::vector<SPtr<GameObject>>& gameObjects = scene.getObjects();
+   const std::vector<SPtr<GameObject>> &gameObjects = scene.getObjects();
    for (SPtr<GameObject> gameObject : gameObjects) {
       gameObject->getGraphicsComponent().draw();
    }

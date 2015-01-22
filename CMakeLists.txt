@@ -57,6 +57,7 @@ set(SOURCES
    ${SRC_DIR}/PointLightComponent.cpp
    ${SRC_DIR}/Renderer.cpp
    ${SRC_DIR}/Scene.cpp
+   ${SRC_DIR}/SceneLoader.cpp
    ${SRC_DIR}/Shader.cpp
    ${SRC_DIR}/ShaderAssetManager.cpp
    ${SRC_DIR}/ShaderProgram.cpp
@@ -109,6 +110,7 @@ set(HEADERS
    ${SRC_DIR}/PointLightComponent.h
    ${SRC_DIR}/Renderer.h
    ${SRC_DIR}/Scene.h
+   ${SRC_DIR}/SceneLoader.h
    ${SRC_DIR}/Shader.h
    ${SRC_DIR}/ShaderAssetManager.h
    ${SRC_DIR}/ShaderProgram.h

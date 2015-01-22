@@ -44,6 +44,8 @@ public:
    Renderer& getRenderer() const;
    Scene& getScene() const;
    TextureUnitManager& getTextureUnitManager() const;
+
+   void setScene(SPtr<Scene> scene);
 };
 
 #endif

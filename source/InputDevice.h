@@ -15,6 +15,7 @@ struct InputValues {
    float lookY; // Negative = up, positive = down
 
    bool action;
+   bool attack;
    bool jump;
    bool quit;
 };

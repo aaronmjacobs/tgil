@@ -13,7 +13,7 @@ Mesh::Mesh(const aiMesh* aiMesh) {
 
    // Parse the faces
    numIndices = aiMesh->mNumFaces * 3;
-   unsigned int *faceArray = new unsigned int[numIndices];
+   UPtr<unsigned int[]> faceArray(new unsigned int[numIndices]);
    unsigned int faceIndex = 0;
 
    for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
@@ -36,12 +36,11 @@ Mesh::Mesh(const aiMesh* aiMesh) {
    // Prepare the index buffer object
    glGenBuffers(1, &ibo);
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, faceArray, GL_STATIC_DRAW);
-   delete[] faceArray;
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, faceArray.get(), GL_STATIC_DRAW);
 
    // Buffer for vertex texture coordinates
    if (aiMesh->HasTextureCoords(0)) {
-      float *texCoords = new float[aiMesh->mNumVertices * 2];
+      UPtr<float[]> texCoords(new float[aiMesh->mNumVertices * 2]);
       for (unsigned int k = 0; k < aiMesh->mNumVertices; ++k) {
          texCoords[k * 2] = aiMesh->mTextureCoords[0][k].x;
          texCoords[k * 2 + 1] = 1.0f - aiMesh->mTextureCoords[0][k].y;
@@ -49,10 +48,9 @@ Mesh::Mesh(const aiMesh* aiMesh) {
 
       glGenBuffers(1, &tbo);
       glBindBuffer(GL_ARRAY_BUFFER, tbo);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * aiMesh->mNumVertices, texCoords, GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * aiMesh->mNumVertices, texCoords.get(), GL_STATIC_DRAW);
 
       hasTextureBufferObject = true;
-      delete[] texCoords;
    } else {
       hasTextureBufferObject = false;
       tbo = 0;

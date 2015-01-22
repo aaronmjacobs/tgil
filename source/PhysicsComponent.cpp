@@ -56,4 +56,6 @@ NullPhysicsComponent::NullPhysicsComponent(GameObject &gameObject)
    collisionShape = UPtr<btCollisionShape>(new btSphereShape(0.0f));
    collisionObject = UPtr<btCollisionObject>(new btCollisionObject);
    collisionObject->setCollisionShape(collisionShape.get());
+
+   // TODO Crash happens when destructing dynamics world, because null physics components don't currently have a broadphase proxy
 }
