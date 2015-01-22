@@ -169,12 +169,15 @@ if (WIN32)
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   # TODO Grab glfw 3.1 for Linux
-   set(GLFW_LIBRARY ${GLFW_DIR}/lib/linux/libglfw.so.3.0)
+   set(GLFW_LIBRARY_RELEASE ${GLFW_DIR}/lib/linux/release/libglfw.so.3.1)
+   set(GLFW_LIBRARY_DEBUG ${GLFW_DIR}/lib/linux/debug/libglfwd.so.3.1)
    list(APPEND COPY_LIBRARIES
-      ${GLFW_DIR}/lib/linux/libglfw.so.3.0
-      ${GLFW_DIR}/lib/linux/libglfw.so.3
-      ${GLFW_DIR}/lib/linux/libglfw.so
+      ${GLFW_DIR}/lib/linux/release/libglfw.so.3.1
+      ${GLFW_DIR}/lib/linux/release/libglfw.so.3
+      ${GLFW_DIR}/lib/linux/release/libglfw.so
+      ${GLFW_DIR}/lib/linux/debug/libglfwd.so.3.1
+      ${GLFW_DIR}/lib/linux/debug/libglfwd.so.3
+      ${GLFW_DIR}/lib/linux/debug/libglfwd.so
    )
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
@@ -234,11 +237,15 @@ if (WIN32)
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   set(ASSIMP_LIBRARY ${ASSIMP_DIR}/lib/linux/libassimp.so.3.1.1)
+   set(ASSIMP_LIBRARY_RELEASE ${ASSIMP_DIR}/lib/linux/release/libassimp.so.3.1.1)
+   set(ASSIMP_LIBRARY_DEBUG ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so.3.1.1)
    list(APPEND COPY_LIBRARIES
-      ${ASSIMP_DIR}/lib/linux/libassimp.so.3.1.1
-      ${ASSIMP_DIR}/lib/linux/libassimp.so.3
-      ${ASSIMP_DIR}/lib/linux/libassimp.so
+      ${ASSIMP_DIR}/lib/linux/release/libassimp.so.3.1.1
+      ${ASSIMP_DIR}/lib/linux/release/libassimp.so.3
+      ${ASSIMP_DIR}/lib/linux/release/libassimp.so
+      ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so.3.1.1
+      ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so.3
+      ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so
    )
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
@@ -276,21 +283,16 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       set(FMOD_LINUX_ARCHITECTURE "x86")
    endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
-   if (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(FMOD_LIBRARY ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.9)
-      list(APPEND COPY_LIBRARIES
-         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.9
-         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5
-         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so
-      )
-   else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(FMOD_LIBRARY ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.9)
-      list(APPEND COPY_LIBRARIES
-         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.9
-         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5
-         ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so
-      )
-   endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+   set(FMOD_LIBRARY_RELEASE ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.10)
+   set(FMOD_LIBRARY_DEBUG ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.10)
+   list(APPEND COPY_LIBRARIES
+      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.10
+      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5
+      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so
+      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.10
+      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5
+      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so
+   )
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 # stb
@@ -339,11 +341,17 @@ if (WIN32)
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   set(BULLET_LIBRARIES
-      ${BULLET_DIR}/lib/linux/libBulletSoftBody.a
-      ${BULLET_DIR}/lib/linux/libBulletDynamics.a
-      ${BULLET_DIR}/lib/linux/libBulletCollision.a
-      ${BULLET_DIR}/lib/linux/libLinearMath.a
+   set(BULLET_LIBRARIES_RELEASE
+      ${BULLET_DIR}/lib/linux/release/libBulletSoftBody.a
+      ${BULLET_DIR}/lib/linux/release/libBulletDynamics.a
+      ${BULLET_DIR}/lib/linux/release/libBulletCollision.a
+      ${BULLET_DIR}/lib/linux/release/libLinearMath.a
+   )
+   set(BULLET_LIBRARIES_DEBUG
+      ${BULLET_DIR}/lib/linux/debug/libBulletSoftBody.a
+      ${BULLET_DIR}/lib/linux/debug/libBulletDynamics.a
+      ${BULLET_DIR}/lib/linux/debug/libBulletCollision.a
+      ${BULLET_DIR}/lib/linux/debug/libLinearMath.a
    )
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
