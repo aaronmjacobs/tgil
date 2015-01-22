@@ -247,17 +247,12 @@ set(FMOD_DIR "${DEP_DIR}/FMOD")
 set(FMOD_INCLUDE_DIR "${FMOD_DIR}/include")
 
 if (APPLE)
-   if (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(FMOD_LIBRARY "${FMOD_DIR}/lib/osx/release/libfmod.dylib")
-      list(APPEND COPY_LIBRARIES
-         ${FMOD_DIR}/lib/osx/release/libfmod.dylib
-      )
-   else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(FMOD_LIBRARY "${FMOD_DIR}/lib/osx/debug/libfmodL.dylib")
-      list(APPEND COPY_LIBRARIES
-         ${FMOD_DIR}/lib/osx/debug/libfmodL.dylib
-      )
-   endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+   set(FMOD_LIBRARY_RELEASE "${FMOD_DIR}/lib/osx/release/libfmod.dylib")
+   set(FMOD_LIBRARY_DEBUG "${FMOD_DIR}/lib/osx/debug/libfmodL.dylib")
+   list(APPEND COPY_LIBRARIES
+      ${FMOD_LIBRARY_RELEASE}
+      ${FMOD_LIBRARY_DEBUG}
+   )
 endif (APPLE)
 
 if (WIN32)
@@ -394,7 +389,7 @@ set(RELEASE_LIBRARIES
    ${CMAKE_DL_LIBS} # Needed for glad on Linux
    ${BOXER_LIBRARY}
    ${ASSIMP_LIBRARY_RELEASE}
-   ${FMOD_LIBRARY}
+   ${FMOD_LIBRARY_RELEASE}
    ${BULLET_LIBRARIES_RELEASE}
 )
 
@@ -404,7 +399,7 @@ set(DEBUG_LIBRARIES
    ${CMAKE_DL_LIBS} # Needed for glad on Linux
    ${BOXER_LIBRARY}
    ${ASSIMP_LIBRARY_DEBUG}
-   ${FMOD_LIBRARY}
+   ${FMOD_LIBRARY_DEBUG}
    ${BULLET_LIBRARIES_DEBUG}
 )
 
