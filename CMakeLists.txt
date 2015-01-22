@@ -311,11 +311,17 @@ set(BULLET_DIR "${DEP_DIR}/bullet")
 set(BULLET_INCLUDE_DIR "${BULLET_DIR}/include" "${BULLET_DIR}/include/bullet")
 
 if (APPLE)
-   set(BULLET_LIBRARIES
-      ${BULLET_DIR}/lib/osx/libLinearMath.a
-      ${BULLET_DIR}/lib/osx/libBulletCollision.a
-      ${BULLET_DIR}/lib/osx/libBulletDynamics.a
-      ${BULLET_DIR}/lib/osx/libBulletSoftBody.a
+   set(BULLET_LIBRARIES_RELEASE
+      ${BULLET_DIR}/lib/osx/release/libLinearMath.a
+      ${BULLET_DIR}/lib/osx/release/libBulletCollision.a
+      ${BULLET_DIR}/lib/osx/release/libBulletDynamics.a
+      ${BULLET_DIR}/lib/osx/release/libBulletSoftBody.a
+   )
+   set(BULLET_LIBRARIES_DEBUG
+      ${BULLET_DIR}/lib/osx/debug/libLinearMath.a
+      ${BULLET_DIR}/lib/osx/debug/libBulletCollision.a
+      ${BULLET_DIR}/lib/osx/debug/libBulletDynamics.a
+      ${BULLET_DIR}/lib/osx/debug/libBulletSoftBody.a
    )
 endif (APPLE)
 
@@ -389,7 +395,7 @@ set(RELEASE_LIBRARIES
    ${BOXER_LIBRARY}
    ${ASSIMP_LIBRARY_RELEASE}
    ${FMOD_LIBRARY}
-   ${BULLET_LIBRARIES}
+   ${BULLET_LIBRARIES_RELEASE}
 )
 
 set(DEBUG_LIBRARIES
@@ -399,7 +405,7 @@ set(DEBUG_LIBRARIES
    ${BOXER_LIBRARY}
    ${ASSIMP_LIBRARY_DEBUG}
    ${FMOD_LIBRARY}
-   ${BULLET_LIBRARIES}
+   ${BULLET_LIBRARIES_DEBUG}
 )
 
 # Binary
