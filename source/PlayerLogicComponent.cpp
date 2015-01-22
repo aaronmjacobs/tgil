@@ -10,6 +10,11 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
+// For some reason, min is defined on Windows, which conflicts with glm::min
+#ifdef _WIN32
+#undef min
+#endif // _WIN32
+
 namespace {
 
 const float LOOK_SPEED = 5.0f;

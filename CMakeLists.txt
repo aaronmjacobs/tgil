@@ -141,31 +141,12 @@ if (APPLE)
 endif (APPLE)
 
 if (WIN32)
-   if (MSVC11)
-      set(GLFW_LIBRARY ${GLFW_DIR}/lib/win32/lib-msvc110/glfw3dll.lib)
-      list(APPEND COPY_LIBRARIES
-         ${GLFW_DIR}/lib/win32/lib-msvc110/glfw3.dll
-      )
-   endif (MSVC11)
-   if (MSVC12)
-      set(GLFW_LIBRARY ${GLFW_DIR}/lib/win32/lib-msvc120/glfw3dll.lib)
-      list(APPEND COPY_LIBRARIES
-         ${GLFW_DIR}/lib/win32/lib-msvc120/glfw3.dll
-      )
-   endif (MSVC12)
-   # TODO Add proper support for MSVC14
-   if (MSVC14)
-      set(GLFW_LIBRARY ${GLFW_DIR}/lib/win32/lib-msvc120/glfw3dll.lib)
-      list(APPEND COPY_LIBRARIES
-         ${GLFW_DIR}/lib/win32/lib-msvc120/glfw3.dll
-      )
-   endif (MSVC14)
-   if (MINGW)
-      set(GLFW_LIBRARY ${GLFW_DIR}/lib/win32/lib-mingw/glfw3dll.a)
-      list(APPEND COPY_LIBRARIES
-         ${GLFW_DIR}/lib/win32/lib-mingw/glfw3.dll
-      )
-   endif (MINGW)
+   set(GLFW_LIBRARY_RELEASE ${GLFW_DIR}/lib/win32/release/glfw3dll.lib)
+   set(GLFW_LIBRARY_DEBUG ${GLFW_DIR}/lib/win32/debug/glfw3ddll.lib)
+   list(APPEND COPY_LIBRARIES
+      ${GLFW_DIR}/lib/win32/release/glfw3.dll
+      ${GLFW_DIR}/lib/win32/debug/glfw3d.dll
+   )
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -230,9 +211,11 @@ if (APPLE)
 endif (APPLE)
 
 if (WIN32)
-   set(ASSIMP_LIBRARY "${ASSIMP_DIR}/lib/win32/assimp.lib")
+   set(ASSIMP_LIBRARY_RELEASE "${ASSIMP_DIR}/lib/win32/release/assimp.lib")
+   set(ASSIMP_LIBRARY_DEBUG "${ASSIMP_DIR}/lib/win32/debug/assimpd.lib")
    list(APPEND COPY_LIBRARIES
-      ${ASSIMP_DIR}/lib/win32/assimp.dll
+      ${ASSIMP_DIR}/lib/win32/release/assimp.dll
+      ${ASSIMP_DIR}/lib/win32/debug/assimpd.dll
    )
 endif (WIN32)
 
@@ -263,17 +246,18 @@ if (APPLE)
 endif (APPLE)
 
 if (WIN32)
-   if (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(FMOD_LIBRARY "${FMOD_DIR}/lib/win32/release/fmod_vc.lib")
-      list(APPEND COPY_LIBRARIES
-         ${FMOD_DIR}/lib/win32/release/fmod.dll
-      )
-   else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(FMOD_LIBRARY "${FMOD_DIR}/lib/win32/debug/fmodL_vc.lib")
-      list(APPEND COPY_LIBRARIES
-         ${FMOD_DIR}/lib/win32/debug/fmodL.dll
-      )
-   endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(FMOD_WIN_ARCHITECTURE "x86_64")
+   else (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(FMOD_WIN_ARCHITECTURE "x86")
+   endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+
+   set(FMOD_LIBRARY_RELEASE "${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/release/fmod_vc.lib")
+   set(FMOD_LIBRARY_DEBUG "${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/debug/fmodL_vc.lib")
+   list(APPEND COPY_LIBRARIES
+      ${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/release/fmod.dll
+      ${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/debug/fmodL.dll
+   )
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -283,8 +267,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       set(FMOD_LINUX_ARCHITECTURE "x86")
    endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
 
-   set(FMOD_LIBRARY_RELEASE ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.10)
-   set(FMOD_LIBRARY_DEBUG ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.10)
+   set(FMOD_LIBRARY_RELEASE "${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.10")
+   set(FMOD_LIBRARY_DEBUG "${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.10")
    list(APPEND COPY_LIBRARIES
       ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.10
       ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5
@@ -323,21 +307,18 @@ if (APPLE)
 endif (APPLE)
 
 if (WIN32)
-   if (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(BULLET_LIBRARIES
-         ${BULLET_DIR}/lib/win32/release/LinearMath.lib
-         ${BULLET_DIR}/lib/win32/release/BulletCollision.lib
-         ${BULLET_DIR}/lib/win32/release/BulletDynamics.lib
-         ${BULLET_DIR}/lib/win32/release/BulletSoftBody.lib
-      )
-   else (CMAKE_BUILD_TYPE MATCHES "RELEASE")
-      set(BULLET_LIBRARIES
-         ${BULLET_DIR}/lib/win32/debug/LinearMath_Debug.lib
-         ${BULLET_DIR}/lib/win32/debug/BulletCollision_Debug.lib
-         ${BULLET_DIR}/lib/win32/debug/BulletDynamics_Debug.lib
-         ${BULLET_DIR}/lib/win32/debug/BulletSoftBody_Debug.lib
-      )
-   endif (CMAKE_BUILD_TYPE MATCHES "RELEASE")
+   set(BULLET_LIBRARIES_RELEASE
+      ${BULLET_DIR}/lib/win32/release/LinearMath.lib
+      ${BULLET_DIR}/lib/win32/release/BulletCollision.lib
+      ${BULLET_DIR}/lib/win32/release/BulletDynamics.lib
+      ${BULLET_DIR}/lib/win32/release/BulletSoftBody.lib
+   )
+   set(BULLET_LIBRARIES_DEBUG
+      ${BULLET_DIR}/lib/win32/debug/LinearMath_Debug.lib
+      ${BULLET_DIR}/lib/win32/debug/BulletCollision_Debug.lib
+      ${BULLET_DIR}/lib/win32/debug/BulletDynamics_Debug.lib
+      ${BULLET_DIR}/lib/win32/debug/BulletSoftBody_Debug.lib
+   )
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
