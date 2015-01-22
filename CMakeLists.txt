@@ -403,11 +403,23 @@ set(DEBUG_LIBRARIES
    ${BULLET_LIBRARIES_DEBUG}
 )
 
+foreach(RELEASE_LIBRARY ${RELEASE_LIBRARIES})
+   list(APPEND TAGGED_RELEASE_LIBRARIES
+      optimized ${RELEASE_LIBRARY}
+   )
+endforeach(RELEASE_LIBRARY)
+
+foreach(DEBUG_LIBRARY ${DEBUG_LIBRARIES})
+   list(APPEND TAGGED_DEBUG_LIBRARIES
+      debug ${DEBUG_LIBRARY}
+   )
+endforeach(DEBUG_LIBRARY)
+
 # Binary
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${SHADERS})
 
 # Link
-target_link_libraries(${PROJECT_NAME} optimized ${RELEASE_LIBRARIES} debug ${DEBUG_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${TAGGED_RELEASE_LIBRARIES} ${TAGGED_DEBUG_LIBRARIES})
 
 # Copy libraries to binary dir
 if (COPY_LIBRARIES)
