@@ -15,6 +15,10 @@ set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 set(BIN_INCLUDE_DIR "${PROJECT_BINARY_DIR}/include")
 set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
+set(RES_DIR "${PROJECT_SOURCE_DIR}/resources")
+
+# Custom executable output path
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 # Options
 option(LOG_TO_FILE "Enable logging to a file" OFF)
@@ -352,7 +356,7 @@ if(NOT OPENGL_FOUND)
 endif(NOT OPENGL_FOUND)
 
 # Fix the rpath
-set(CMAKE_INSTALL_RPATH ${PROJECT_BINARY_DIR})
+set(CMAKE_INSTALL_RPATH ${EXECUTABLE_OUTPUT_PATH})
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 # Includes
@@ -422,3 +426,14 @@ if (COPY_LIBRARIES)
       )
    endforeach(COPY_LIBRARY)
 endif (COPY_LIBRARIES)
+
+# Install
+if (APPLE)
+   set(APP_DIR "${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}.app")
+   INSTALL(CODE "include(BundleUtilities)
+      file(MAKE_DIRECTORY \"${APP_DIR}\" \"${APP_DIR}/Contents\" \"${APP_DIR}/Contents/MacOS\")      # Make the .app file
+      file(COPY \"${RES_DIR}/osx/Info.plist\" DESTINATION \"${APP_DIR}/Contents\")                   # Copy in the .plist file
+      file(COPY \"${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}\" DESTINATION \"${APP_DIR}/Contents/MacOS\") # Copy in the executable
+      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${APP_DIR}/Contents/MacOS\")            # Copy in the data folder
+      fixup_bundle(\"${APP_DIR}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime)                # Fix the binary / libraries
+endif (APPLE)
