@@ -127,6 +127,10 @@ set(HEADERS
 )
 
 set(SHADERS
+   ${DATA_DIR}/shaders/debug_vert.glsl
+   ${DATA_DIR}/shaders/debug_frag.glsl
+   ${DATA_DIR}/shaders/framebuffer_vert.glsl
+   ${DATA_DIR}/shaders/framebuffer_frag.glsl
    ${DATA_DIR}/shaders/phong_vert.glsl
    ${DATA_DIR}/shaders/phong_frag.glsl
 )
