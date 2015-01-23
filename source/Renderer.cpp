@@ -64,7 +64,7 @@ void checkGLError() {
 } // namespace
 
 Renderer::Renderer()
-   : framebuffer(new Framebuffer){
+   : renderDebug(false), framebuffer(new Framebuffer) {
 }
 
 Renderer::~Renderer() {
