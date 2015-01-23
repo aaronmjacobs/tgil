@@ -11,7 +11,11 @@
 
 #cmakedefine LOG_TO_FILE
 
+#ifdef NDEBUG
+#define DATA_DIR "data"
+#else
 #define DATA_DIR "@DATA_DIR@"
+#endif // NDEBUG
 
 #define MAX_PLAYERS 4
 
