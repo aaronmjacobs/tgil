@@ -431,9 +431,19 @@ endif (COPY_LIBRARIES)
 if (APPLE)
    set(APP_DIR "${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}.app")
    INSTALL(CODE "include(BundleUtilities)
-      file(MAKE_DIRECTORY \"${APP_DIR}\" \"${APP_DIR}/Contents\" \"${APP_DIR}/Contents/MacOS\")      # Make the .app file
-      file(COPY \"${RES_DIR}/osx/Info.plist\" DESTINATION \"${APP_DIR}/Contents\")                   # Copy in the .plist file
-      file(COPY \"${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}\" DESTINATION \"${APP_DIR}/Contents/MacOS\") # Copy in the executable
-      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${APP_DIR}/Contents/MacOS\")            # Copy in the data folder
-      fixup_bundle(\"${APP_DIR}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime)                # Fix the binary / libraries
+      file(MAKE_DIRECTORY \"${APP_DIR}\" \"${APP_DIR}/Contents\" \"${APP_DIR}/Contents/MacOS\")           # Make the .app file
+      file(COPY \"${RES_DIR}/osx/Info.plist\" DESTINATION \"${APP_DIR}/Contents\")                        # Copy in the .plist file
+      file(COPY \"${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}\" DESTINATION \"${APP_DIR}/Contents/MacOS\")  # Copy in the executable
+      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${APP_DIR}/Contents/MacOS\")                 # Copy in the data folder
+      fixup_bundle(\"${APP_DIR}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime)                 # Fix the binary / libraries
 endif (APPLE)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   set(APP_DIR "${EXECUTABLE_OUTPUT_PATH}/bundle/${PROJECT_NAME}")
+   INSTALL(CODE "include(BundleUtilities)
+      file(MAKE_DIRECTORY \"${APP_DIR}\")                                                                 # Make the app dir
+      file(COPY \"${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}\" DESTINATION \"${APP_DIR}\")                 # Copy in the executable
+      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${APP_DIR}\")                                # Copy in the data folder
+      execute_process(COMMAND \"chrpath\" \"-r\" \"$ORIGIN/\" \"${APP_DIR}/${PROJECT_NAME}\")             # Fix the rpath of the executable
+      fixup_bundle(\"${APP_DIR}/${PROJECT_NAME}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime) # Fix the binary / libraries
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
