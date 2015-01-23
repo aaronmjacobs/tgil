@@ -438,6 +438,27 @@ if (APPLE)
       fixup_bundle(\"${APP_DIR}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime)                 # Fix the binary / libraries
 endif (APPLE)
 
+if (WIN32)
+   # Manually install system libs (so that they're not in bin/)
+   set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP on)
+   include(InstallRequiredSystemLibraries.cmake)
+   if(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+      INSTALL(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION "." COMPONENT Runtime)
+   endif(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+
+   INSTALL(TARGETS ${PROJECT_NAME} DESTINATION "." COMPONENT Runtime)
+   INSTALL(CODE "
+      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")"                  # Copy in the data folder
+      COMPONENT Runtime)
+	                                                                                                        # Fix the binary / libraries
+   INSTALL(CODE "include(BundleUtilities)
+      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.exe\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Debug\")"
+	  COMPONENT Runtime CONFIGURATIONS Debug)
+   INSTALL(CODE "include(BundleUtilities)
+      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.exe\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Release\")"
+	  COMPONENT Runtime CONFIGURATIONS Release)
+endif (WIN32)
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    set(APP_DIR "${EXECUTABLE_OUTPUT_PATH}/bundle/${PROJECT_NAME}")
    INSTALL(CODE "include(BundleUtilities)
