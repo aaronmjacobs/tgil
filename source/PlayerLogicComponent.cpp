@@ -52,10 +52,10 @@ const btCollisionObject* getGround(SPtr<Scene> scene, const btRigidBody &rigidBo
    return res.m_collisionObject;
 }
 
-float calcMovementForce(glm::vec3 velocity, const btCollisionObject *ground, bool wantsToJump) {
+float calcMovementForce(glm::vec3 velocity, const btCollisionObject *ground) {
    velocity.y = 0.0f;
    float speed = glm::length(velocity);
-   float forceModifier = (!ground || wantsToJump) ? AIR_MOVE_MULTIPLIER : ground->getFriction();
+   float forceModifier = ground ? ground->getFriction() : AIR_MOVE_MULTIPLIER;
    float normalMoveForce = NORMAL_MOVE_FORCE * forceModifier;
    float maxMoveForce = MAX_MOVE_FORCE * forceModifier;
    return speed < normalMoveForce / maxMoveForce ? maxMoveForce : glm::min(maxMoveForce, normalMoveForce / speed);
@@ -123,7 +123,7 @@ void PlayerLogicComponent::tick(const float dt) {
    btVector3 velocity = rigidBody->getLinearVelocity();
    const btCollisionObject *ground = getGround(scene, *rigidBody);
 
-   float forceAmount = calcMovementForce(toGlm(velocity), ground, inputValues.jump);
+   float forceAmount = calcMovementForce(toGlm(velocity), ground);
 
    glm::vec3 force = moveIntention * glm::vec3(forceAmount);
 
