@@ -8,6 +8,8 @@
 #include "PhysicsManager.h"
 #include "Scene.h"
 
+#include <algorithm>
+
 Scene::Scene()
    : physicsManager(std::make_shared<PhysicsManager>()), debugDrawer(new DebugDrawer), ticking(false) {
    physicsManager->setDebugDrawer(debugDrawer.get());
