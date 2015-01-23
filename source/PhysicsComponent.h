@@ -49,8 +49,8 @@ public:
       return collisionMask;
    }
 
-   btCollisionObject& getCollisionObject() const {
-      return *collisionObject;
+   btCollisionObject* getCollisionObject() const {
+      return collisionObject.get();
    }
 
    virtual void onNotify(const GameObject &gameObject, Event event);

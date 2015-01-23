@@ -77,7 +77,7 @@ void PlayerLogicComponent::tick(const float dt) {
       return;
    }
 
-   btCollisionObject* collisionObject = &gameObject.getPhysicsComponent().getCollisionObject();
+   btCollisionObject* collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
    btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject);
    ASSERT(rigidBody, "Player rigid body should not be null");
    if (!rigidBody) {

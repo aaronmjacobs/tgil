@@ -53,9 +53,4 @@ void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
 
 NullPhysicsComponent::NullPhysicsComponent(GameObject &gameObject)
    : PhysicsComponent(gameObject, btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE, CollisionGroup::Nothing, CollisionGroup::Nothing) {
-   collisionShape = UPtr<btCollisionShape>(new btSphereShape(0.0f));
-   collisionObject = UPtr<btCollisionObject>(new btCollisionObject);
-   collisionObject->setCollisionShape(collisionShape.get());
-
-   // TODO Crash happens when destructing dynamics world, because null physics components don't currently have a broadphase proxy
 }

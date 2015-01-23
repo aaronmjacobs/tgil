@@ -89,7 +89,7 @@ SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position
 
    // Physics
    staticObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*staticObject, 0.0f, CollisionGroup::StaticBodies, CollisionGroup::Everything));
-   btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(&staticObject->getPhysicsComponent().getCollisionObject());
+   btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(staticObject->getPhysicsComponent().getCollisionObject());
    gameObjectRigidBody->setFriction(friction);
    gameObjectRigidBody->setRollingFriction(friction);
    gameObjectRigidBody->setRestitution(restitution);
@@ -110,7 +110,7 @@ SPtr<GameObject> createDynamicObject(SPtr<Model> model, const glm::vec3 &positio
 
    // Physics
    dynamicObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*dynamicObject, mass, CollisionGroup::StaticBodies, CollisionGroup::Everything));
-   btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(&dynamicObject->getPhysicsComponent().getCollisionObject());
+   btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(dynamicObject->getPhysicsComponent().getCollisionObject());
    gameObjectRigidBody->setFriction(friction);
    gameObjectRigidBody->setRollingFriction(friction);
    gameObjectRigidBody->setRestitution(restitution);
@@ -132,7 +132,7 @@ SPtr<GameObject> createPlayer(SPtr<Model> model, const glm::vec3 &position) {
 
    // Physics
    player->setPhysicsComponent(std::make_shared<PlayerPhysicsComponent>(*player, 1.0f));
-   btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(&player->getPhysicsComponent().getCollisionObject());
+   btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(player->getPhysicsComponent().getCollisionObject());
    gameObjectRigidBody->setFriction(3.0f);
    gameObjectRigidBody->setRollingFriction(3.0f);
    gameObjectRigidBody->setRestitution(0.0f);
