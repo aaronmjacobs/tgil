@@ -11,8 +11,6 @@
 
 namespace {
 
-const char *LOG_FILE_NAME = "out.log";
-
 // Width of the severity tag in log output (e.g. [ warning ])
 const int SEV_NAME_WIDTH = 9;
 
@@ -36,6 +34,19 @@ std::string formatTime(struct tm *tm) {
       << std::setw(2) << tm->tm_hour << ':'
       << std::setw(2) << tm->tm_min << ':'
       << std::setw(2) << tm->tm_sec;
+
+   return ss.str();
+}
+
+// Format time to a string (mm-dd-yyyy-hh)
+std::string formatTimeForFilename(struct tm *tm) {
+   std::stringstream ss;
+
+   ss << std::setfill('0')
+   << std::setw(2) << tm->tm_mon + 1 << '-'
+   << std::setw(2) << tm->tm_mday << '-'
+   << std::setw(4) << tm->tm_year + 1900 << '-'
+   << std::setw(2) << tm->tm_hour;
 
    return ss.str();
 }
@@ -75,9 +86,12 @@ public:
    static bool is_writing(int /*sev*/, int /*aud*/){return true;}
 
    static void write_str(const std::string& str) {
-      std::ofstream out(LOG_FILE_NAME, std::ios_base::app);
+      auto t = std::time(nullptr);
+      auto tm = std::localtime(&t);
+
+      std::ofstream out(formatTimeForFilename(tm) + ".log", std::ios_base::app);
       if (out) {
-         out << str; 
+         out << str;
       }
    }
 };
