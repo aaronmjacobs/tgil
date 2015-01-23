@@ -429,13 +429,25 @@ endif (COPY_LIBRARIES)
 
 # Install
 if (APPLE)
-   set(APP_DIR "${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}.app")
-   INSTALL(CODE "include(BundleUtilities)
-      file(MAKE_DIRECTORY \"${APP_DIR}\" \"${APP_DIR}/Contents\" \"${APP_DIR}/Contents/MacOS\")           # Make the .app file
-      file(COPY \"${RES_DIR}/osx/Info.plist\" DESTINATION \"${APP_DIR}/Contents\")                        # Copy in the .plist file
-      file(COPY \"${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}\" DESTINATION \"${APP_DIR}/Contents/MacOS\")  # Copy in the executable
-      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${APP_DIR}/Contents/MacOS\")                 # Copy in the data folder
-      fixup_bundle(\"${APP_DIR}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime)                 # Fix the binary / libraries
+   set(APP_DIR "${PROJECT_NAME}.app")
+   set(CONTENTS_DIR "${APP_DIR}/Contents")
+   set(MACOS_DIR "${CONTENTS_DIR}/MacOS")
+
+   install(CODE "file(MAKE_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/${MACOS_DIR}\")")                       # Make the .app file
+
+   install(TARGETS ${PROJECT_NAME} DESTINATION "${MACOS_DIR}" COMPONENT Runtime)                       # Install the executable
+
+   install(CODE "
+      file(COPY \"${RES_DIR}/osx/Info.plist\" DESTINATION \"${CMAKE_INSTALL_PREFIX}/${CONTENTS_DIR}\") # Copy in the .plist file
+      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${CMAKE_INSTALL_PREFIX}/${MACOS_DIR}\")"  # Copy in the data folder
+      COMPONENT Runtime)
+                                                                                                       # Fix the executable / libraries
+   install(CODE "include(BundleUtilities)
+      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${APP_DIR}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Release\")"
+      COMPONENT Runtime CONFIGURATIONS Release)
+   install(CODE "include(BundleUtilities)
+      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${APP_DIR}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Debug\")"
+      COMPONENT Runtime CONFIGURATIONS Debug)
 endif (APPLE)
 
 if (WIN32)
@@ -443,28 +455,28 @@ if (WIN32)
    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP on)
    include(InstallRequiredSystemLibraries.cmake)
    if(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
-      INSTALL(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION "." COMPONENT Runtime)
+      install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION "." COMPONENT Runtime)
    endif(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
 
-   INSTALL(TARGETS ${PROJECT_NAME} DESTINATION "." COMPONENT Runtime)
-   INSTALL(CODE "
-      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")"                  # Copy in the data folder
+   install(TARGETS ${PROJECT_NAME} DESTINATION "." COMPONENT Runtime)                    # Install the executable
+
+   install(CODE "
+      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")" # Copy in the data folder
       COMPONENT Runtime)
-	                                                                                                        # Fix the binary / libraries
-   INSTALL(CODE "include(BundleUtilities)
-      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.exe\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Debug\")"
-	  COMPONENT Runtime CONFIGURATIONS Debug)
-   INSTALL(CODE "include(BundleUtilities)
+                                                                                         # Fix the executable / libraries
+   install(CODE "include(BundleUtilities)
       fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.exe\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Release\")"
-	  COMPONENT Runtime CONFIGURATIONS Release)
+      COMPONENT Runtime CONFIGURATIONS Release)
+   install(CODE "include(BundleUtilities)
+      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.exe\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Debug\")"
+      COMPONENT Runtime CONFIGURATIONS Debug)
 endif (WIN32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   set(APP_DIR "${EXECUTABLE_OUTPUT_PATH}/bundle/${PROJECT_NAME}")
-   INSTALL(CODE "include(BundleUtilities)
-      file(MAKE_DIRECTORY \"${APP_DIR}\")                                                                 # Make the app dir
-      file(COPY \"${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}\" DESTINATION \"${APP_DIR}\")                 # Copy in the executable
-      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${APP_DIR}\")                                # Copy in the data folder
-      execute_process(COMMAND \"chrpath\" \"-r\" \"$ORIGIN/\" \"${APP_DIR}/${PROJECT_NAME}\")             # Fix the rpath of the executable
-      fixup_bundle(\"${APP_DIR}/${PROJECT_NAME}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime) # Fix the binary / libraries
+   install(TARGETS ${PROJECT_NAME} DESTINATION "." COMPONENT Runtime)                                                  # Install the executable
+
+   install(CODE "include(BundleUtilities)
+      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")                                # Copy in the data folder
+      execute_process(COMMAND \"chrpath\" \"-r\" \"$ORIGIN/\" \"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}\")             # Fix the rpath of the executable
+      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime) # Fix the executable / libraries
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
