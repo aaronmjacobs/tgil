@@ -16,8 +16,10 @@
 #include "SceneLoader.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
+#include "TriggerVolumePhysicsComponent.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
+#include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <glm/glm.hpp>
 
 #include <sstream>
@@ -168,7 +170,8 @@ SPtr<GameObject> createLight(const glm::vec3 &position, const glm::vec3 &color, 
 
 void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
    float height = 20.0f;
-   scene->addObject(createStaticObject(model, glm::vec3(0.0f, height / 2.0f, 0.0f), glm::vec3(3.0f, height, 3.0f), 1.0f, 0.3f));
+   SPtr<GameObject> tower = createStaticObject(model, glm::vec3(0.0f, height / 2.0f, 0.0f), glm::vec3(3.0f, height, 3.0f), 1.0f, 0.3f);
+   scene->addObject(tower);
 
    scene->addObject(createStaticObject(model, glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
    scene->addObject(createStaticObject(model, glm::vec3(3.0f, 2.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
@@ -180,6 +183,28 @@ void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
    scene->addObject(createStaticObject(model, glm::vec3(3.0f, 14.0f, 3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
    scene->addObject(createStaticObject(model, glm::vec3(3.0f, 16.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
    scene->addObject(createStaticObject(model, glm::vec3(3.0f, 18.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+
+   SPtr<GameObject> winTrigger = std::make_shared<GameObject>();
+   float triggerSize = 1.5f;
+   winTrigger->setPosition(tower->getPosition() + glm::vec3(0.0f, height / 2.0f + triggerSize, 0.0f));
+   winTrigger->setPhysicsComponent(std::make_shared<TriggerVolumePhysicsComponent>(*winTrigger, glm::vec3(triggerSize), CollisionGroup::Group::Players));
+   winTrigger->setTickCallback([](GameObject &gameObject, const float dt) {
+      btCollisionObject *collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
+      if (!collisionObject) {
+         return;
+      }
+      btGhostObject *ghostObject = dynamic_cast<btGhostObject*>(collisionObject);
+      if (!ghostObject) {
+         return;
+      }
+      for (int i = 0; i < ghostObject->getNumOverlappingObjects(); i++) {
+         btRigidBody *rigidBody = dynamic_cast<btRigidBody *>(ghostObject->getOverlappingObject(i));
+         if(rigidBody) {
+            rigidBody->applyCentralForce(btVector3(0.0f, 50.0f, 0.0f));
+         }
+      }
+   });
+   scene->addObject(winTrigger);
 }
 
 } // namespace
@@ -212,7 +237,7 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
 
    // Players
    for (int i = 0; i < context.getInputHandler().getNumberOfPlayers(); ++i) {
-      scene->addCamera(createPlayer(nullptr, glm::vec3(5.0f * i, 1.0f, 0.0f)));
+      scene->addCamera(createPlayer(nullptr, glm::vec3(5.0f * i, 1.0f, 10.0f)));
    }
 
    buildTower(scene, boxModel);
