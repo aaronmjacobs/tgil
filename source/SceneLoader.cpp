@@ -166,6 +166,22 @@ SPtr<GameObject> createLight(const glm::vec3 &position, const glm::vec3 &color, 
    return light;
 }
 
+void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
+   float height = 20.0f;
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, height / 2.0f, 0.0f), glm::vec3(3.0f, height, 3.0f), 1.0f, 0.3f));
+
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 2.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 4.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 6.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 8.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 10.0f, 3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 12.0f, 3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 14.0f, 3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 16.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 18.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+}
+
 } // namespace
 
 namespace SceneLoader {
@@ -198,6 +214,8 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
    for (int i = 0; i < context.getInputHandler().getNumberOfPlayers(); ++i) {
       scene->addCamera(createPlayer(nullptr, glm::vec3(5.0f * i, 1.0f, 0.0f)));
    }
+
+   buildTower(scene, boxModel);
 
    return scene;
 }
