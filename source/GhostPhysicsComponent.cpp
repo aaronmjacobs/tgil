@@ -8,8 +8,8 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
-GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const int mask, const bool dynamic)
-   : PhysicsComponent(gameObject, (dynamic ? 0 : btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_NO_CONTACT_RESPONSE, CollisionGroup::Ghosts, mask) {
+GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask)
+   : PhysicsComponent(gameObject, CollisionGroup::Ghosts, mask) {
    SPtr<Model> model = gameObject.getGraphicsComponent().getModel();
    if (model) {
       const Mesh &mesh = model->getMesh();
@@ -20,25 +20,25 @@ GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const int m
       // If there is no model, use a unit sphere as the default collision shape
       collisionShape = UPtr<btCollisionShape>(new btSphereShape(0.5f));
    }
-   init();
+   initCollisionObject(dynamic);
 }
 
-GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const int mask, const bool dynamic, const float radius)
-   : PhysicsComponent(gameObject, (dynamic ? 0 : btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_NO_CONTACT_RESPONSE, CollisionGroup::Ghosts, mask) {
+GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask, const float radius)
+   : PhysicsComponent(gameObject, CollisionGroup::Ghosts, mask) {
    collisionShape = UPtr<btCollisionShape>(new btSphereShape(radius));
-   init();
+   initCollisionObject(dynamic);
 }
 
-GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const int mask, const bool dynamic, const glm::vec3 &halfExtents)
-   : PhysicsComponent(gameObject, (dynamic ? 0 : btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_NO_CONTACT_RESPONSE, CollisionGroup::Ghosts, mask) {
+GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask, const glm::vec3 &halfExtents)
+   : PhysicsComponent(gameObject, CollisionGroup::Ghosts, mask) {
    collisionShape = UPtr<btCollisionShape>(new btBoxShape(toBt(halfExtents)));
-   init();
+   initCollisionObject(dynamic);
 }
 
 GhostPhysicsComponent::~GhostPhysicsComponent() {
 }
 
-void GhostPhysicsComponent::init() {
+void GhostPhysicsComponent::initCollisionObject(const bool dynamic) {
    collisionShape->setLocalScaling(toBt(gameObject.getScale()));
 
    btTransform transform(toBt(gameObject.getOrientation()), toBt(gameObject.getPosition()));
@@ -46,5 +46,12 @@ void GhostPhysicsComponent::init() {
    UPtr<btGhostObject> ghostObject(new btGhostObject);
    ghostObject->setCollisionShape(collisionShape.get());
    ghostObject->setWorldTransform(transform);
+
+   int flags = btCollisionObject::CF_NO_CONTACT_RESPONSE;
+   if (!dynamic) {
+      flags |= btCollisionObject::CF_STATIC_OBJECT;
+      ghostObject->setCollisionFlags(ghostObject->getCollisionFlags() | flags);
+   }
+
    collisionObject = std::move(ghostObject);
 }

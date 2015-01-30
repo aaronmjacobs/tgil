@@ -13,12 +13,16 @@ class PhysicsManager;
 namespace CollisionGroup {
 
 // Represented internally in Bullet as a short, so we have 16 groups
+// Bits 0-5 reserved by bullet
 enum Group {
    Nothing = 0,
-   StaticBodies = BIT(0),
-   DynamicBodies = BIT(1),
-   Ghosts = BIT(2),
-   Players = BIT(3),
+   Default = BIT(0),
+   StaticBodies = BIT(1),
+   KinematicBodies = BIT(2),
+   Debries = BIT(3),
+   Sensor = BIT(4),
+   Character = BIT(5),
+   Ghosts = BIT(6),
    Everything = -1
 };
 
@@ -27,25 +31,24 @@ enum Group {
 // TODO Handle CollisionTypes and CollisionGroups
 class PhysicsComponent : public Component, public Observer<GameObject>, public std::enable_shared_from_this<PhysicsComponent> {
 protected:
-   const int collisionType;
-   const int collisionGroup;
-   const int collisionMask;
+   const CollisionGroup::Group collisionGroup;
+   const short collisionMask;
    UPtr<btCollisionObject> collisionObject;
    UPtr<btCollisionShape> collisionShape;
    WPtr<PhysicsManager> physicsManager;
 
 public:
-   PhysicsComponent(GameObject &gameObject, int collisionType, const int collisionGroup, const int collisionMask);
+   PhysicsComponent(GameObject &gameObject, const CollisionGroup::Group collisionGroup, const short collisionMask);
 
    virtual ~PhysicsComponent();
 
    virtual void init();
 
-   const int getCollisionGroup() const {
+   const short getCollisionGroup() const {
       return collisionGroup;
    }
 
-   const int getCollisionMask() const {
+   const short getCollisionMask() const {
       return collisionMask;
    }
 

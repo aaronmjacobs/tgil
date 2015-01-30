@@ -10,8 +10,8 @@
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/glm.hpp>
 
-MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass, const int collisionGroup, const int collisionMask)
-: PhysicsComponent(gameObject, mass == 0.0f ? btCollisionObject::CF_STATIC_OBJECT : 0, collisionGroup, collisionMask) {
+MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, const bool dynamic, float mass, const CollisionGroup::Group collisionGroup, const short collisionMask)
+: PhysicsComponent(gameObject, collisionGroup, collisionMask) {
    SPtr<Model> model = gameObject.getGraphicsComponent().getModel();
    if (model) {
       const Mesh &mesh = model->getMesh();
@@ -32,6 +32,9 @@ MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass, c
    btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, motionState.get(), collisionShape.get(), inertia);
 
    collisionObject = UPtr<btRigidBody>(new btRigidBody(constructionInfo));
+   if (!dynamic) {
+      collisionObject->setCollisionFlags(collisionObject->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+   }
 }
 
 MeshPhysicsComponent::~MeshPhysicsComponent() {

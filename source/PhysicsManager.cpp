@@ -52,8 +52,6 @@ void PhysicsManager::tick(const float dt) {
 }
 
 void PhysicsManager::addObject(PhysicsComponent &physicsComponent) {
-   // TODO Can I do this better? (without dynamic casting)
-   // TODO Deal with different types of objects (static, dynamic, kinematic)
    btCollisionObject* collisionObject = physicsComponent.getCollisionObject();
    if (!collisionObject) {
       return;

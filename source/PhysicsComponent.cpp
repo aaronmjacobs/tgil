@@ -7,8 +7,8 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
-PhysicsComponent::PhysicsComponent(GameObject &gameObject, int collisionType, const int collisionGroup, const int collisionMask)
-   : Component(gameObject), collisionType(collisionType), collisionGroup(collisionGroup), collisionMask(collisionMask) {
+PhysicsComponent::PhysicsComponent(GameObject &gameObject, const CollisionGroup::Group collisionGroup, const short collisionMask)
+   : Component(gameObject), collisionGroup(collisionGroup), collisionMask(collisionMask) {
 }
 
 PhysicsComponent::~PhysicsComponent() {
@@ -23,7 +23,6 @@ void PhysicsComponent::init() {
    ASSERT(collisionObject, "Collision object not instantiated by physics component");
    ASSERT(collisionShape, "Collision shape not instantiated by physics component");
 
-   collisionObject->setCollisionFlags(collisionObject->getCollisionFlags() | collisionType);
    collisionObject->setUserPointer(&gameObject);
 
    // Listen for events from the game object
@@ -52,5 +51,5 @@ void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
 }
 
 NullPhysicsComponent::NullPhysicsComponent(GameObject &gameObject)
-   : PhysicsComponent(gameObject, btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE, CollisionGroup::Nothing, CollisionGroup::Nothing) {
+   : PhysicsComponent(gameObject, CollisionGroup::Nothing, CollisionGroup::Nothing) {
 }

@@ -10,14 +10,14 @@ class btMotionState;
 
 class GhostPhysicsComponent : public PhysicsComponent {
 private:
-   void init();
+   void initCollisionObject(const bool dynamic);
 
 public:
-   GhostPhysicsComponent(GameObject &gameObject, const int mask, const bool dynamic);
+   GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask);
 
-   GhostPhysicsComponent(GameObject &gameObject, const int mask, const bool dynamic, const float radius);
+   GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask, const float radius);
 
-   GhostPhysicsComponent(GameObject &gameObject, const int mask, const bool dynamic, const glm::vec3 &halfExtents);
+   GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask, const glm::vec3 &halfExtents);
 
    virtual ~GhostPhysicsComponent();
 };
