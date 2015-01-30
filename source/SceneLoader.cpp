@@ -121,17 +121,16 @@ SPtr<GameObject> createDynamicObject(SPtr<Model> model, const glm::vec3 &positio
    return dynamicObject;
 }
 
-SPtr<GameObject> createPlayer(SPtr<Model> model, const glm::vec3 &position) {
+SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3 &color, SPtr<Mesh> mesh, const glm::vec3 &position) {
    SPtr<GameObject> player(std::make_shared<GameObject>());
 
    // Transform
    player->setPosition(position);
 
    // Graphics
-   if (model) {
-      player->setGraphicsComponent(std::make_shared<PlayerGraphicsComponent>(*player));
-      player->getGraphicsComponent().setModel(model);
-   }
+   SPtr<Model> model(std::make_shared<Model>(shaderProgram, createPhongMaterial(*shaderProgram, color, 0.2f, 50.0f), mesh));
+   player->setGraphicsComponent(std::make_shared<PlayerGraphicsComponent>(*player));
+   player->getGraphicsComponent().setModel(model);
 
    // Physics
    player->setPhysicsComponent(std::make_shared<PlayerPhysicsComponent>(*player, 1.0f));
@@ -226,6 +225,7 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
 
    SPtr<Mesh> boxMesh = assetManager.loadMesh("meshes/cube.obj");
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
+   SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
 
    SPtr<Model> boxModel(std::make_shared<Model>(phongShaderProgram, boxMaterial, boxMesh));
    SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMaterial, planeMesh));
@@ -240,8 +240,15 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
    scene->addObject(createDynamicObject(boxModel, glm::vec3(-5.0f, 5.0f, -10.0f), glm::vec3(1.0f), 0.3f, 0.8f, 1.0f));
 
    // Players
+   glm::vec3 colors[] = {
+      glm::normalize(glm::vec3(1.0f, 0.2f, 0.2f)) * 1.5f,
+      glm::normalize(glm::vec3(0.2f, 1.0f, 0.2f)) * 1.5f,
+      glm::normalize(glm::vec3(0.9f, 0.9f, 0.2f)) * 1.5f,
+      glm::normalize(glm::vec3(0.9f, 0.2f, 0.9f)) * 1.5f
+   };
    for (int i = 0; i < context.getInputHandler().getNumberOfPlayers(); ++i) {
-      scene->addCamera(createPlayer(boxModel, glm::vec3(5.0f * i, 1.0f, 10.0f)));
+      int color = i % (sizeof(colors) / sizeof(glm::vec3));
+      scene->addCamera(createPlayer(phongShaderProgram, colors[color], playerMesh, glm::vec3(5.0f * i, 1.0f, 10.0f)));
    }
 
    buildTower(scene, boxModel);
