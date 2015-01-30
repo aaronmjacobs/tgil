@@ -9,6 +9,7 @@
 #include "Model.h"
 #include "PhongMaterial.h"
 #include "PlayerCameraComponent.h"
+#include "PlayerGraphicsComponent.h"
 #include "PlayerLogicComponent.h"
 #include "PlayerPhysicsComponent.h"
 #include "PointLightComponent.h"
@@ -128,7 +129,7 @@ SPtr<GameObject> createPlayer(SPtr<Model> model, const glm::vec3 &position) {
 
    // Graphics
    if (model) {
-      player->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*player));
+      player->setGraphicsComponent(std::make_shared<PlayerGraphicsComponent>(*player));
       player->getGraphicsComponent().setModel(model);
    }
 
@@ -173,16 +174,19 @@ void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
    SPtr<GameObject> tower = createStaticObject(model, glm::vec3(0.0f, height / 2.0f, 0.0f), glm::vec3(3.0f, height, 3.0f), 1.0f, 0.3f);
    scene->addObject(tower);
 
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 2.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 4.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 6.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 8.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 10.0f, 3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 12.0f, 3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 14.0f, 3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 16.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 18.0f, -3.0f), glm::vec3(3.0f, 3.0f, 3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 1.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 4.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 6.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 7.5f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 9.0f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 10.5f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 12.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 13.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 15.0f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 16.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 18.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
 
    SPtr<GameObject> winTrigger = std::make_shared<GameObject>();
    float triggerSize = 1.5f;
@@ -237,7 +241,7 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
 
    // Players
    for (int i = 0; i < context.getInputHandler().getNumberOfPlayers(); ++i) {
-      scene->addCamera(createPlayer(nullptr, glm::vec3(5.0f * i, 1.0f, 10.0f)));
+      scene->addCamera(createPlayer(boxModel, glm::vec3(5.0f * i, 1.0f, 10.0f)));
    }
 
    buildTower(scene, boxModel);

@@ -56,6 +56,7 @@ set(SOURCES
    ${SRC_DIR}/PhysicsComponent.cpp
    ${SRC_DIR}/PhysicsManager.cpp
    ${SRC_DIR}/PlayerCameraComponent.cpp
+   ${SRC_DIR}/PlayerGraphicsComponent.cpp
    ${SRC_DIR}/PlayerLogicComponent.cpp
    ${SRC_DIR}/PlayerPhysicsComponent.cpp
    ${SRC_DIR}/PointLightComponent.cpp
@@ -109,6 +110,7 @@ set(HEADERS
    ${SRC_DIR}/PhysicsComponent.h
    ${SRC_DIR}/PhysicsManager.h
    ${SRC_DIR}/PlayerCameraComponent.h
+   ${SRC_DIR}/PlayerGraphicsComponent.h
    ${SRC_DIR}/PlayerLogicComponent.h
    ${SRC_DIR}/PlayerPhysicsComponent.h
    ${SRC_DIR}/PointLightComponent.h
