@@ -10,7 +10,7 @@
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
 #include <glm/glm.hpp>
 
-MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask)
+MeshPhysicsComponent::MeshPhysicsComponent(GameObject &gameObject, float mass, const int collisionGroup, const int collisionMask)
 : PhysicsComponent(gameObject, mass == 0.0f ? btCollisionObject::CF_STATIC_OBJECT : 0, collisionGroup, collisionMask) {
    SPtr<Model> model = gameObject.getGraphicsComponent().getModel();
    if (model) {

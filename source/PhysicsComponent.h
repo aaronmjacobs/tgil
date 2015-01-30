@@ -17,7 +17,7 @@ enum Group {
    Nothing = 0,
    StaticBodies = BIT(0),
    DynamicBodies = BIT(1),
-   Triggers = BIT(2),
+   Ghosts = BIT(2),
    Players = BIT(3),
    Everything = -1
 };
@@ -28,24 +28,24 @@ enum Group {
 class PhysicsComponent : public Component, public Observer<GameObject>, public std::enable_shared_from_this<PhysicsComponent> {
 protected:
    const int collisionType;
-   const CollisionGroup::Group collisionGroup;
-   const CollisionGroup::Group collisionMask;
+   const int collisionGroup;
+   const int collisionMask;
    UPtr<btCollisionObject> collisionObject;
    UPtr<btCollisionShape> collisionShape;
    WPtr<PhysicsManager> physicsManager;
 
 public:
-   PhysicsComponent(GameObject &gameObject, int collisionType, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask);
+   PhysicsComponent(GameObject &gameObject, int collisionType, const int collisionGroup, const int collisionMask);
 
    virtual ~PhysicsComponent();
 
    virtual void init();
 
-   const CollisionGroup::Group getCollisionGroup() const {
+   const int getCollisionGroup() const {
       return collisionGroup;
    }
 
-   const CollisionGroup::Group getCollisionMask() const {
+   const int getCollisionMask() const {
       return collisionMask;
    }
 

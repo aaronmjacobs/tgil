@@ -7,7 +7,7 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
-PhysicsComponent::PhysicsComponent(GameObject &gameObject, int collisionType, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask)
+PhysicsComponent::PhysicsComponent(GameObject &gameObject, int collisionType, const int collisionGroup, const int collisionMask)
    : Component(gameObject), collisionType(collisionType), collisionGroup(collisionGroup), collisionMask(collisionMask) {
 }
 

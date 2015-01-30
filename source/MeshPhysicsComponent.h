@@ -11,7 +11,7 @@ protected:
    UPtr<btMotionState> motionState;
 
 public:
-   MeshPhysicsComponent(GameObject &gameObject, float mass, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask);
+   MeshPhysicsComponent(GameObject &gameObject, float mass, const int collisionGroup, const int collisionMask);
 
    virtual ~MeshPhysicsComponent();
 };
