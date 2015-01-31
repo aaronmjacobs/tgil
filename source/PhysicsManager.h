@@ -32,10 +32,6 @@ public:
 
    virtual void tick(const float dt);
 
-   virtual void addObject(PhysicsComponent &physicsComponent);
-
-   virtual void removeObject(PhysicsComponent &physicsComponent);
-
    btDynamicsWorld& getDynamicsWorld() const;
 };
 

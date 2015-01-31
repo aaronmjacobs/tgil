@@ -98,7 +98,7 @@ void Scene::addObject(SPtr<GameObject> object) {
       return;
    }
 
-   physicsManager->addObject(object->getPhysicsComponent());
+   object->getPhysicsComponent().addToManager(physicsManager);
 
    objects.push_back(object);
 
@@ -142,7 +142,7 @@ void Scene::removeObject(SPtr<GameObject> object) {
       return;
    }
 
-   physicsManager->removeObject(object->getPhysicsComponent());
+   object->getPhysicsComponent().removeFromManager(physicsManager);
 
    objects.erase(std::remove(objects.begin(), objects.end(), object), objects.end());
 

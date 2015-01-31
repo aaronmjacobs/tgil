@@ -4,6 +4,8 @@
 #include "Component.h"
 #include "Observer.h"
 
+#include <set>
+
 #define BIT(x) (1<<(x))
 
 class btCollisionObject;
@@ -35,7 +37,7 @@ protected:
    const short collisionMask;
    UPtr<btCollisionObject> collisionObject;
    UPtr<btCollisionShape> collisionShape;
-   WPtr<PhysicsManager> physicsManager;
+   std::set<WPtr<PhysicsManager>, std::owner_less<WPtr<PhysicsManager>>> physicsManagers;
 
 public:
    PhysicsComponent(GameObject &gameObject, const CollisionGroup::Group collisionGroup, const short collisionMask);
@@ -55,6 +57,10 @@ public:
    btCollisionObject* getCollisionObject() const {
       return collisionObject.get();
    }
+
+   virtual void addToManager(SPtr<PhysicsManager> manager);
+
+   virtual void removeFromManager(SPtr<PhysicsManager> manager);
 
    virtual void onNotify(const GameObject &gameObject, Event event);
 };

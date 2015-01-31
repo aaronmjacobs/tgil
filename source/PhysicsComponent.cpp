@@ -12,10 +12,13 @@ PhysicsComponent::PhysicsComponent(GameObject &gameObject, const CollisionGroup:
 }
 
 PhysicsComponent::~PhysicsComponent() {
-   // Remove the rigid body from the physics manager
-   SPtr<PhysicsManager> currentPhysicsManager = physicsManager.lock();
-   if (currentPhysicsManager) {
-      currentPhysicsManager->removeObject(*this);
+   // Remove from the physics managers (avoiding concurrent modification)
+   while (!physicsManagers.empty()) {
+      WPtr<PhysicsManager> wManager = *physicsManagers.begin();
+      SPtr<PhysicsManager> manager = wManager.lock();
+      if (manager) {
+         removeFromManager(manager);
+      }
    }
 }
 
@@ -29,18 +32,42 @@ void PhysicsComponent::init() {
    gameObject.addObserver(shared_from_this());
 }
 
+void PhysicsComponent::addToManager(SPtr<PhysicsManager> manager) {
+   ASSERT(manager, "Trying to add to null manager");
+   ASSERT(physicsManagers.count(manager) == 0, "Trying to add component to physics manager that it is already in");
+   if (!collisionObject) {
+      return;
+   }
+
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject.get());
+   if (rigidBody) {
+      manager->getDynamicsWorld().addRigidBody(rigidBody, collisionGroup, collisionMask);
+   } else {
+      manager->getDynamicsWorld().addCollisionObject(collisionObject.get(), collisionGroup, collisionMask);
+   }
+
+   physicsManagers.insert(manager);
+}
+
+void PhysicsComponent::removeFromManager(SPtr<PhysicsManager> manager) {
+   ASSERT(manager, "Trying to remove from null manager");
+   ASSERT(physicsManagers.count(manager) > 0, "Trying to remove component from physics manager that it is not in");
+   if (!collisionObject) {
+      return;
+   }
+
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject.get());
+   if (rigidBody) {
+      manager->getDynamicsWorld().removeRigidBody(rigidBody);
+   } else {
+      manager->getDynamicsWorld().removeCollisionObject(collisionObject.get());
+   }
+
+   physicsManagers.erase(manager);
+}
+
 void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
    switch (event) {
-      case SET_SCENE: {
-         SPtr<PhysicsManager> currentPhysicsManager = physicsManager.lock();
-         if (currentPhysicsManager) {
-            currentPhysicsManager->removeObject(*this);
-         }
-
-         SPtr<Scene> scene = gameObject.getScene().lock();
-         physicsManager = scene ? scene->getPhysicsManager() : SPtr<PhysicsManager>();
-         break;
-      }
       case SCALE: {
          collisionShape->setLocalScaling(toBt(gameObject.getScale()));
          break;

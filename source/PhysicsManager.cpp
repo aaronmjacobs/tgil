@@ -51,34 +51,6 @@ void PhysicsManager::tick(const float dt) {
    dynamicsWorld->stepSimulation(dt, 15);
 }
 
-void PhysicsManager::addObject(PhysicsComponent &physicsComponent) {
-   btCollisionObject* collisionObject = physicsComponent.getCollisionObject();
-   if (!collisionObject) {
-      return;
-   }
-
-   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject);
-   if (rigidBody) {
-      dynamicsWorld->addRigidBody(rigidBody, physicsComponent.getCollisionGroup(), physicsComponent.getCollisionMask());
-   } else {
-      dynamicsWorld->addCollisionObject(collisionObject, physicsComponent.getCollisionGroup(), physicsComponent.getCollisionMask());
-   }
-}
-
-void PhysicsManager::removeObject(PhysicsComponent &physicsComponent) {
-   btCollisionObject* collisionObject = physicsComponent.getCollisionObject();
-   if (!collisionObject) {
-      return;
-   }
-
-   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject);
-   if (rigidBody) {
-      dynamicsWorld->removeRigidBody(rigidBody);
-   } else {
-      dynamicsWorld->removeCollisionObject(collisionObject);
-   }
-}
-
 btDynamicsWorld& PhysicsManager::getDynamicsWorld() const {
    return *dynamicsWorld;
 }
