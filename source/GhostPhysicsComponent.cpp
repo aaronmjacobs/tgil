@@ -8,8 +8,8 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
-GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask)
-   : PhysicsComponent(gameObject, CollisionGroup::Ghosts, mask) {
+GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short collisionMask)
+   : PhysicsComponent(gameObject, CollisionGroup::Ghosts, collisionMask) {
    SPtr<Model> model = gameObject.getGraphicsComponent().getModel();
    if (model) {
       const Mesh &mesh = model->getMesh();
@@ -23,14 +23,14 @@ GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool 
    initCollisionObject(dynamic);
 }
 
-GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask, const float radius)
-   : PhysicsComponent(gameObject, CollisionGroup::Ghosts, mask) {
+GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short collisionMask, const float radius)
+   : PhysicsComponent(gameObject, CollisionGroup::Ghosts, collisionMask) {
    collisionShape = UPtr<btCollisionShape>(new btSphereShape(radius));
    initCollisionObject(dynamic);
 }
 
-GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask, const glm::vec3 &halfExtents)
-   : PhysicsComponent(gameObject, CollisionGroup::Ghosts, mask) {
+GhostPhysicsComponent::GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short collisionMask, const glm::vec3 &halfExtents)
+   : PhysicsComponent(gameObject, CollisionGroup::Ghosts, collisionMask) {
    collisionShape = UPtr<btCollisionShape>(new btBoxShape(toBt(halfExtents)));
    initCollisionObject(dynamic);
 }
@@ -50,8 +50,8 @@ void GhostPhysicsComponent::initCollisionObject(const bool dynamic) {
    int flags = btCollisionObject::CF_NO_CONTACT_RESPONSE;
    if (!dynamic) {
       flags |= btCollisionObject::CF_STATIC_OBJECT;
-      ghostObject->setCollisionFlags(ghostObject->getCollisionFlags() | flags);
    }
+   ghostObject->setCollisionFlags(ghostObject->getCollisionFlags() | flags);
 
    collisionObject = std::move(ghostObject);
 }

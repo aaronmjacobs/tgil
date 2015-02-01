@@ -13,11 +13,11 @@ private:
    void initCollisionObject(const bool dynamic);
 
 public:
-   GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask);
+   GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short collisionMask);
 
-   GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask, const float radius);
+   GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short collisionMask, const float radius);
 
-   GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short mask, const glm::vec3 &halfExtents);
+   GhostPhysicsComponent(GameObject &gameObject, const bool dynamic, const short collisionMask, const glm::vec3 &halfExtents);
 
    virtual ~GhostPhysicsComponent();
 };
