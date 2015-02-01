@@ -22,8 +22,8 @@ enum Group {
    StaticBodies = BIT(1),
    KinematicBodies = BIT(2),
    Debries = BIT(3),
-   Sensor = BIT(4),
-   Character = BIT(5),
+   Sensors = BIT(4),
+   Characters = BIT(5),
    Ghosts = BIT(6),
    Everything = -1
 };

@@ -91,7 +91,7 @@ SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position
    staticObject->getGraphicsComponent().setModel(model);
 
    // Physics
-   staticObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*staticObject, false, 0.0f, CollisionGroup::StaticBodies, CollisionGroup::Everything ^ CollisionGroup::StaticBodies));
+   staticObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*staticObject, 0.0f, CollisionGroup::StaticBodies, CollisionGroup::Everything ^ CollisionGroup::StaticBodies));
    btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(staticObject->getPhysicsComponent().getCollisionObject());
    gameObjectRigidBody->setFriction(friction);
    gameObjectRigidBody->setRollingFriction(friction);
@@ -112,7 +112,7 @@ SPtr<GameObject> createDynamicObject(SPtr<Model> model, const glm::vec3 &positio
    dynamicObject->getGraphicsComponent().setModel(model);
 
    // Physics
-   dynamicObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*dynamicObject, true, mass, CollisionGroup::Default, CollisionGroup::Everything));
+   dynamicObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*dynamicObject, mass, CollisionGroup::Default, CollisionGroup::Everything));
    btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(dynamicObject->getPhysicsComponent().getCollisionObject());
    gameObjectRigidBody->setFriction(friction);
    gameObjectRigidBody->setRollingFriction(friction);
@@ -190,7 +190,7 @@ void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
    SPtr<GameObject> winTrigger = std::make_shared<GameObject>();
    float triggerSize = 1.5f;
    winTrigger->setPosition(tower->getPosition() + glm::vec3(0.0f, height / 2.0f + triggerSize, 0.0f));
-   winTrigger->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*winTrigger, CollisionGroup::Character, false, glm::vec3(triggerSize)));
+   winTrigger->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*winTrigger, false, CollisionGroup::Characters, glm::vec3(triggerSize)));
    winTrigger->setTickCallback([](GameObject &gameObject, const float dt) {
       btCollisionObject *collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
       if (!collisionObject) {
@@ -201,7 +201,7 @@ void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
          return;
       }
       for (int i = 0; i < ghostObject->getNumOverlappingObjects(); i++) {
-         btRigidBody *rigidBody = dynamic_cast<btRigidBody *>(ghostObject->getOverlappingObject(i));
+         btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(ghostObject->getOverlappingObject(i));
          if(rigidBody) {
             rigidBody->applyCentralForce(btVector3(0.0f, 50.0f, 0.0f));
          }

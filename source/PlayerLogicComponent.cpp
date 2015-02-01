@@ -3,9 +3,9 @@
 #include "FancyAssert.h"
 #include "GameObject.h"
 #include "InputComponent.h"
-#include "PhysicsComponent.h"
 #include "PhysicsManager.h"
 #include "PlayerLogicComponent.h"
+#include "PlayerPhysicsComponent.h"
 #include "Scene.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
@@ -70,29 +70,12 @@ PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject)
 PlayerLogicComponent::~PlayerLogicComponent() {
 }
 
-void PlayerLogicComponent::tick(const float dt) {
-   SPtr<Scene> scene = gameObject.getScene().lock();
-   ASSERT(scene, "PlayerLogicComponent must be in Scene to tick");
-   if (!scene) {
-      return;
-   }
-
-   btCollisionObject* collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
-   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject);
-   ASSERT(rigidBody, "Player rigid body should not be null");
-   if (!rigidBody) {
-      return;
-   }
-
-   const InputValues &inputValues = gameObject.getInputComponent().getInputValues();
-
-   // Camera orientation
+void PlayerLogicComponent::handleOrientation(const float dt, const InputValues &inputValues) {
    CameraComponent &cameraComponent = gameObject.getCameraComponent();
    float lookAmount = dt * LOOK_SPEED;
    float pitchAmount = lookAmount * inputValues.lookY;
    float yawAmount = lookAmount * inputValues.lookX;
    glm::vec3 front = cameraComponent.getFrontVector();
-   glm::vec3 right = cameraComponent.getRightVector();
 
    if (front.y - pitchAmount > Y_LOOK_BOUND) {
       pitchAmount = front.y - Y_LOOK_BOUND;
@@ -104,6 +87,19 @@ void PlayerLogicComponent::tick(const float dt) {
    glm::quat pitchChange = glm::angleAxis(pitchAmount, glm::vec3(1.0f, 0.0f, 0.0f));
    glm::quat yawChange = glm::angleAxis(yawAmount, glm::vec3(0.0f, 1.0f, 0.0f));
    gameObject.setOrientation(glm::normalize(pitchChange * gameObject.getOrientation() * yawChange));
+}
+
+void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inputValues, SPtr<Scene> scene) {
+   btCollisionObject* collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject);
+   ASSERT(rigidBody, "Player rigid body should not be null");
+   if (!rigidBody) {
+      return;
+   }
+
+   CameraComponent &cameraComponent = gameObject.getCameraComponent();
+   glm::vec3 front = cameraComponent.getFrontVector();
+   glm::vec3 right = cameraComponent.getRightVector();
 
    // Player movement
    glm::vec3 flatFront = front;
@@ -138,4 +134,17 @@ void PlayerLogicComponent::tick(const float dt) {
    if (!inputValues.jump) {
       wasJumpingLastFrame = false;
    }
+}
+
+void PlayerLogicComponent::tick(const float dt) {
+   SPtr<Scene> scene = gameObject.getScene().lock();
+   ASSERT(scene, "PlayerLogicComponent must be in Scene to tick");
+   if (!scene) {
+      return;
+   }
+
+   const InputValues &inputValues = gameObject.getInputComponent().getInputValues();
+
+   handleOrientation(dt, inputValues);
+   handleMovement(dt, inputValues, scene);
 }

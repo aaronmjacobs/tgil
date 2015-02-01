@@ -8,6 +8,14 @@ class btCollisionShape;
 class btGhostObject;
 class btMotionState;
 
+namespace {
+
+const float PLAYER_RADIUS = 0.25f;
+const float PLAYER_MIDDLE_HEIGHT = 0.5f;
+const float PLAYER_TOTAL_HEIGHT = PLAYER_MIDDLE_HEIGHT + 2 * PLAYER_RADIUS;
+
+} // namespace
+
 class PlayerPhysicsComponent : public PhysicsComponent {
 protected:
    UPtr<btMotionState> motionState;

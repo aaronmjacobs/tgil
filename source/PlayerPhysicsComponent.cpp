@@ -8,14 +8,6 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
-namespace {
-
-const float PLAYER_RADIUS = 0.25f;
-const float PLAYER_MIDDLE_HEIGHT = 0.5f;
-const float PLAYER_TOTAL_HEIGHT = PLAYER_MIDDLE_HEIGHT + 2 * PLAYER_RADIUS;
-
-} // namespace
-
 // Custom motion state
 
 class PlayerMotionState : public GameObjectMotionState {
@@ -66,7 +58,7 @@ void PlayerMotionState::setWorldTransform(const btTransform &worldTrans) {
 // PlayerPhysicsComponent
 
 PlayerPhysicsComponent::PlayerPhysicsComponent(GameObject &gameObject, float mass)
-   : PhysicsComponent(gameObject, CollisionGroup::Character, CollisionGroup::Everything) {
+   : PhysicsComponent(gameObject, CollisionGroup::Characters, CollisionGroup::Everything) {
    collisionShape = UPtr<btCollisionShape>(new btCapsuleShape(PLAYER_RADIUS, PLAYER_MIDDLE_HEIGHT));
 
    ghostObject = std::make_shared<btGhostObject>();
@@ -89,7 +81,7 @@ PlayerPhysicsComponent::PlayerPhysicsComponent(GameObject &gameObject, float mas
 
    // Ghost object
    ghostObject->setCollisionShape(ghostCollisionShape.get());
-   ghostObject->setCollisionFlags(ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+   ghostObject->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
 }
 
 PlayerPhysicsComponent::~PlayerPhysicsComponent() {
