@@ -14,7 +14,7 @@ namespace {
 
 const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
-const float FOV = 90.0f;
+const float FOV = 70.0f;
 
 void errorCallback(int error, const char* description) {
    LOG_FATAL("GLFW error " << error << ": " << description);

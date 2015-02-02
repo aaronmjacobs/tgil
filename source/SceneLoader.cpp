@@ -2,6 +2,7 @@
 #include "Context.h"
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
+#include "GhostPhysicsComponent.h"
 #include "HumanInputComponent.h"
 #include "InputHandler.h"
 #include "LogHelper.h"
@@ -9,6 +10,7 @@
 #include "Model.h"
 #include "PhongMaterial.h"
 #include "PlayerCameraComponent.h"
+#include "PlayerGraphicsComponent.h"
 #include "PlayerLogicComponent.h"
 #include "PlayerPhysicsComponent.h"
 #include "PointLightComponent.h"
@@ -18,6 +20,7 @@
 #include "ShaderProgram.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
+#include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <glm/glm.hpp>
 
 #include <sstream>
@@ -88,7 +91,7 @@ SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position
    staticObject->getGraphicsComponent().setModel(model);
 
    // Physics
-   staticObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*staticObject, 0.0f, CollisionGroup::StaticBodies, CollisionGroup::Everything));
+   staticObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*staticObject, 0.0f, CollisionGroup::StaticBodies, CollisionGroup::Everything ^ CollisionGroup::StaticBodies));
    btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(staticObject->getPhysicsComponent().getCollisionObject());
    gameObjectRigidBody->setFriction(friction);
    gameObjectRigidBody->setRollingFriction(friction);
@@ -109,7 +112,7 @@ SPtr<GameObject> createDynamicObject(SPtr<Model> model, const glm::vec3 &positio
    dynamicObject->getGraphicsComponent().setModel(model);
 
    // Physics
-   dynamicObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*dynamicObject, mass, CollisionGroup::StaticBodies, CollisionGroup::Everything));
+   dynamicObject->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*dynamicObject, mass, CollisionGroup::Default, CollisionGroup::Everything));
    btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(dynamicObject->getPhysicsComponent().getCollisionObject());
    gameObjectRigidBody->setFriction(friction);
    gameObjectRigidBody->setRollingFriction(friction);
@@ -118,23 +121,22 @@ SPtr<GameObject> createDynamicObject(SPtr<Model> model, const glm::vec3 &positio
    return dynamicObject;
 }
 
-SPtr<GameObject> createPlayer(SPtr<Model> model, const glm::vec3 &position) {
+SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3 &color, SPtr<Mesh> mesh, const glm::vec3 &position) {
    SPtr<GameObject> player(std::make_shared<GameObject>());
 
    // Transform
    player->setPosition(position);
 
    // Graphics
-   if (model) {
-      player->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*player));
-      player->getGraphicsComponent().setModel(model);
-   }
+   SPtr<Model> model(std::make_shared<Model>(shaderProgram, createPhongMaterial(*shaderProgram, color, 0.2f, 50.0f), mesh));
+   player->setGraphicsComponent(std::make_shared<PlayerGraphicsComponent>(*player));
+   player->getGraphicsComponent().setModel(model);
 
    // Physics
    player->setPhysicsComponent(std::make_shared<PlayerPhysicsComponent>(*player, 1.0f));
    btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(player->getPhysicsComponent().getCollisionObject());
-   gameObjectRigidBody->setFriction(3.0f);
-   gameObjectRigidBody->setRollingFriction(3.0f);
+   gameObjectRigidBody->setFriction(0.0f);
+   gameObjectRigidBody->setRollingFriction(0.0f);
    gameObjectRigidBody->setRestitution(0.0f);
 
    // Camera
@@ -166,6 +168,55 @@ SPtr<GameObject> createLight(const glm::vec3 &position, const glm::vec3 &color, 
    return light;
 }
 
+void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
+   float height = 20.0f;
+   SPtr<GameObject> tower = createStaticObject(model, glm::vec3(0.0f, height / 2.0f, 0.0f), glm::vec3(3.0f, height, 3.0f), 1.0f, 0.3f);
+   scene->addObject(tower);
+
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 1.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 4.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 6.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 7.5f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 9.0f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 10.5f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 12.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 13.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 15.0f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 16.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 18.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+
+   scene->addObject(createStaticObject(model, glm::vec3(9.5f, -1.25f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(10.0f, -1.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(10.5f, -0.75f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(11.0f, -0.5f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(11.5f, -0.25f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(12.0f, 0.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+
+   SPtr<GameObject> winTrigger = std::make_shared<GameObject>();
+   float triggerSize = 1.5f;
+   winTrigger->setPosition(tower->getPosition() + glm::vec3(0.0f, height / 2.0f + triggerSize, 0.0f));
+   winTrigger->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*winTrigger, false, CollisionGroup::Characters, glm::vec3(triggerSize)));
+   winTrigger->setTickCallback([](GameObject &gameObject, const float dt) {
+      btCollisionObject *collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
+      if (!collisionObject) {
+         return;
+      }
+      btGhostObject *ghostObject = dynamic_cast<btGhostObject*>(collisionObject);
+      if (!ghostObject) {
+         return;
+      }
+      for (int i = 0; i < ghostObject->getNumOverlappingObjects(); i++) {
+         btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(ghostObject->getOverlappingObject(i));
+         if(rigidBody) {
+            rigidBody->applyCentralForce(btVector3(0.0f, 50.0f, 0.0f));
+         }
+      }
+   });
+   scene->addObject(winTrigger);
+}
+
 } // namespace
 
 namespace SceneLoader {
@@ -181,6 +232,7 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
 
    SPtr<Mesh> boxMesh = assetManager.loadMesh("meshes/cube.obj");
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
+   SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
 
    SPtr<Model> boxModel(std::make_shared<Model>(phongShaderProgram, boxMaterial, boxMesh));
    SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMaterial, planeMesh));
@@ -195,9 +247,18 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
    scene->addObject(createDynamicObject(boxModel, glm::vec3(-5.0f, 5.0f, -10.0f), glm::vec3(1.0f), 0.3f, 0.8f, 1.0f));
 
    // Players
+   glm::vec3 colors[] = {
+      glm::normalize(glm::vec3(1.0f, 0.2f, 0.2f)) * 1.5f,
+      glm::normalize(glm::vec3(0.2f, 1.0f, 0.2f)) * 1.5f,
+      glm::normalize(glm::vec3(0.9f, 0.9f, 0.2f)) * 1.5f,
+      glm::normalize(glm::vec3(0.9f, 0.2f, 0.9f)) * 1.5f
+   };
    for (int i = 0; i < context.getInputHandler().getNumberOfPlayers(); ++i) {
-      scene->addCamera(createPlayer(nullptr, glm::vec3(5.0f * i, 1.0f, 0.0f)));
+      int color = i % (sizeof(colors) / sizeof(glm::vec3));
+      scene->addCamera(createPlayer(phongShaderProgram, colors[color], playerMesh, glm::vec3(5.0f * i, 2.0f, 10.0f)));
    }
+
+   buildTower(scene, boxModel);
 
    return scene;
 }

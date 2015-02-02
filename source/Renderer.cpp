@@ -204,6 +204,11 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    // Objects
    const std::vector<SPtr<GameObject>> &gameObjects = scene.getObjects();
    for (SPtr<GameObject> gameObject : gameObjects) {
+      // Don't render the object that the camera is attached to
+      if (&camera == gameObject.get()) {
+         continue;
+      }
+
       gameObject->getGraphicsComponent().draw();
    }
 

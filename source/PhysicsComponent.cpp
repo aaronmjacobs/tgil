@@ -7,15 +7,18 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
-PhysicsComponent::PhysicsComponent(GameObject &gameObject, int collisionType, const CollisionGroup::Group collisionGroup, const CollisionGroup::Group collisionMask)
-   : Component(gameObject), collisionType(collisionType), collisionGroup(collisionGroup), collisionMask(collisionMask) {
+PhysicsComponent::PhysicsComponent(GameObject &gameObject, const CollisionGroup::Group collisionGroup, const short collisionMask)
+   : Component(gameObject), collisionGroup(collisionGroup), collisionMask(collisionMask) {
 }
 
 PhysicsComponent::~PhysicsComponent() {
-   // Remove the rigid body from the physics manager
-   SPtr<PhysicsManager> currentPhysicsManager = physicsManager.lock();
-   if (currentPhysicsManager) {
-      currentPhysicsManager->removeObject(*this);
+   // Remove from the physics managers (avoiding concurrent modification)
+   while (!physicsManagers.empty()) {
+      WPtr<PhysicsManager> wManager = *physicsManagers.begin();
+      SPtr<PhysicsManager> manager = wManager.lock();
+      if (manager) {
+         removeFromManager(manager);
+      }
    }
 }
 
@@ -23,25 +26,48 @@ void PhysicsComponent::init() {
    ASSERT(collisionObject, "Collision object not instantiated by physics component");
    ASSERT(collisionShape, "Collision shape not instantiated by physics component");
 
-   collisionObject->setCollisionFlags(collisionObject->getCollisionFlags() | collisionType);
    collisionObject->setUserPointer(&gameObject);
 
    // Listen for events from the game object
    gameObject.addObserver(shared_from_this());
 }
 
+void PhysicsComponent::addToManager(SPtr<PhysicsManager> manager) {
+   ASSERT(manager, "Trying to add to null manager");
+   ASSERT(physicsManagers.count(manager) == 0, "Trying to add component to physics manager that it is already in");
+   if (!collisionObject) {
+      return;
+   }
+
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject.get());
+   if (rigidBody) {
+      manager->getDynamicsWorld().addRigidBody(rigidBody, collisionGroup, collisionMask);
+   } else {
+      manager->getDynamicsWorld().addCollisionObject(collisionObject.get(), collisionGroup, collisionMask);
+   }
+
+   physicsManagers.insert(manager);
+}
+
+void PhysicsComponent::removeFromManager(SPtr<PhysicsManager> manager) {
+   ASSERT(manager, "Trying to remove from null manager");
+   ASSERT(physicsManagers.count(manager) > 0, "Trying to remove component from physics manager that it is not in");
+   if (!collisionObject) {
+      return;
+   }
+
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(collisionObject.get());
+   if (rigidBody) {
+      manager->getDynamicsWorld().removeRigidBody(rigidBody);
+   } else {
+      manager->getDynamicsWorld().removeCollisionObject(collisionObject.get());
+   }
+
+   physicsManagers.erase(manager);
+}
+
 void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
    switch (event) {
-      case SET_SCENE: {
-         SPtr<PhysicsManager> currentPhysicsManager = physicsManager.lock();
-         if (currentPhysicsManager) {
-            currentPhysicsManager->removeObject(*this);
-         }
-
-         SPtr<Scene> scene = gameObject.getScene().lock();
-         physicsManager = scene ? scene->getPhysicsManager() : SPtr<PhysicsManager>();
-         break;
-      }
       case SCALE: {
          collisionShape->setLocalScaling(toBt(gameObject.getScale()));
          break;
@@ -52,5 +78,5 @@ void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
 }
 
 NullPhysicsComponent::NullPhysicsComponent(GameObject &gameObject)
-   : PhysicsComponent(gameObject, btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE, CollisionGroup::Nothing, CollisionGroup::Nothing) {
+   : PhysicsComponent(gameObject, CollisionGroup::Nothing, CollisionGroup::Nothing) {
 }

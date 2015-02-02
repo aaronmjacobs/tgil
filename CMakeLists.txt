@@ -42,6 +42,7 @@ set(SOURCES
    ${SRC_DIR}/GameObject.cpp
    ${SRC_DIR}/GameObjectMotionState.cpp
    ${SRC_DIR}/GeometricGraphicsComponent.cpp
+   ${SRC_DIR}/GhostPhysicsComponent.cpp
    ${SRC_DIR}/HumanInputComponent.cpp
    ${SRC_DIR}/InputHandler.cpp
    ${SRC_DIR}/IOUtils.cpp
@@ -56,6 +57,7 @@ set(SOURCES
    ${SRC_DIR}/PhysicsComponent.cpp
    ${SRC_DIR}/PhysicsManager.cpp
    ${SRC_DIR}/PlayerCameraComponent.cpp
+   ${SRC_DIR}/PlayerGraphicsComponent.cpp
    ${SRC_DIR}/PlayerLogicComponent.cpp
    ${SRC_DIR}/PlayerPhysicsComponent.cpp
    ${SRC_DIR}/PointLightComponent.cpp
@@ -67,7 +69,6 @@ set(SOURCES
    ${SRC_DIR}/ShaderProgram.cpp
    ${SRC_DIR}/TextureMaterial.cpp
    ${SRC_DIR}/TextureUnitManager.cpp
-   ${SRC_DIR}/TriggerVolumePhysicsComponent.cpp
 )
 
 set(HEADERS
@@ -87,6 +88,7 @@ set(HEADERS
    ${SRC_DIR}/GameObject.h
    ${SRC_DIR}/GameObjectMotionState.h
    ${SRC_DIR}/GeometricGraphicsComponent.h
+   ${SRC_DIR}/GhostPhysicsComponent.h
    ${SRC_DIR}/GLIncludes.h
    ${SRC_DIR}/GraphicsComponent.h
    ${SRC_DIR}/HumanInputComponent.h
@@ -109,6 +111,7 @@ set(HEADERS
    ${SRC_DIR}/PhysicsComponent.h
    ${SRC_DIR}/PhysicsManager.h
    ${SRC_DIR}/PlayerCameraComponent.h
+   ${SRC_DIR}/PlayerGraphicsComponent.h
    ${SRC_DIR}/PlayerLogicComponent.h
    ${SRC_DIR}/PlayerPhysicsComponent.h
    ${SRC_DIR}/PointLightComponent.h
@@ -122,7 +125,6 @@ set(HEADERS
    ${SRC_DIR}/TextureMaterial.h
    ${SRC_DIR}/TextureUnitManager.h
    ${SRC_DIR}/Transform.h
-   ${SRC_DIR}/TriggerVolumePhysicsComponent.h
    ${SRC_DIR}/Types.h
 )
 
