@@ -135,8 +135,8 @@ SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3
    // Physics
    player->setPhysicsComponent(std::make_shared<PlayerPhysicsComponent>(*player, 1.0f));
    btRigidBody *gameObjectRigidBody = dynamic_cast<btRigidBody*>(player->getPhysicsComponent().getCollisionObject());
-   gameObjectRigidBody->setFriction(3.0f);
-   gameObjectRigidBody->setRollingFriction(3.0f);
+   gameObjectRigidBody->setFriction(0.0f);
+   gameObjectRigidBody->setRollingFriction(0.0f);
    gameObjectRigidBody->setRestitution(0.0f);
 
    // Camera
@@ -186,6 +186,13 @@ void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
    scene->addObject(createStaticObject(model, glm::vec3(0.0f, 15.0f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
    scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 16.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
    scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 18.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+
+   scene->addObject(createStaticObject(model, glm::vec3(9.5f, -1.25f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(10.0f, -1.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(10.5f, -0.75f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(11.0f, -0.5f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(11.5f, -0.25f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(12.0f, 0.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
 
    SPtr<GameObject> winTrigger = std::make_shared<GameObject>();
    float triggerSize = 1.5f;
@@ -248,7 +255,7 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
    };
    for (int i = 0; i < context.getInputHandler().getNumberOfPlayers(); ++i) {
       int color = i % (sizeof(colors) / sizeof(glm::vec3));
-      scene->addCamera(createPlayer(phongShaderProgram, colors[color], playerMesh, glm::vec3(5.0f * i, 1.0f, 10.0f)));
+      scene->addCamera(createPlayer(phongShaderProgram, colors[color], playerMesh, glm::vec3(5.0f * i, 2.0f, 10.0f)));
    }
 
    buildTower(scene, boxModel);

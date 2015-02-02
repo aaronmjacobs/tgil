@@ -38,7 +38,7 @@ void PlayerMotionState::getWorldTransform(btTransform &worldTrans) const {
    SPtr<btGhostObject> ghost = ghostObject.lock();
    if (ghost) {
       btTransform trans = worldTrans;
-      trans.setOrigin(trans.getOrigin() + btVector3(0.0f, -PLAYER_MIDDLE_HEIGHT, 0.0f));
+      trans.setOrigin(trans.getOrigin() + btVector3(0.0f, -PLAYER_GHOST_OFFSET, 0.0f));
       ghost->setWorldTransform(trans);
    }
 }
@@ -50,7 +50,7 @@ void PlayerMotionState::setWorldTransform(const btTransform &worldTrans) {
    SPtr<btGhostObject> ghost = ghostObject.lock();
    if (ghost) {
       btTransform trans = worldTrans;
-      trans.setOrigin(trans.getOrigin() + btVector3(0.0f, -PLAYER_MIDDLE_HEIGHT, 0.0f));
+      trans.setOrigin(trans.getOrigin() + btVector3(0.0f, -PLAYER_GHOST_OFFSET, 0.0f));
       ghost->setWorldTransform(trans);
    }
 }
@@ -62,7 +62,7 @@ PlayerPhysicsComponent::PlayerPhysicsComponent(GameObject &gameObject, float mas
    collisionShape = UPtr<btCollisionShape>(new btCapsuleShape(PLAYER_RADIUS, PLAYER_MIDDLE_HEIGHT));
 
    ghostObject = std::make_shared<btGhostObject>();
-   ghostCollisionShape = UPtr<btCollisionShape>(new btCapsuleShape(PLAYER_RADIUS * 0.8f, PLAYER_MIDDLE_HEIGHT));
+   ghostCollisionShape = UPtr<btCollisionShape>(new btCapsuleShape(PLAYER_GHOST_RADIUS, PLAYER_GHOST_MIDDLE_HEIGHT));
 
    collisionShape->setLocalScaling(toBt(gameObject.getScale()));
    ghostCollisionShape->setLocalScaling(toBt(gameObject.getScale()));
@@ -122,4 +122,9 @@ void PlayerPhysicsComponent::onNotify(const GameObject &gameObject, Event event)
       default:
          break;
    }
+}
+
+btGhostObject& PlayerPhysicsComponent::getGhostObject() const {
+   ASSERT(ghostObject, "Ghost shouldn't be null");
+   return *ghostObject;
 }
