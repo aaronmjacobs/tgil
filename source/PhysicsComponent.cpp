@@ -68,7 +68,7 @@ void PhysicsComponent::removeFromManager(SPtr<PhysicsManager> manager) {
 
 void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
    switch (event) {
-      case SCALE: {
+      case Event::SCALE: {
          collisionShape->setLocalScaling(toBt(gameObject.getScale()));
          break;
       }

@@ -16,7 +16,7 @@ namespace CollisionGroup {
 
 // Represented internally in Bullet as a short, so we have 16 groups
 // Bits 0-5 reserved by bullet
-enum Group {
+enum Group : short {
    Nothing = 0,
    Default = BIT(0),
    StaticBodies = BIT(1),

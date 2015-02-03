@@ -28,7 +28,7 @@ void GameObject::tick(const float dt) {
 
 void GameObject::setScene(WPtr<Scene> scene) {
    wScene = scene;
-   notify(*this, SET_SCENE);
+   notify(*this, Event::SET_SCENE);
 }
 
 CameraComponent& GameObject::getCameraComponent() const {

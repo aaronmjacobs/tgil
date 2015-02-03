@@ -72,7 +72,7 @@ public:
 
    void setScale(const glm::vec3 &scale) {
       transform.scale = scale;
-      notify(*this, SCALE);
+      notify(*this, Event::SCALE);
    }
 
    void setTickCallback(std::function<void(GameObject&, const float dt)> tickCallback) {

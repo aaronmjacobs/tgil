@@ -115,7 +115,7 @@ void PlayerPhysicsComponent::onNotify(const GameObject &gameObject, Event event)
    PhysicsComponent::onNotify(gameObject, event);
 
    switch (event) {
-      case SCALE: {
+      case Event::SCALE: {
          ghostCollisionShape->setLocalScaling(toBt(gameObject.getScale()));
          break;
       }

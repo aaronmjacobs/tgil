@@ -1,7 +1,7 @@
 #ifndef OBSERVER_H
 #define OBSERVER_H
 
-enum Event {
+enum class Event {
    NOTHING,
    SET_SCENE,
    SCALE
