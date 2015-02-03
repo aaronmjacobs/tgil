@@ -5,35 +5,26 @@
 #include "InputHandler.h"
 
 class InputComponent : public Component {
-private:
+protected:
+   const int playerNum;
    InputValues inputValues;
 
-protected:
-   friend class InputHandler;
-
-   void setInputValues(const InputValues &inputValues) {
-      this->inputValues = inputValues;
-   }
-
 public:
-   InputComponent(GameObject &gameObject)
-      : Component(gameObject), inputValues({ 0 }) {}
+   InputComponent(GameObject &gameObject, const int playerNum);
 
-   virtual ~InputComponent() {}
+   virtual ~InputComponent();
 
-   virtual void init() = 0;
+   void update();
 
-   const InputValues& getInputValues() const {
-      return inputValues;
-   }
+   const int getPlayerNum() const;
+
+   const InputValues& getInputValues() const;
 };
 
 class NullInputComponent : public InputComponent {
 public:
    NullInputComponent(GameObject &gameObject)
-      : InputComponent(gameObject) {
-      setInputValues({ 0 });
-   }
+      : InputComponent(gameObject, -1) {}
 
    virtual ~NullInputComponent() {}
 

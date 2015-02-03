@@ -13,7 +13,6 @@ protected:
    GLFWwindow* const window;
    std::vector<SPtr<InputDevice>> inputDevices;
    std::vector<InputValues> inputValues;
-   std::vector<WPtr<InputComponent>> inputComponents;
 
 public:
    InputHandler(GLFWwindow* const window);
@@ -22,11 +21,9 @@ public:
 
    void pollInput();
 
-   void registerInputComponent(SPtr<InputComponent> inputComponent);
-
    const InputValues& getInputValues(int player) const;
 
-   int getNumberOfPlayers() const;
+   int getNumDevices() const;
 };
 
 #endif

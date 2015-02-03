@@ -30,7 +30,6 @@ enum Group : short {
 
 } // namsepace CollisionGroup
 
-// TODO Handle CollisionTypes and CollisionGroups
 class PhysicsComponent : public Component, public Observer<GameObject>, public std::enable_shared_from_this<PhysicsComponent> {
 protected:
    const CollisionGroup::Group collisionGroup;

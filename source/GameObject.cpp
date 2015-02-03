@@ -19,6 +19,7 @@ GameObject::~GameObject() {
 }
 
 void GameObject::tick(const float dt) {
+   inputComponent->update();
    logicComponent->tick(dt);
 
    if (tickCallback) {
@@ -53,7 +54,6 @@ InputComponent& GameObject::getInputComponent() const {
 
 void GameObject::setInputComponent(SPtr<InputComponent> inputComponent) {
    this->inputComponent = inputComponent;
-   inputComponent->init();
 }
 
 LightComponent& GameObject::getLightComponent() const {

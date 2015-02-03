@@ -43,7 +43,7 @@ set(SOURCES
    ${SRC_DIR}/GameObjectMotionState.cpp
    ${SRC_DIR}/GeometricGraphicsComponent.cpp
    ${SRC_DIR}/GhostPhysicsComponent.cpp
-   ${SRC_DIR}/HumanInputComponent.cpp
+   ${SRC_DIR}/InputComponent.cpp
    ${SRC_DIR}/InputHandler.cpp
    ${SRC_DIR}/IOUtils.cpp
    ${SRC_DIR}/KeyboardInputDevice.cpp
@@ -91,7 +91,6 @@ set(HEADERS
    ${SRC_DIR}/GhostPhysicsComponent.h
    ${SRC_DIR}/GLIncludes.h
    ${SRC_DIR}/GraphicsComponent.h
-   ${SRC_DIR}/HumanInputComponent.h
    ${SRC_DIR}/InputComponent.h
    ${SRC_DIR}/InputDevice.h
    ${SRC_DIR}/InputHandler.h

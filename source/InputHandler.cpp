@@ -33,34 +33,13 @@ InputHandler::InputHandler(GLFWwindow* const window)
 InputHandler::~InputHandler() {
 }
 
-void InputHandler::registerInputComponent(SPtr<InputComponent> inputComponent) {
-   ASSERT(inputComponents.size() <= inputDevices.size(), "More InputComponents than devices");
-   inputComponents.push_back(inputComponent);
-}
-
 void InputHandler::pollInput() {
    // TODO Handle controllers being attached / detached
    ASSERT(inputDevices.size() <= MAX_PLAYERS, "More input devices than max number of players");
-   ASSERT(inputComponents.size() <= inputDevices.size(), "More InputComponents than devices");
 
    inputValues.clear();
    for (SPtr<InputDevice> inputDevice : inputDevices) {
       inputValues.push_back(inputDevice->getInputValues());
-   }
-
-   int i = 0;
-   for (std::vector<WPtr<InputComponent>>::iterator itr = inputComponents.begin(); itr != inputComponents.end();) {
-      SPtr<InputComponent> inputComponent = itr->lock();
-      if (inputComponent) {
-         if (i < inputValues.size()) {
-            inputComponent->setInputValues(inputValues[i]);
-         }
-
-         ++i;
-         ++itr;
-      } else {
-         itr = inputComponents.erase(itr);
-      }
    }
 }
 
@@ -73,6 +52,6 @@ const InputValues& InputHandler::getInputValues(int player) const {
    return inputValues.at(player);
 }
 
-int InputHandler::getNumberOfPlayers() const {
+int InputHandler::getNumDevices() const {
    return inputDevices.size();
 }

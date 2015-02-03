@@ -3,7 +3,7 @@
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
 #include "GhostPhysicsComponent.h"
-#include "HumanInputComponent.h"
+#include "InputComponent.h"
 #include "InputHandler.h"
 #include "LogHelper.h"
 #include "MeshPhysicsComponent.h"
@@ -121,7 +121,7 @@ SPtr<GameObject> createDynamicObject(SPtr<Model> model, const glm::vec3 &positio
    return dynamicObject;
 }
 
-SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3 &color, SPtr<Mesh> mesh, const glm::vec3 &position) {
+SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3 &color, SPtr<Mesh> mesh, const glm::vec3 &position, const int playerNum) {
    SPtr<GameObject> player(std::make_shared<GameObject>());
 
    // Transform
@@ -143,7 +143,7 @@ SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3
    player->setCameraComponent(std::make_shared<PlayerCameraComponent>(*player));
 
    // Input
-   player->setInputComponent(std::make_shared<HumanInputComponent>(*player));
+   player->setInputComponent(std::make_shared<InputComponent>(*player, playerNum));
 
    // Logic
    player->setLogicComponent(std::make_shared<PlayerLogicComponent>(*player));
@@ -253,9 +253,9 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
       glm::normalize(glm::vec3(0.9f, 0.9f, 0.2f)) * 1.5f,
       glm::normalize(glm::vec3(0.9f, 0.2f, 0.9f)) * 1.5f
    };
-   for (int i = 0; i < context.getInputHandler().getNumberOfPlayers(); ++i) {
+   for (int i = 0; i < context.getInputHandler().getNumDevices(); ++i) {
       int color = i % (sizeof(colors) / sizeof(glm::vec3));
-      scene->addCamera(createPlayer(phongShaderProgram, colors[color], playerMesh, glm::vec3(5.0f * i, 2.0f, 10.0f)));
+      scene->addCamera(createPlayer(phongShaderProgram, colors[color], playerMesh, glm::vec3(5.0f * i, 2.0f, 10.0f), i));
    }
 
    buildTower(scene, boxModel);
