@@ -18,6 +18,12 @@ struct GameState {
       : winner(-1) {}
 };
 
+struct GameObjectVectors {
+   std::vector<SPtr<GameObject>> objects;
+   std::vector<SPtr<GameObject>> toAdd;
+   std::vector<SPtr<GameObject>> toRemove;
+};
+
 class Scene : public std::enable_shared_from_this<Scene> {
 protected:
    GameState gameState;
@@ -27,18 +33,15 @@ protected:
 
    std::set<SPtr<ShaderProgram>> shaderPrograms;
 
-   std::vector<SPtr<GameObject>> cameras;
-   std::vector<SPtr<GameObject>> lights;
-   std::vector<SPtr<GameObject>> objects;
+   GameObjectVectors players;
+   GameObjectVectors cameras;
+   GameObjectVectors lights;
+   GameObjectVectors objects;
 
    bool ticking;
-   std::vector<SPtr<GameObject>> camerasToAdd;
-   std::vector<SPtr<GameObject>> lightsToAdd;
-   std::vector<SPtr<GameObject>> objectsToAdd;
-   std::vector<SPtr<GameObject>> camerasToRemove;
-   std::vector<SPtr<GameObject>> lightsToRemove;
-   std::vector<SPtr<GameObject>> objectsToRemove;
 
+   bool addToVectors(GameObjectVectors &vectors, SPtr<GameObject> object);
+   bool removeFromVectors(GameObjectVectors &vectors, SPtr<GameObject> object);
    void processPendingObjects();
 
 public:
@@ -62,27 +65,35 @@ public:
       return *debugDrawer;
    }
 
+   const std::vector<SPtr<GameObject>>& getPlayers() const {
+      return players.objects;
+   }
+
    const std::vector<SPtr<GameObject>>& getCameras() const {
-      return cameras;
+      return cameras.objects;
    }
 
    const std::vector<SPtr<GameObject>>& getLights() const {
-      return lights;
+      return lights.objects;
    }
 
    const std::vector<SPtr<GameObject>>& getObjects() const {
-      return objects;
+      return objects.objects;
    }
 
    const std::set<SPtr<ShaderProgram>>& getShaderPrograms() const {
       return shaderPrograms;
    }
 
+   void addPlayer(SPtr<GameObject> player);
+
    void addCamera(SPtr<GameObject> camera);
 
    void addLight(SPtr<GameObject> light);
 
    void addObject(SPtr<GameObject> object);
+
+   void removePlayer(SPtr<GameObject> player);
 
    void removeCamera(SPtr<GameObject> camera);
 

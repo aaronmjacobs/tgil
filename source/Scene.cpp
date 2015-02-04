@@ -19,38 +19,76 @@ Scene::Scene()
 Scene::~Scene() {
 }
 
+bool Scene::addToVectors(GameObjectVectors &vectors, SPtr<GameObject> object) {
+   ASSERT(object, "Trying to add null object to scene");
+
+   if (ticking) {
+      vectors.toAdd.push_back(object);
+      return false;
+   }
+
+   vectors.objects.push_back(object);
+   return true;
+}
+
+bool Scene::removeFromVectors(GameObjectVectors &vectors, SPtr<GameObject> object) {
+   ASSERT(object, "Trying to remove null object from scene");
+
+   if (ticking) {
+      vectors.toRemove.push_back(object);
+      return false;
+   }
+
+   vectors.objects.erase(std::remove(vectors.objects.begin(), vectors.objects.end(), object), vectors.objects.end());
+   return true;
+}
+
 void Scene::processPendingObjects() {
    ASSERT(!ticking, "Trying to process pending objects during tick (can cause concurrent modification issues)");
 
-   for (SPtr<GameObject> camera : camerasToRemove) {
+   // Removals
+
+   for (SPtr<GameObject> player : players.toRemove) {
+      removePlayer(player);
+   }
+   players.toRemove.clear();
+
+   for (SPtr<GameObject> camera : cameras.toRemove) {
       removeCamera(camera);
    }
-   camerasToRemove.clear();
+   cameras.toRemove.clear();
 
-   for (SPtr<GameObject> light : lightsToRemove) {
+   for (SPtr<GameObject> light : lights.toRemove) {
       removeLight(light);
    }
-   lightsToRemove.clear();
+   lights.toRemove.clear();
 
-   for (SPtr<GameObject> object : objectsToRemove) {
+   for (SPtr<GameObject> object : objects.toRemove) {
       removeObject(object);
    }
-   objectsToRemove.clear();
+   objects.toRemove.clear();
 
-   for (SPtr<GameObject> camera : camerasToAdd) {
+   // Additions
+
+   for (SPtr<GameObject> player : players.toAdd) {
+      addPlayer(player);
+   }
+   players.toAdd.clear();
+
+   for (SPtr<GameObject> camera : cameras.toAdd) {
       addCamera(camera);
    }
-   camerasToAdd.clear();
+   cameras.toAdd.clear();
 
-   for (SPtr<GameObject> light : lightsToAdd) {
+   for (SPtr<GameObject> light : lights.toAdd) {
       addLight(light);
    }
-   lightsToAdd.clear();
+   lights.toAdd.clear();
 
-   for (SPtr<GameObject> object : objectsToAdd) {
+   for (SPtr<GameObject> object : objects.toAdd) {
       addObject(object);
    }
-   objectsToAdd.clear();
+   objects.toAdd.clear();
 }
 
 void Scene::setWinner(int player) {
@@ -65,48 +103,32 @@ void Scene::tick(const float dt) {
 
    physicsManager->tick(dt);
 
-   for (SPtr<GameObject> object : objects) {
+   for (SPtr<GameObject> object : objects.objects) {
       object->tick(dt);
    }
 
    ticking = false;
 }
 
+void Scene::addPlayer(SPtr<GameObject> player) {
+   addToVectors(players, player);
+}
+
 void Scene::addCamera(SPtr<GameObject> camera) {
-   ASSERT(camera, "Trying to add null camera to scene");
-
-   if (ticking) {
-      camerasToAdd.push_back(camera);
-      return;
-   }
-
-   cameras.push_back(camera);
-   addObject(camera);
+   addToVectors(cameras, camera);
 }
 
 void Scene::addLight(SPtr<GameObject> light) {
-   ASSERT(light, "Trying to add null light in scene");
-
-   if (ticking) {
-      lightsToAdd.push_back(light);
-      return;
-   }
-
-   lights.push_back(light);
-   addObject(light);
+   addToVectors(lights, light);
 }
 
 void Scene::addObject(SPtr<GameObject> object) {
-   ASSERT(object, "Trying to add null object in scene");
-
-   if (ticking) {
-      objectsToAdd.push_back(object);
+   bool addedNow = addToVectors(objects, object);
+   if (!addedNow) {
       return;
    }
 
    object->getPhysicsComponent().addToManager(physicsManager);
-
-   objects.push_back(object);
 
    SPtr<Model> model = object->getGraphicsComponent().getModel();
    if (model) {
@@ -116,42 +138,28 @@ void Scene::addObject(SPtr<GameObject> object) {
    object->setScene(shared_from_this());
 }
 
+void Scene::removePlayer(SPtr<GameObject> player) {
+   removeFromVectors(players, player);
+}
+
 void Scene::removeCamera(SPtr<GameObject> camera) {
-   ASSERT(camera, "Trying to remove null camera from scene");
-
-   if (ticking) {
-      camerasToRemove.push_back(camera);
-      return;
-   }
-
-   cameras.erase(std::remove(cameras.begin(), cameras.end(), camera), cameras.end());
-   removeObject(camera);
+   removeFromVectors(cameras, camera);
 }
 
 void Scene::removeLight(SPtr<GameObject> light) {
-   ASSERT(light, "Trying to remove null light from scene");
-
-   if (ticking) {
-      lightsToRemove.push_back(light);
-      return;
-   }
-
-   lights.erase(std::remove(lights.begin(), lights.end(), light), lights.end());
-   removeObject(light);
+   removeFromVectors(lights, light);
 }
 
 void Scene::removeObject(SPtr<GameObject> object) {
-   ASSERT(object, "Trying to remove null object from scene");
-
-   if (ticking) {
-      objectsToRemove.push_back(object);
+   bool removedNow = removeFromVectors(objects, object);
+   if (!removedNow) {
       return;
    }
 
    object->getPhysicsComponent().removeFromManager(physicsManager);
 
-   objects.erase(std::remove(objects.begin(), objects.end(), object), objects.end());
-
+   // TODO Make shared programs a set of WPtrs?
+   // (auto-clean on each tick)
    /*SPtr<Model> model = object->getGraphicsComponent().getModel();
    if (model) {
       shaderPrograms.erase(model->getShaderProgram());

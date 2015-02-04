@@ -255,7 +255,10 @@ SPtr<Scene> loadDefaultScene(const Context &context) {
    };
    for (int i = 0; i < context.getInputHandler().getNumDevices(); ++i) {
       int color = i % (sizeof(colors) / sizeof(glm::vec3));
-      scene->addCamera(createPlayer(phongShaderProgram, colors[color], playerMesh, glm::vec3(5.0f * i, 2.0f, 10.0f), i));
+      SPtr<GameObject> player(createPlayer(phongShaderProgram, colors[color], playerMesh, glm::vec3(5.0f * i, 2.0f, 10.0f), i));
+      scene->addPlayer(player);
+      scene->addCamera(player);
+      scene->addObject(player);
    }
 
    buildTower(scene, boxModel);
