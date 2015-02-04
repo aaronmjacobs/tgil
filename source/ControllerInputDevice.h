@@ -6,13 +6,13 @@
 struct ControllerAxis {
    int index;
    bool invert;
-   bool edgeDeadzone;
    bool centerDeadzone;
 };
 
 struct ControllerMap {
    bool invertYAxis;
    float lookSensitivity;
+   float deadzone;
 
    ControllerAxis horizontalMoveAxis;
    ControllerAxis verticalMoveAxis;

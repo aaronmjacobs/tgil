@@ -5,33 +5,41 @@
 
 namespace {
 
-const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, { 0, false, true, true }, { 1, false, true, true }, { 2, false, true, true }, { 3, false, true, true }, { 5, false, true, false }, { 4, false, true, false }, 0, 7, 1, 12 };
+const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 0, 7, 1, 12 };
 
-// TODO Make deadzone configurable
-const float DEADZONE = 0.1f;
 const float AXIS_MIN = -1.0f;
 const float AXIS_MAX = 1.0f;
-const float AXIS_CENTER = AXIS_MIN + AXIS_MAX;
+const float AXIS_CENTER = 0.0f;
 
-float applyDeadzone(float f, bool edge, bool center) {
-   if (edge) {
-      if (f < AXIS_MIN + DEADZONE) {
-         return AXIS_MIN;
-      }
-      if (f > AXIS_MAX - DEADZONE) {
-         return AXIS_MAX;
-      }
+float applyEdgeDeadzone(float f, float minVal, float maxVal, float deadzone) {
+   float center = (minVal + maxVal) / 2.0f;
+   float fullScale = maxVal - minVal;
+   float deadzonedScale = (maxVal - deadzone) - (minVal + deadzone);
+   if (deadzonedScale == 0.0f) {
+      return f;
    }
 
-   if (center && f < AXIS_CENTER + DEADZONE && f > AXIS_CENTER - DEADZONE) {
-      return AXIS_CENTER;
-   }
-
-   return f;
+   float scale = fullScale / deadzonedScale;
+   return glm::clamp(((f - center) * scale) + center, minVal, maxVal);
 }
 
-float getAxisValue(const float* axes, const ControllerAxis &axis) {
-   return applyDeadzone(axes[axis.index], axis.edgeDeadzone, axis.centerDeadzone) * (axis.invert ? -1.0f : 1.0f);
+float applyDeadzone(float f, float deadzone, bool center) {
+   float minVal = AXIS_MIN;
+   float maxVal = AXIS_MAX;
+
+   if (center) {
+      if (f > AXIS_CENTER) {
+         minVal = AXIS_CENTER;
+      } else {
+         maxVal = AXIS_CENTER;
+      }
+   }
+
+   return applyEdgeDeadzone(f, minVal, maxVal, deadzone);
+}
+
+float getAxisValue(const float* axes, const ControllerAxis &axis, const float deadzone) {
+   return applyDeadzone(axes[axis.index], deadzone, axis.centerDeadzone) * (axis.invert ? -1.0f : 1.0f);
 }
 
 } // namespace
@@ -57,13 +65,13 @@ const InputValues& ControllerInputDevice::getInputValues() {
 
    // TODO Ensure no mapped index goes outside the bounds of the buttons / axes arrays
 
-   inputValues.moveForward = glm::max(0.0f, -getAxisValue(axes, map.verticalMoveAxis));
-   inputValues.moveBackward = glm::max(0.0f, getAxisValue(axes, map.verticalMoveAxis));
-   inputValues.moveLeft = glm::max(0.0f, -getAxisValue(axes, map.horizontalMoveAxis));
-   inputValues.moveRight = glm::max(0.0f, getAxisValue(axes, map.horizontalMoveAxis));
+   inputValues.moveForward = glm::max(0.0f, -getAxisValue(axes, map.verticalMoveAxis, map.deadzone));
+   inputValues.moveBackward = glm::max(0.0f, getAxisValue(axes, map.verticalMoveAxis, map.deadzone));
+   inputValues.moveLeft = glm::max(0.0f, -getAxisValue(axes, map.horizontalMoveAxis, map.deadzone));
+   inputValues.moveRight = glm::max(0.0f, getAxisValue(axes, map.horizontalMoveAxis, map.deadzone));
 
-   inputValues.lookY = getAxisValue(axes, map.verticalLookAxis) * map.lookSensitivity * (map.invertYAxis ? -1.0f : 1.0f);
-   inputValues.lookX = getAxisValue(axes, map.horizontalLookAxis) * map.lookSensitivity;
+   inputValues.lookY = getAxisValue(axes, map.verticalLookAxis, map.deadzone) * map.lookSensitivity * (map.invertYAxis ? -1.0f : 1.0f);
+   inputValues.lookX = getAxisValue(axes, map.horizontalLookAxis, map.deadzone) * map.lookSensitivity;
 
    inputValues.action = buttons[map.actionButton] == GLFW_PRESS;
    inputValues.jump = buttons[map.jumpButton] == GLFW_PRESS;
