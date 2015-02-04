@@ -11,8 +11,17 @@ class GameObject;
 class PhysicsManager;
 class ShaderProgram;
 
+struct GameState {
+   int winner;
+
+   GameState()
+      : winner(-1) {}
+};
+
 class Scene : public std::enable_shared_from_this<Scene> {
 protected:
+   GameState gameState;
+
    const SPtr<PhysicsManager> physicsManager;
    const UPtr<DebugDrawer> debugDrawer;
 
@@ -39,6 +48,12 @@ public:
 
    void tick(const float dt);
 
+   const GameState& getGameState() const {
+      return gameState;
+   }
+
+   void setWinner(int player);
+
    SPtr<PhysicsManager> getPhysicsManager() const {
       return physicsManager;
    }
@@ -47,7 +62,7 @@ public:
       return *debugDrawer;
    }
 
-   const std::vector<SPtr<GameObject>> getCameras() const {
+   const std::vector<SPtr<GameObject>>& getCameras() const {
       return cameras;
    }
 

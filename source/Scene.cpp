@@ -1,3 +1,4 @@
+#include "Constants.h"
 #include "DebugDrawer.h"
 #include "FancyAssert.h"
 #include "GameObject.h"
@@ -50,6 +51,11 @@ void Scene::processPendingObjects() {
       addObject(object);
    }
    objectsToAdd.clear();
+}
+
+void Scene::setWinner(int player) {
+   ASSERT(player >= 0 && player < MAX_PLAYERS, "Invalid player index");
+   gameState.winner = player;
 }
 
 void Scene::tick(const float dt) {
