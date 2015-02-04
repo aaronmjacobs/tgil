@@ -37,7 +37,7 @@ public:
 
    virtual ~ControllerInputDevice();
 
-   virtual const InputValues& getInputValues();
+   virtual InputValues getInputValues();
 
    void setControllerMap(const ControllerMap &map);
 };

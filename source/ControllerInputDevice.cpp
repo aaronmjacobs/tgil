@@ -38,8 +38,22 @@ float applyDeadzone(float f, float deadzone, bool center) {
    return applyEdgeDeadzone(f, minVal, maxVal, deadzone);
 }
 
-float getAxisValue(const float* axes, const ControllerAxis &axis, const float deadzone) {
+float getAxisValue(const float *axes, const int axisCount, const ControllerAxis &axis, const float deadzone) {
+   // Make sure the mapped index is valid
+   if (axis.index < 0 || axis.index >= axisCount) {
+      return 0.0f;
+   }
+
    return applyDeadzone(axes[axis.index], deadzone, axis.centerDeadzone) * (axis.invert ? -1.0f : 1.0f);
+}
+
+bool getButtonValue(const unsigned char *buttons, const int buttonCount, const int button) {
+   // Make sure the mapped index is valid
+   if (button < 0 || button >= buttonCount) {
+      return false;
+   }
+
+   return buttons[button] == GLFW_PRESS;
 }
 
 } // namespace
@@ -51,32 +65,37 @@ ControllerInputDevice::ControllerInputDevice(GLFWwindow* const window, const int
 ControllerInputDevice::~ControllerInputDevice() {
 }
 
-const InputValues& ControllerInputDevice::getInputValues() {
-   int buttonCount, axisCount;
+InputValues ControllerInputDevice::getInputValues() {
+   InputValues inputValues = { 0 };
 
-   const unsigned char* buttons = glfwGetJoystickButtons(controller, &buttonCount);
-   const float* axes = glfwGetJoystickAxes(controller, &axisCount);
-
-   // If the controller can't be found, return the default values
-   if (!buttons || !axes) {
-      inputValues = { 0 };
+   // If the controller isn't present, return the default values
+   if (!glfwJoystickPresent(controller)) {
       return inputValues;
    }
 
-   // TODO Ensure no mapped index goes outside the bounds of the buttons / axes arrays
+   int buttonCount, axisCount;
+   const unsigned char* buttons = glfwGetJoystickButtons(controller, &buttonCount);
+   const float* axes = glfwGetJoystickAxes(controller, &axisCount);
 
-   inputValues.moveForward = glm::max(0.0f, -getAxisValue(axes, map.verticalMoveAxis, map.deadzone));
-   inputValues.moveBackward = glm::max(0.0f, getAxisValue(axes, map.verticalMoveAxis, map.deadzone));
-   inputValues.moveLeft = glm::max(0.0f, -getAxisValue(axes, map.horizontalMoveAxis, map.deadzone));
-   inputValues.moveRight = glm::max(0.0f, getAxisValue(axes, map.horizontalMoveAxis, map.deadzone));
+   // If the buttons or axes can't be accessed, return the default values
+   if (!buttons || !axes) {
+      return inputValues;
+   }
 
-   inputValues.lookY = getAxisValue(axes, map.verticalLookAxis, map.deadzone) * map.lookSensitivity * (map.invertYAxis ? -1.0f : 1.0f);
-   inputValues.lookX = getAxisValue(axes, map.horizontalLookAxis, map.deadzone) * map.lookSensitivity;
+   float verticalMove = getAxisValue(axes, axisCount, map.verticalMoveAxis, map.deadzone);
+   float horizontalMove = getAxisValue(axes, axisCount, map.horizontalMoveAxis, map.deadzone);
+   inputValues.moveForward = glm::max(0.0f, -verticalMove);
+   inputValues.moveBackward = glm::max(0.0f, verticalMove);
+   inputValues.moveLeft = glm::max(0.0f, -horizontalMove);
+   inputValues.moveRight = glm::max(0.0f, horizontalMove);
 
-   inputValues.action = buttons[map.actionButton] == GLFW_PRESS;
-   inputValues.jump = buttons[map.jumpButton] == GLFW_PRESS;
-   inputValues.quit = buttons[map.quitButton] == GLFW_PRESS;
-   inputValues.attack = buttons[map.attackButton] == GLFW_PRESS;
+   inputValues.lookY = getAxisValue(axes, axisCount, map.verticalLookAxis, map.deadzone) * map.lookSensitivity * (map.invertYAxis ? -1.0f : 1.0f);
+   inputValues.lookX = getAxisValue(axes, axisCount, map.horizontalLookAxis, map.deadzone) * map.lookSensitivity;
+
+   inputValues.action = getButtonValue(buttons, buttonCount, map.actionButton);
+   inputValues.jump = getButtonValue(buttons, buttonCount, map.jumpButton);
+   inputValues.quit = getButtonValue(buttons, buttonCount, map.quitButton);
+   inputValues.attack = getButtonValue(buttons, buttonCount, map.attackButton);
 
    return inputValues;
 }

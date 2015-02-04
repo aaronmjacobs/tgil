@@ -23,7 +23,6 @@ struct InputValues {
 class InputDevice {
 protected:
    GLFWwindow* const window;
-   InputValues inputValues;
 
 public:
    InputDevice(GLFWwindow* const window)
@@ -32,7 +31,7 @@ public:
 
    virtual ~InputDevice() {}
 
-   virtual const InputValues& getInputValues() = 0;
+   virtual InputValues getInputValues() = 0;
 };
 
 #endif

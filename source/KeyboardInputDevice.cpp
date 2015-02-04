@@ -17,7 +17,9 @@ KeyboardInputDevice::KeyboardInputDevice(GLFWwindow* const window)
 KeyboardInputDevice::~KeyboardInputDevice() {
 }
 
-const InputValues& KeyboardInputDevice::getInputValues() {
+InputValues KeyboardInputDevice::getInputValues() {
+   InputValues inputValues = { 0 };
+
    inputValues.moveForward = glfwGetKey(window, map.moveForwardKey) == GLFW_PRESS ? 1.0f : 0.0f;
    inputValues.moveBackward = glfwGetKey(window, map.moveBackwardKey) == GLFW_PRESS ? 1.0f : 0.0f;
    inputValues.moveLeft = glfwGetKey(window, map.moveLeftKey) == GLFW_PRESS ? 1.0f : 0.0f;

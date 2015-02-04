@@ -30,7 +30,7 @@ public:
 
    virtual ~KeyboardInputDevice();
 
-   virtual const InputValues& getInputValues();
+   virtual InputValues getInputValues();
 
    void setKeyMouseMap(const KeyMouseMap &map);
 };
