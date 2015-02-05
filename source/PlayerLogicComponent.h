@@ -4,6 +4,7 @@
 #include "LogicComponent.h"
 
 #include <folly/Optional.h>
+#include <glm/glm.hpp>
 
 class btRigidBody;
 
@@ -19,6 +20,7 @@ struct Ground {
 class PlayerLogicComponent : public LogicComponent {
 protected:
    bool wasJumpingLastFrame;
+   glm::vec3 color;
 
    folly::Optional<Ground> getGround() const;
 
@@ -31,11 +33,15 @@ protected:
    void handleMovement(const float dt, const InputValues &inputValues, SPtr<Scene> scene);
 
 public:
-   PlayerLogicComponent(GameObject &gameObject);
+   PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color);
 
    virtual ~PlayerLogicComponent();
 
    virtual void tick(const float dt);
+
+   const glm::vec3& getColor() {
+      return color;
+   }
 };
 
 #endif

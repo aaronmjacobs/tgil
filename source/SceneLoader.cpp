@@ -146,7 +146,7 @@ SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3
    player->setInputComponent(std::make_shared<InputComponent>(*player, playerNum));
 
    // Logic
-   player->setLogicComponent(std::make_shared<PlayerLogicComponent>(*player));
+   player->setLogicComponent(std::make_shared<PlayerLogicComponent>(*player, color));
       
    return player;
 }
@@ -208,6 +208,20 @@ void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
          return;
       }
       for (int i = 0; i < ghostObject->getNumOverlappingObjects(); i++) {
+         SPtr<Scene> scene = gameObject.getScene().lock();
+         if (!scene) {
+            return;
+         }
+
+         if (!scene->getGameState().hasWinner()) {
+            GameObject *collidingGameObject = static_cast<GameObject*>(ghostObject->getOverlappingObject(i)->getUserPointer());
+
+            if (collidingGameObject) {
+               int playerNum = collidingGameObject->getInputComponent().getPlayerNum();
+               scene->setWinner(playerNum);
+            }
+         }
+
          btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(ghostObject->getOverlappingObject(i));
          if(rigidBody) {
             rigidBody->applyCentralForce(btVector3(0.0f, 50.0f, 0.0f));

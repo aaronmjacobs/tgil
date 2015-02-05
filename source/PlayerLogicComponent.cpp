@@ -51,8 +51,8 @@ float calcHorizontalMovementForce(glm::vec3 velocity, folly::Optional<Ground> gr
 
 } // namespace
 
-PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject)
-   : LogicComponent(gameObject), wasJumpingLastFrame(false) {
+PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color)
+   : LogicComponent(gameObject), wasJumpingLastFrame(false), color(color) {
 }
 
 PlayerLogicComponent::~PlayerLogicComponent() {

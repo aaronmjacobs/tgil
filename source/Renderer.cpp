@@ -12,6 +12,7 @@
 #include "LogHelper.h"
 #include "Model.h"
 #include "PhysicsManager.h"
+#include "PlayerLogicComponent.h"
 #include "Renderer.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
@@ -59,6 +60,27 @@ void checkGLError() {
    if (error != GL_NO_ERROR) {
       LOG_WARNING("OpenGL error " << error << " (" << getErrorName(error) << ")");
    }
+}
+
+const glm::vec3 DEFAULT_CLEAR_COLOR(0.5f);
+
+glm::vec3 getClearColor(const Scene &scene) {
+   const GameState &gameState = scene.getGameState();
+   if (!gameState.hasWinner()) {
+      return DEFAULT_CLEAR_COLOR;
+   }
+
+   SPtr<GameObject> player = scene.getPlayerByNumber(gameState.getWinner());
+   if (!player) {
+      return DEFAULT_CLEAR_COLOR;
+   }
+
+   PlayerLogicComponent *playerLogic = static_cast<PlayerLogicComponent*>(&player->getLogicComponent());
+   if (!playerLogic) {
+      return DEFAULT_CLEAR_COLOR;
+   }
+
+   return playerLogic->getColor();
 }
 
 } // namespace
@@ -169,7 +191,8 @@ void Renderer::render(Scene &scene) {
 }
 
 void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
-   glClearColor(0.15f, 0.6f, 0.4f, 1.0f);
+   glm::vec3 clearColor = getClearColor(scene);
+   glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f);
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
    // Set up shaders

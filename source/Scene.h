@@ -11,11 +11,33 @@ class GameObject;
 class PhysicsManager;
 class ShaderProgram;
 
-struct GameState {
+namespace {
+
+const int NO_WINNER = -1;
+
+}
+
+class GameState {
+protected:
    int winner;
 
+public:
    GameState()
-      : winner(-1) {}
+      : winner(NO_WINNER) {}
+
+   bool hasWinner() const {
+      return winner != NO_WINNER;
+   }
+
+   int getWinner() const {
+      return winner;
+   }
+
+   void setWinner(int winner) {
+      if (!hasWinner()) {
+         this->winner = winner;
+      }
+   }
 };
 
 struct GameObjectVectors {
@@ -100,6 +122,8 @@ public:
    void removeLight(SPtr<GameObject> light);
 
    void removeObject(SPtr<GameObject> object);
+
+   SPtr<GameObject> getPlayerByNumber(int playerNum) const;
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include "FancyAssert.h"
 #include "GameObject.h"
 #include "GraphicsComponent.h"
+#include "InputComponent.h"
 #include "Material.h"
 #include "Model.h"
 #include "PhysicsComponent.h"
@@ -93,7 +94,7 @@ void Scene::processPendingObjects() {
 
 void Scene::setWinner(int player) {
    ASSERT(player >= 0 && player < MAX_PLAYERS, "Invalid player index");
-   gameState.winner = player;
+   gameState.setWinner(player);
 }
 
 void Scene::tick(const float dt) {
@@ -166,4 +167,14 @@ void Scene::removeObject(SPtr<GameObject> object) {
    }*/
 
    object->setScene(WPtr<Scene>());
+}
+
+SPtr<GameObject> Scene::getPlayerByNumber(int playerNum) const {
+   for (SPtr<GameObject> player : players.objects) {
+      if (playerNum == player->getInputComponent().getPlayerNum()) {
+         return player;
+      }
+   }
+
+   return nullptr;
 }
