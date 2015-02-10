@@ -51,6 +51,7 @@ int main(int argc, char *argv[]) {
 
    GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, PROJECT_NAME, NULL, NULL);
    if (!window) {
+      glfwTerminate();
       LOG_FATAL("Unable to create GLFW window");
    }
 
@@ -59,6 +60,8 @@ int main(int argc, char *argv[]) {
 
    int gladInitRes = gladLoadGL();
    if (!gladInitRes) {
+      glfwDestroyWindow(window);
+      glfwTerminate();
       LOG_FATAL("Unable to initialize glad");
    }
 
