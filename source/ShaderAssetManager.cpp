@@ -3,10 +3,15 @@
 #include "LogHelper.h"
 #include "Shader.h"
 #include "ShaderAssetManager.h"
+#include "ShaderProgram.h"
 
 #define GLSL(source) "#version 120\n" #source
 
 namespace {
+
+const std::string VERTEX_EXTENSION = ".vert";
+const std::string GEOMETRY_EXTENSION = ".geom";
+const std::string FRAGMENT_EXTENSION = ".frag";
 
 const std::string DEFAULT_VERTEX_SOURCE = GLSL(
    uniform mat4 uModelMatrix;
@@ -40,6 +45,7 @@ const std::string DEFAULT_FRAGMENT_SOURCE = GLSL(
 SPtr<Shader> DEFAULT_VERTEX_SHADER;
 SPtr<Shader> DEFAULT_GEOMETRY_SHADER;
 SPtr<Shader> DEFAULT_FRAGMENT_SHADER;
+SPtr<ShaderProgram> DEFAULT_SHADER_PROGRAM;
 
 const char* getShaderTypeName(const GLenum type) {
    switch (type) {
@@ -54,21 +60,41 @@ const char* getShaderTypeName(const GLenum type) {
    }
 }
 
-std::string getShaderCompileError(SPtr<Shader> shader) {
+std::string getShaderError(GLuint id, bool isProgram) {
    GLint infoLogLength;
-   glGetShaderiv(shader->getID(), GL_INFO_LOG_LENGTH, &infoLogLength);
+
+   if (isProgram) {
+      glGetProgramiv(id, GL_INFO_LOG_LENGTH, &infoLogLength);
+   } else {
+      glGetShaderiv(id, GL_INFO_LOG_LENGTH, &infoLogLength);
+   }
+
    if (infoLogLength < 1) {
       return std::string();
    }
 
    UPtr<GLchar[]> strInfoLog(new GLchar[infoLogLength]);
-   glGetShaderInfoLog(shader->getID(), infoLogLength, NULL, strInfoLog.get());
-   if (infoLogLength >= 2 && strInfoLog[infoLogLength - 2] == '\n') {
-      strInfoLog[infoLogLength - 2] = '\0'; // If the log ends in a newline, nuke it
+
+   if (isProgram) {
+      glGetProgramInfoLog(id, infoLogLength, NULL, strInfoLog.get());
+   } else {
+      glGetShaderInfoLog(id, infoLogLength, NULL, strInfoLog.get());
    }
 
-   std::string compileError(strInfoLog.get());
-   return compileError;
+   // If the log ends in a newline, nuke it
+   if (infoLogLength >= 2 && strInfoLog[infoLogLength - 2] == '\n') {
+      strInfoLog[infoLogLength - 2] = '\0';
+   }
+
+   return std::string(strInfoLog.get());
+}
+
+std::string getShaderCompileError(SPtr<Shader> shader) {
+   return getShaderError(shader->getID(), false);
+}
+
+std::string getShaderLinkError(SPtr<ShaderProgram> shaderProgram) {
+   return getShaderError(shaderProgram->getID(), true);
 }
 
 const std::string& getDefaultShaderSource(const GLenum type) {
@@ -117,7 +143,7 @@ SPtr<Shader> getDefaultShader(const GLenum type) {
 
    SPtr<Shader> shader(std::make_shared<Shader>(type));
    if (!shader->compile(*source)) {
-      LOG_MESSAGE("Error compiling default " << getShaderTypeName(type) << " shader: " << getShaderCompileError(shader));
+      LOG_MESSAGE("Error compiling default " << getShaderTypeName(type) << " shader. Error message: \"" << getShaderCompileError(shader) << "\"");
       LOG_FATAL("Unable to compile default " << getShaderTypeName(type) << " shader");
    }
 
@@ -137,6 +163,23 @@ SPtr<Shader> getDefaultShader(const GLenum type) {
    }
 
    return shader;
+}
+
+SPtr<ShaderProgram> getDefaultShaderProgram() {
+   if (DEFAULT_SHADER_PROGRAM) {
+      return DEFAULT_SHADER_PROGRAM;
+   }
+
+   DEFAULT_SHADER_PROGRAM = std::make_shared<ShaderProgram>();
+   DEFAULT_SHADER_PROGRAM->attach(getDefaultShader(GL_VERTEX_SHADER));
+   DEFAULT_SHADER_PROGRAM->attach(getDefaultShader(GL_FRAGMENT_SHADER));
+
+   if (!DEFAULT_SHADER_PROGRAM->link()) {
+      LOG_MESSAGE("Error linking default shader program. Error message: \"" << getShaderLinkError(DEFAULT_SHADER_PROGRAM) << "\"");
+      LOG_FATAL("Unable to link default shader");
+   }
+
+   return DEFAULT_SHADER_PROGRAM;
 }
 
 } // namespace
@@ -163,14 +206,48 @@ SPtr<Shader> ShaderAssetManager::loadShader(const std::string &fileName, const G
    SPtr<Shader> shader(std::make_shared<Shader>(type));
    if (!shader->compile(*source)) {
       LOG_WARNING("Unable to compile " << getShaderTypeName(shader->getType()) << " shader loaded from file \"" << fileName << "\", reverting to default shader. Error message: \"" << getShaderCompileError(shader) << "\"");
-      return getDefaultShader(type);
+      shader = getDefaultShader(type);
    }
 
    shaderMap[fileName] = shader;
    return shader;
 }
 
+// TODO Handle adding of uniforms / attributes
+SPtr<ShaderProgram> ShaderAssetManager::loadShaderProgram(const std::string &fileName) {
+   if (shaderProgramMap.count(fileName) > 0) {
+      return shaderProgramMap[fileName];
+   }
+
+   SPtr<ShaderProgram> shaderProgram = std::make_shared<ShaderProgram>();
+   std::string vertexFileName = fileName + VERTEX_EXTENSION;
+   std::string geometryFileName = fileName + GEOMETRY_EXTENSION;
+   std::string fragmentFileName = fileName + FRAGMENT_EXTENSION;
+
+   if (IOUtils::canReadData(vertexFileName)) {
+      shaderProgram->attach(loadShader(vertexFileName, GL_VERTEX_SHADER));
+   }
+
+   if (IOUtils::canReadData(geometryFileName)) {
+      shaderProgram->attach(loadShader(geometryFileName, GL_GEOMETRY_SHADER));
+   }
+
+   if (IOUtils::canReadData(fragmentFileName)) {
+      shaderProgram->attach(loadShader(fragmentFileName, GL_FRAGMENT_SHADER));
+   }
+
+   if (!shaderProgram->link()) {
+      LOG_WARNING("Unable to link '" << fileName << "' shader program, reverting to default shader program. Error message: \"" << getShaderLinkError(shaderProgram) << "\"");
+      shaderProgram = getDefaultShaderProgram();
+   }
+
+   shaderProgramMap[fileName] = shaderProgram;
+   return shaderProgram;
+}
+
 void ShaderAssetManager::reloadShaders() {
+   // TODO Only reload if files have been updated (check file modification time)
+
    for (std::map<std::string, SPtr<Shader>>::iterator itr = shaderMap.begin(); itr != shaderMap.end(); ++itr) {
       const std::string& fileName = itr->first;
       SPtr<Shader> shader = itr->second;
@@ -186,9 +263,20 @@ void ShaderAssetManager::reloadShaders() {
 
          const std::string &defaultSource = getDefaultShaderSource(shader->getType());
          if (!shader->compile(defaultSource)) {
-            LOG_MESSAGE("Error compiling default " << getShaderTypeName(shader->getType()) << " shader: " << getShaderCompileError(shader));
+            LOG_MESSAGE("Error compiling default " << getShaderTypeName(shader->getType()) << " shader. Error message: \"" << getShaderCompileError(shader) << "\"");
             LOG_FATAL("Unable to compile default " << getShaderTypeName(shader->getType()) << " shader");
          }
       }
+   }
+
+   for (std::map<std::string, SPtr<ShaderProgram>>::iterator itr = shaderProgramMap.begin(); itr != shaderProgramMap.end(); ++itr) {
+      const std::string& fileName = itr->first;
+      SPtr<ShaderProgram> shaderProgram = itr->second;
+
+      if (!shaderProgram->link()) {
+         LOG_WARNING("Unable to link '" << fileName << "' shader program. Error message: \"" << getShaderLinkError(shaderProgram) << "\"");
+      }
+
+      // TODO Clear and re-add all uniforms / attributes
    }
 }

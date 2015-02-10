@@ -14,6 +14,10 @@ SPtr<Shader> AssetManager::loadShader(const std::string &fileName, const GLenum 
    return shaderAssetManager.loadShader(fileName, type);
 }
 
+SPtr<ShaderProgram> AssetManager::loadShaderProgram(const std::string &fileName) {
+   return shaderAssetManager.loadShaderProgram(fileName);
+}
+
 SPtr<Mesh> AssetManager::loadMesh(const std::string &fileName) {
    return meshAssetManager.loadMesh(fileName);
 }

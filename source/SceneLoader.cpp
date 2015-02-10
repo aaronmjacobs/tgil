@@ -44,17 +44,7 @@ void addLightUniforms(ShaderProgram &shaderProgram) {
 }
 
 SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
-   SPtr<Shader> vertexShader = assetManager.loadShader("shaders/phong_vert.glsl", GL_VERTEX_SHADER);
-   SPtr<Shader> fragmentShader = assetManager.loadShader("shaders/phong_frag.glsl", GL_FRAGMENT_SHADER);
-
-   SPtr<ShaderProgram> shaderProgram = std::make_shared<ShaderProgram>();
-   shaderProgram->attach(vertexShader);
-   shaderProgram->attach(fragmentShader);
-   bool linked = shaderProgram->link();
-   if (!linked) {
-      // TODO Handle this in the asset manager?
-      LOG_FATAL("Unable to link phong shader");
-   }
+   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/phong");
 
    shaderProgram->addUniform("uProjMatrix");
    shaderProgram->addUniform("uViewMatrix");

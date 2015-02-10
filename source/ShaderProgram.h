@@ -37,6 +37,13 @@ public:
    virtual ~ShaderProgram();
 
    /**
+    * Gets the shader program's handle
+    */
+   GLuint getID() const {
+      return id;
+   }
+
+   /**
     * Attaches the given shader to the program
     */
    void attach(SPtr<Shader> shader);

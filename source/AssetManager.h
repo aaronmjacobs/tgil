@@ -26,6 +26,11 @@ public:
    SPtr<Shader> loadShader(const std::string &fileName, const GLenum type);
 
    /**
+    * Loads the shader program comprised of shaders with the given name (and their respective extensions), using a cached version if possible
+    */
+   SPtr<ShaderProgram> loadShaderProgram(const std::string &fileName);
+
+   /**
     * Loads the mesh with the given file name, using a cached version if possible
     */
    SPtr<Mesh> loadMesh(const std::string &fileName);

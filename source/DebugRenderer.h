@@ -25,7 +25,7 @@ protected:
     */
    GLuint ibo;
 
-   UPtr<ShaderProgram> shaderProgram;
+   SPtr<ShaderProgram> shaderProgram;
 
 public:
    DebugRenderer();

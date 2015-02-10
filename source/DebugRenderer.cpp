@@ -17,8 +17,7 @@ const float DEBUG_POINT_SIZE = 10.0f;
 
 } // namespace
 
-DebugRenderer::DebugRenderer()
-   : shaderProgram(new ShaderProgram) {
+DebugRenderer::DebugRenderer() {
    glGenBuffers(1, &vbo);
    glGenBuffers(1, &cbo);
    glGenBuffers(1, &ibo);
@@ -32,15 +31,7 @@ DebugRenderer::~DebugRenderer() {
 
 void DebugRenderer::init() {
    const Context &context = Context::getInstance();
-   SPtr<Shader> vertexShader = context.getAssetManager().loadShader("shaders/debug_vert.glsl", GL_VERTEX_SHADER);
-   SPtr<Shader> fragmentShader = context.getAssetManager().loadShader("shaders/debug_frag.glsl", GL_FRAGMENT_SHADER);
-
-   shaderProgram->attach(vertexShader);
-   shaderProgram->attach(fragmentShader);
-   bool linked = shaderProgram->link();
-   if (!linked) {
-      LOG_WARNING("Unable to link debug draw shader");
-   }
+   shaderProgram = context.getAssetManager().loadShaderProgram("shaders/debug");
 
    shaderProgram->addUniform("uViewMatrix");
    shaderProgram->addUniform("uProjMatrix");

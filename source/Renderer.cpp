@@ -115,16 +115,7 @@ void Renderer::init(float fov, int width, int height) {
 void Renderer::loadPlane() {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
-   SPtr<Shader> vertexShader = assetManager.loadShader("shaders/framebuffer_vert.glsl", GL_VERTEX_SHADER);
-   SPtr<Shader> fragmentShader = assetManager.loadShader("shaders/framebuffer_frag.glsl", GL_FRAGMENT_SHADER);
-
-   SPtr<ShaderProgram> shaderProgram = std::make_shared<ShaderProgram>();
-   shaderProgram->attach(vertexShader);
-   shaderProgram->attach(fragmentShader);
-   bool linked = shaderProgram->link();
-   if (!linked) {
-      LOG_FATAL("Unable to link framebuffer shader");
-   }
+   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/framebuffer");
 
    shaderProgram->addUniform("uColor");
    shaderProgram->addUniform("uDepth");
