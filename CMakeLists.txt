@@ -61,6 +61,7 @@ set(SOURCES
    ${SRC_DIR}/PlayerLogicComponent.cpp
    ${SRC_DIR}/PlayerPhysicsComponent.cpp
    ${SRC_DIR}/PointLightComponent.cpp
+   ${SRC_DIR}/ProjectileLogicComponent.cpp
    ${SRC_DIR}/Renderer.cpp
    ${SRC_DIR}/Scene.cpp
    ${SRC_DIR}/SceneLoader.cpp
@@ -69,10 +70,12 @@ set(SOURCES
    ${SRC_DIR}/ShaderProgram.cpp
    ${SRC_DIR}/TextureMaterial.cpp
    ${SRC_DIR}/TextureUnitManager.cpp
+   ${SRC_DIR}/ThrowAbility.cpp
 )
 
 set(HEADERS
    ${BIN_INCLUDE_DIR}/Constants.h
+   ${SRC_DIR}/Ability.h
    ${SRC_DIR}/AssetManager.h
    ${SRC_DIR}/CameraComponent.h
    ${SRC_DIR}/Component.h
@@ -114,6 +117,7 @@ set(HEADERS
    ${SRC_DIR}/PlayerLogicComponent.h
    ${SRC_DIR}/PlayerPhysicsComponent.h
    ${SRC_DIR}/PointLightComponent.h
+   ${SRC_DIR}/ProjectileLogicComponent.h
    ${SRC_DIR}/Renderer.h
    ${SRC_DIR}/Scene.h
    ${SRC_DIR}/SceneLoader.h
@@ -123,6 +127,7 @@ set(HEADERS
    ${SRC_DIR}/Subject.h
    ${SRC_DIR}/TextureMaterial.h
    ${SRC_DIR}/TextureUnitManager.h
+   ${SRC_DIR}/ThrowAbility.h
    ${SRC_DIR}/Transform.h
    ${SRC_DIR}/Types.h
 )

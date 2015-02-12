@@ -3,10 +3,10 @@
 #include "FancyAssert.h"
 #include "GameObject.h"
 #include "InputComponent.h"
-#include "PhysicsManager.h"
 #include "PlayerLogicComponent.h"
 #include "PlayerPhysicsComponent.h"
 #include "Scene.h"
+#include "ThrowAbility.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
@@ -52,7 +52,7 @@ float calcHorizontalMovementForce(glm::vec3 velocity, folly::Optional<Ground> gr
 } // namespace
 
 PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color)
-   : LogicComponent(gameObject), wasJumpingLastFrame(false), color(color) {
+   : LogicComponent(gameObject), wasJumpingLastFrame(false), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)) {
 }
 
 PlayerLogicComponent::~PlayerLogicComponent() {
@@ -221,6 +221,14 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
    rigidBody->applyCentralForce(netForce);
 }
 
+void PlayerLogicComponent::handleAttack(const float dt, const InputValues &inputValues, SPtr<Scene> scene) {
+   primaryAbility->tick(dt);
+
+   if (inputValues.attack) {
+      primaryAbility->use();
+   }
+}
+
 void PlayerLogicComponent::tick(const float dt) {
    SPtr<Scene> scene = gameObject.getScene().lock();
    ASSERT(scene, "PlayerLogicComponent must be in Scene to tick");
@@ -232,4 +240,5 @@ void PlayerLogicComponent::tick(const float dt) {
 
    handleOrientation(dt, inputValues);
    handleMovement(dt, inputValues, scene);
+   handleAttack(dt, inputValues, scene);
 }
