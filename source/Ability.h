@@ -11,13 +11,13 @@ private:
 protected:
    GameObject &gameObject;
 
-   void resetTimeSinceLastuse() {
+   void resetTimeSinceLastUse() {
       timeSinceLastUse = 0.0f;
    }
 
 public:
    Ability(GameObject &gameObject, float cooldown)
-      : cooldown(cooldown), timeSinceLastUse(0.0f), gameObject(gameObject) {
+      : cooldown(cooldown), timeSinceLastUse(cooldown), gameObject(gameObject) {
    }
 
    virtual ~Ability() {

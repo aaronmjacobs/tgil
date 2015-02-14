@@ -6,6 +6,7 @@
 #include "PlayerLogicComponent.h"
 #include "PlayerPhysicsComponent.h"
 #include "Scene.h"
+#include "ShoveAbility.h"
 #include "ThrowAbility.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
@@ -29,7 +30,7 @@ const float AIR_MOVE_MULTIPLIER = 0.05f;
 const float JUMP_FORCE = 400.0f;
 
 // Ground / friction constants
-const float FRICTION_CONSTANT = 10.0f;
+const float FRICTION_CONSTANT = 30.0f;
 const float DEFAULT_GROUND_FRICTION = 1.0f;
 const float GROUND_HEIGHT_ADJUST = 0.1f;
 
@@ -52,7 +53,7 @@ float calcHorizontalMovementForce(glm::vec3 velocity, folly::Optional<Ground> gr
 } // namespace
 
 PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color)
-   : LogicComponent(gameObject), wasJumpingLastFrame(false), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)) {
+   : LogicComponent(gameObject), wasJumpingLastFrame(false), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
 }
 
 PlayerLogicComponent::~PlayerLogicComponent() {
@@ -194,7 +195,12 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
       // Check if we're actually "standing" on the ground
       if (springForce) {
          // If so, apply friction / force from the spring
-         netForce += btVector3(-velocity * FRICTION_CONSTANT);
+
+         btVector3 opposingVelocity = -velocity;
+         if (opposingVelocity.length() > 1.0f) {
+            opposingVelocity.normalize();
+         }
+         netForce += btVector3(opposingVelocity * FRICTION_CONSTANT);
          netForce += toBt(*springForce);
       } else {
          // If not, clear the ground
@@ -223,9 +229,14 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
 
 void PlayerLogicComponent::handleAttack(const float dt, const InputValues &inputValues, SPtr<Scene> scene) {
    primaryAbility->tick(dt);
+   secondaryAbility->tick(dt);
 
-   if (inputValues.attack) {
+   if (inputValues.primaryAttack) {
       primaryAbility->use();
+   }
+
+   if (inputValues.secondaryAttack) {
+      secondaryAbility->use();
    }
 }
 

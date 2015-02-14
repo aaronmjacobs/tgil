@@ -23,6 +23,7 @@ protected:
    bool wasJumpingLastFrame;
    glm::vec3 color;
    SPtr<Ability> primaryAbility;
+   SPtr<Ability> secondaryAbility;
 
    folly::Optional<Ground> getGround() const;
 

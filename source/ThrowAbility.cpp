@@ -22,7 +22,7 @@
 namespace {
 
 const float COOLDOWN = 1.0f;
-const float EXPLOSION_FORCE = 100.0f;
+const float EXPLOSION_FORCE = 50.0f;
 
 // TODO Handle in asset manager somehow
 const int MAX_LIGHTS = 10;
@@ -124,6 +124,7 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
          float forceScale = glm::pow(glm::max(0.0f, (radius - distance / radius)), 2.0f);
          btVector3 force = toBody.normalized() * EXPLOSION_FORCE * forceScale;
 
+         rigidBody->activate();
          rigidBody->applyCentralForce(force);
       }
    });
@@ -199,5 +200,5 @@ void ThrowAbility::use() {
 
    scene->addObject(projectile);
 
-   resetTimeSinceLastuse();
+   resetTimeSinceLastUse();
 }
