@@ -53,7 +53,7 @@ float calcHorizontalMovementForce(glm::vec3 velocity, folly::Optional<Ground> gr
 } // namespace
 
 PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color)
-   : LogicComponent(gameObject), wasJumpingLastFrame(false), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
+   : LogicComponent(gameObject), alive(true), wasJumpingLastFrame(false), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
 }
 
 PlayerLogicComponent::~PlayerLogicComponent() {
@@ -247,9 +247,11 @@ void PlayerLogicComponent::tick(const float dt) {
       return;
    }
 
-   const InputValues &inputValues = gameObject.getInputComponent().getInputValues();
+   if (isAlive()) {
+      const InputValues &inputValues = gameObject.getInputComponent().getInputValues();
 
-   handleOrientation(dt, inputValues);
-   handleMovement(dt, inputValues, scene);
-   handleAttack(dt, inputValues, scene);
+      handleOrientation(dt, inputValues);
+      handleMovement(dt, inputValues, scene);
+      handleAttack(dt, inputValues, scene);
+   }
 }

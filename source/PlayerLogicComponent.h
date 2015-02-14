@@ -20,6 +20,7 @@ struct Ground {
 
 class PlayerLogicComponent : public LogicComponent {
 protected:
+   bool alive;
    bool wasJumpingLastFrame;
    glm::vec3 color;
    SPtr<Ability> primaryAbility;
@@ -44,8 +45,16 @@ public:
 
    virtual void tick(const float dt);
 
-   const glm::vec3& getColor() {
+   const glm::vec3& getColor() const {
       return color;
+   }
+
+   bool isAlive() const {
+      return alive;
+   }
+
+   void setAlive(bool alive) {
+      this->alive = alive;
    }
 };
 

@@ -9,6 +9,7 @@
 class DebugDrawer;
 class GameObject;
 class PhysicsManager;
+class PlayerLogicComponent;
 class ShaderProgram;
 
 namespace {
@@ -63,8 +64,12 @@ protected:
    bool ticking;
 
    bool addToVectors(GameObjectVectors &vectors, SPtr<GameObject> object);
+
    bool removeFromVectors(GameObjectVectors &vectors, SPtr<GameObject> object);
+
    void processPendingObjects();
+
+   void updateWinState();
 
 public:
    Scene();
@@ -124,6 +129,8 @@ public:
    void removeObject(SPtr<GameObject> object);
 
    SPtr<GameObject> getPlayerByNumber(int playerNum) const;
+
+   std::vector<SPtr<GameObject>> getLivingPlayers() const;
 };
 
 #endif

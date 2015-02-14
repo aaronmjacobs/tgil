@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "PhysicsComponent.h"
 #include "PhysicsManager.h"
+#include "PlayerLogicComponent.h"
 #include "Scene.h"
 
 #include <algorithm>
@@ -92,6 +93,20 @@ void Scene::processPendingObjects() {
    objects.toAdd.clear();
 }
 
+void Scene::updateWinState() {
+   if (gameState.hasWinner()) {
+      return;
+   }
+
+   std::vector<SPtr<GameObject>> livingPlayers(getLivingPlayers());
+   if (livingPlayers.size() != 1) {
+      return;
+   }
+
+   int playerNumber = livingPlayers[0]->getInputComponent().getPlayerNum();
+   setWinner(playerNumber);
+}
+
 void Scene::setWinner(int player) {
    ASSERT(player >= 0 && player < MAX_PLAYERS, "Invalid player index");
    gameState.setWinner(player);
@@ -107,6 +122,8 @@ void Scene::tick(const float dt) {
    for (SPtr<GameObject> object : objects.objects) {
       object->tick(dt);
    }
+
+   updateWinState();
 
    ticking = false;
 }
@@ -177,4 +194,19 @@ SPtr<GameObject> Scene::getPlayerByNumber(int playerNum) const {
    }
 
    return nullptr;
+}
+
+std::vector<SPtr<GameObject>> Scene::getLivingPlayers() const {
+   std::vector<SPtr<GameObject>> livingPlayers;
+
+   for (SPtr<GameObject> player : players.objects) {
+      PlayerLogicComponent *playerLogic = static_cast<PlayerLogicComponent*>(&player->getLogicComponent());
+      ASSERT(playerLogic, "Player should have PlayerLogicComponent");
+
+      if (playerLogic && playerLogic->isAlive()) {
+         livingPlayers.push_back(player);
+      }
+   }
+
+   return livingPlayers;
 }

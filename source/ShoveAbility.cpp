@@ -141,6 +141,8 @@ void ShoveAbility::use() {
       ghostTrans.setOrigin(toBt(cameraPos));
       ghostTrans.setRotation(toBt(rot));
 
+      glm::vec3 forceDir = rot * glm::vec3(0.0f, 0.0f, -1.0f);
+
       for (int i = 0; i < ghostObject->getNumOverlappingObjects(); i++) {
          btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(ghostObject->getOverlappingObject(i));
          if(!rigidBody) {
@@ -152,10 +154,11 @@ void ShoveAbility::use() {
 
          btVector3 toBody = rigidBody->getWorldTransform().getOrigin() - ghostObject->getWorldTransform().getOrigin();
          float distance = toBody.norm();
+         toBody.setY(toBody.y() + 0.25f);
          if (distance == 0.0f) {
             continue;
          }
-         btVector3 force = toBody.normalized() * FORCE;
+         btVector3 force = toBt(glm::normalize(forceDir)) * FORCE;
 
          rigidBody->activate();
          rigidBody->applyCentralForce(force);
