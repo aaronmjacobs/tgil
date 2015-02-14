@@ -37,7 +37,7 @@ Context::~Context() {
 
 void Context::init() {
    textureUnitManager->init();
-   scene = SceneLoader::loadDefaultScene(*this);
+   scene = SceneLoader::loadBasicScene(*this);
 }
 
 void Context::handleSpecialInputs(const InputValues &inputValues) const {

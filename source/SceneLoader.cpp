@@ -22,6 +22,8 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include <sstream>
 
@@ -221,11 +223,108 @@ void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
    scene->addObject(winTrigger);
 }
 
+void buildDeathVolume(SPtr<Scene> scene, glm::vec3 position, glm::vec3 scale) {
+   SPtr<GameObject> volume = std::make_shared<GameObject>();
+
+   volume->setPosition(position);
+
+   volume->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*volume, false, CollisionGroup::Characters, scale));
+
+   volume->setTickCallback([](GameObject &gameObject, const float dt) {
+      btCollisionObject *collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
+      if (!collisionObject) {
+         return;
+      }
+      btGhostObject *ghostObject = dynamic_cast<btGhostObject*>(collisionObject);
+      if (!ghostObject) {
+         return;
+      }
+      for (int i = 0; i < ghostObject->getNumOverlappingObjects(); i++) {
+         GameObject *collidingGameObject = static_cast<GameObject*>(ghostObject->getOverlappingObject(i)->getUserPointer());
+         if (!collidingGameObject) {
+            continue;
+         }
+
+         PlayerLogicComponent *playerLogic = static_cast<PlayerLogicComponent*>(&collidingGameObject->getLogicComponent());
+         if (!playerLogic) {
+            continue;
+         }
+
+         playerLogic->setAlive(false);
+      }
+   });
+
+   scene->addObject(volume);
+}
+
 } // namespace
 
 namespace SceneLoader {
 
-SPtr<Scene> loadDefaultScene(const Context &context) {
+SPtr<Scene> loadBasicScene(const Context &context) {
+   SPtr<Scene> scene(std::make_shared<Scene>());
+   AssetManager &assetManager = context.getAssetManager();
+
+   SPtr<ShaderProgram> phongShaderProgram = loadPhongShaderProgram(assetManager);
+
+   SPtr<PhongMaterial> boxMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.1f, 0.3f, 0.8f), 0.2f, 50.0f);
+   SPtr<PhongMaterial> planeMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.4f), 0.2f, 50.0f);
+   SPtr<PhongMaterial> lavaMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(1.0f, 0.3f, 0.15f), 0.2f, 50.0f);
+
+   SPtr<Mesh> boxMesh = assetManager.loadMesh("meshes/cube.obj");
+   SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
+   SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
+
+   SPtr<Model> boxModel(std::make_shared<Model>(phongShaderProgram, boxMaterial, boxMesh));
+   SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMaterial, planeMesh));
+   SPtr<Model> lavalModel(std::make_shared<Model>(phongShaderProgram, lavaMaterial, planeMesh));
+
+   // Light
+   scene->addLight(createLight(glm::vec3(0.0f, 50.0f, 0.0f), glm::vec3(0.7f), 0.001f, 0.0005f, 0.0001f));
+
+   // Lava
+   float lavaSize = 100.0f;
+   scene->addObject(createStaticObject(lavalModel, glm::vec3(0.0f), glm::vec3(lavaSize), 1.0f, 0.3f));
+   buildDeathVolume(scene, glm::vec3(0.0f), glm::vec3(lavaSize, 3.0f, lavaSize));
+
+   // Single platform
+   scene->addObject(createStaticObject(boxModel, glm::vec3(0.0f), glm::vec3(40.0f, 20.0f, 40.0f), 1.0f, 0.3f));
+
+   // Players
+   glm::vec3 colors[] = {
+      glm::normalize(glm::vec3(1.0f, 0.2f, 0.2f)) * 1.5f,
+      glm::normalize(glm::vec3(0.2f, 1.0f, 0.2f)) * 1.5f,
+      glm::normalize(glm::vec3(0.9f, 0.9f, 0.2f)) * 1.5f,
+      glm::normalize(glm::vec3(0.9f, 0.2f, 0.9f)) * 1.5f
+   };
+   glm::vec3 spawnLocations[] = {
+      glm::vec3(-10.0f, 20.0f, 0.0f),
+      glm::vec3(0.0f, 20.0f, 10.0f),
+      glm::vec3(10.0f, 20.0f, 0.0f),
+      glm::vec3(0.0f, 20.0f, -10.0f)
+   };
+   for (int i = 0; i < context.getInputHandler().getNumDevices(); ++i) {
+      int color = i % (sizeof(colors) / sizeof(glm::vec3));
+      SPtr<GameObject> player(createPlayer(phongShaderProgram, colors[color], playerMesh, spawnLocations[color], i));
+
+      // Make the players look at the center of the map
+      glm::vec3 cameraPos = player->getCameraComponent().getCameraPosition();
+      glm::vec3 lookAtPos = cameraPos;
+      lookAtPos.x = 0.0f;
+      lookAtPos.z = 0.0f;
+
+      glm::quat orientation(glm::toQuat(glm::lookAt(cameraPos, lookAtPos, glm::vec3(0.0f, 1.0f, 0.0f))));
+      player->setOrientation(orientation);
+
+      scene->addPlayer(player);
+      scene->addCamera(player);
+      scene->addObject(player);
+   }
+
+   return scene;
+}
+
+SPtr<Scene> loadTowerScene(const Context &context) {
    SPtr<Scene> scene(std::make_shared<Scene>());
    AssetManager &assetManager = context.getAssetManager();
 
