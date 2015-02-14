@@ -5,7 +5,7 @@
 
 namespace {
 
-const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 0, 7, 1, 12 };
+const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 1.0f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 0, 7, 6, 13, 1, 12 };
 
 const float AXIS_MIN = -1.0f;
 const float AXIS_MAX = 1.0f;
@@ -95,7 +95,9 @@ InputValues ControllerInputDevice::getInputValues() {
    inputValues.action = getButtonValue(buttons, buttonCount, map.actionButton);
    inputValues.jump = getButtonValue(buttons, buttonCount, map.jumpButton);
    inputValues.quit = getButtonValue(buttons, buttonCount, map.quitButton);
-   inputValues.attack = getButtonValue(buttons, buttonCount, map.attackButton);
+   inputValues.primaryAttack = getButtonValue(buttons, buttonCount, map.primaryAttackButton);
+   inputValues.secondaryAttack = getButtonValue(buttons, buttonCount, map.secondaryAttackButton);
+   inputValues.specialAttack = getButtonValue(buttons, buttonCount, map.specialAttackButton);
 
    return inputValues;
 }

@@ -16,7 +16,9 @@ struct KeyMouseMap {
    int jumpKey;
    int quitKey;
 
-   int attackButton;
+   int primaryAttackButton;
+   int secondaryAttackButton;
+   int specialAttackButton;
 };
 
 class KeyboardInputDevice : public InputDevice {
