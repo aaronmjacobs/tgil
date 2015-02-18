@@ -1,6 +1,13 @@
 #include "FancyAssert.h"
 #include "TextureUnitManager.h"
 
+namespace {
+
+const bool AVAILABLE = true;
+const bool IN_USE = false;
+
+} // namespace
+
 TextureUnitManager::TextureUnitManager()
    : maxTextureUnits(0) {
 }
@@ -16,7 +23,7 @@ void TextureUnitManager::init() {
 }
 
 void TextureUnitManager::reset() {
-   textureUnits.assign(maxTextureUnits, true);
+   textureUnits.assign(maxTextureUnits, AVAILABLE);
 }
 
 GLenum TextureUnitManager::get() {
@@ -24,8 +31,8 @@ GLenum TextureUnitManager::get() {
    bool assigned = false;
 
    for (int i = 0; i < textureUnits.size(); ++i) {
-      if (textureUnits[i]) {
-         textureUnits[i] = false;
+      if (textureUnits[i] == AVAILABLE) {
+         textureUnits[i] = IN_USE;
          textureUnit = i;
          assigned = true;
          break;
@@ -41,5 +48,5 @@ void TextureUnitManager::release(GLenum textureUnit) {
    ASSERT(textureUnit < textureUnits.size(), "Trying to release texture unit out of bounds");
 
    ASSERT(!textureUnits[textureUnit], "Trying to release already released texture unit");
-   textureUnits[textureUnit] = false;
+   textureUnits[textureUnit] = AVAILABLE;
 }
