@@ -21,3 +21,7 @@ SPtr<ShaderProgram> AssetManager::loadShaderProgram(const std::string &fileName)
 SPtr<Mesh> AssetManager::loadMesh(const std::string &fileName) {
    return meshAssetManager.loadMesh(fileName);
 }
+
+GLuint AssetManager::loadTexture(const std::string &fileName, TextureWrap::Type wrap) {
+   return textureAssetManager.loadTexture(fileName, wrap);
+}

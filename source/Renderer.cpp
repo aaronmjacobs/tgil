@@ -204,14 +204,18 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
       glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
       // Camera position
-      GLint uCameraPos = shaderProgram->getUniform("uCameraPos");
-      glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraPosition));
+      if (shaderProgram->hasUniform("uCameraPos")) {
+         GLint uCameraPos = shaderProgram->getUniform("uCameraPos");
+         glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraPosition));
+      }
 
       // Lights
-      glUniform1i(shaderProgram->getUniform("uNumLights"), lights.size());
-      unsigned int lightIndex = 0;
-      for (SPtr<GameObject> light : lights) {
-         light->getLightComponent().draw(*shaderProgram, lightIndex++);
+      if (shaderProgram->hasUniform("uNumLights")) {
+         glUniform1i(shaderProgram->getUniform("uNumLights"), lights.size());
+         unsigned int lightIndex = 0;
+         for (SPtr<GameObject> light : lights) {
+            light->getLightComponent().draw(*shaderProgram, lightIndex++);
+         }
       }
    }
 

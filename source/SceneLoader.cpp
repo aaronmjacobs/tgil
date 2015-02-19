@@ -18,11 +18,13 @@
 #include "SceneLoader.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
+#include "TextureMaterial.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 #include <sstream>
@@ -63,6 +65,21 @@ SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
 
    shaderProgram->addAttribute("aPosition");
    shaderProgram->addAttribute("aNormal");
+
+   return shaderProgram;
+}
+
+SPtr<ShaderProgram> loadTextureShaderProgram(AssetManager &assetManager) {
+   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/tiling_texture");
+
+   shaderProgram->addUniform("uProjMatrix");
+   shaderProgram->addUniform("uViewMatrix");
+   shaderProgram->addUniform("uModelMatrix");
+   shaderProgram->addUniform("uTexture");
+   shaderProgram->addUniform("uMeshSize");
+   shaderProgram->addUniform("uTileSize");
+
+   shaderProgram->addAttribute("aPosition");
 
    return shaderProgram;
 }
@@ -266,18 +283,23 @@ SPtr<Scene> loadBasicScene(const Context &context) {
    AssetManager &assetManager = context.getAssetManager();
 
    SPtr<ShaderProgram> phongShaderProgram = loadPhongShaderProgram(assetManager);
+   SPtr<ShaderProgram> textureShaderProgram = loadTextureShaderProgram(assetManager);
+
+   GLuint lavaTextureID = assetManager.loadTexture("textures/lava.png", TextureWrap::Repeat);
+   GLuint rockTextureID = assetManager.loadTexture("textures/rock.png", TextureWrap::Repeat);
 
    SPtr<PhongMaterial> boxMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.1f, 0.3f, 0.8f), 0.2f, 50.0f);
    SPtr<PhongMaterial> planeMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.4f), 0.2f, 50.0f);
-   SPtr<PhongMaterial> lavaMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(1.0f, 0.3f, 0.15f), 0.2f, 50.0f);
+   SPtr<TextureMaterial> rockMaterial(std::make_shared<TextureMaterial>(*textureShaderProgram, rockTextureID, "uTexture"));
+   SPtr<TextureMaterial> lavaMaterial(std::make_shared<TextureMaterial>(*textureShaderProgram, lavaTextureID, "uTexture"));
 
    SPtr<Mesh> boxMesh = assetManager.loadMesh("meshes/cube.obj");
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
    SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
 
-   SPtr<Model> boxModel(std::make_shared<Model>(phongShaderProgram, boxMaterial, boxMesh));
+   SPtr<Model> boxModel(std::make_shared<Model>(textureShaderProgram, rockMaterial, boxMesh));
    SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMaterial, planeMesh));
-   SPtr<Model> lavalModel(std::make_shared<Model>(phongShaderProgram, lavaMaterial, planeMesh));
+   SPtr<Model> lavalModel(std::make_shared<Model>(textureShaderProgram, lavaMaterial, planeMesh));
 
    // Light
    scene->addLight(createLight(glm::vec3(0.0f, 50.0f, 0.0f), glm::vec3(0.7f), 0.001f, 0.0005f, 0.0001f));

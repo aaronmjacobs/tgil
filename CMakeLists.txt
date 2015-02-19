@@ -69,6 +69,7 @@ set(SOURCES
    ${SRC_DIR}/ShaderAssetManager.cpp
    ${SRC_DIR}/ShaderProgram.cpp
    ${SRC_DIR}/ShoveAbility.cpp
+   ${SRC_DIR}/TextureAssetManager.cpp
    ${SRC_DIR}/TextureMaterial.cpp
    ${SRC_DIR}/TextureUnitManager.cpp
    ${SRC_DIR}/ThrowAbility.cpp
@@ -127,6 +128,7 @@ set(HEADERS
    ${SRC_DIR}/ShaderProgram.h
    ${SRC_DIR}/ShoveAbility.h
    ${SRC_DIR}/Subject.h
+   ${SRC_DIR}/TextureAssetManager.h
    ${SRC_DIR}/TextureMaterial.h
    ${SRC_DIR}/TextureUnitManager.h
    ${SRC_DIR}/ThrowAbility.h

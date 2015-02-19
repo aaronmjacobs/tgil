@@ -13,6 +13,7 @@ protected:
 
    // Location of the texture coordinate attribute
    GLint aTexCoord;
+   bool hasTexCoord;
 
    // The texture ID
    GLuint textureID;

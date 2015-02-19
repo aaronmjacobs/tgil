@@ -34,7 +34,10 @@ void GeometricGraphicsComponent::draw() {
    shaderProgram->use();
 
    glUniformMatrix4fv(shaderProgram->getUniform("uModelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
-   glUniformMatrix4fv(shaderProgram->getUniform("uNormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+   if (shaderProgram->hasUniform("uNormalMatrix")) {
+      glUniformMatrix4fv(shaderProgram->getUniform("uNormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+   }
 
    model->draw();
 }

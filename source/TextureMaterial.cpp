@@ -9,7 +9,11 @@
 TextureMaterial::TextureMaterial(const ShaderProgram &shaderProgram, GLuint textureID, const std::string &textureUniformName)
    : textureID(textureID) {
    uTexture = shaderProgram.getUniform(textureUniformName);
-   aTexCoord = shaderProgram.getAttribute("aTexCoord");
+
+   hasTexCoord = shaderProgram.hasAttribute("aTexCoord");
+   if (hasTexCoord) {
+      aTexCoord = shaderProgram.getAttribute("aTexCoord");
+   }
 }
 
 TextureMaterial::~TextureMaterial() {
@@ -22,13 +26,17 @@ void TextureMaterial::apply(const Mesh &mesh) {
    glActiveTexture(GL_TEXTURE0 + textureUnit);
    glBindTexture(GL_TEXTURE_2D, textureID);
 
-   glBindBuffer(GL_ARRAY_BUFFER, mesh.getTBO());
-   glEnableVertexAttribArray(aTexCoord);
-   glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+   if (hasTexCoord) {
+      glBindBuffer(GL_ARRAY_BUFFER, mesh.getTBO());
+      glEnableVertexAttribArray(aTexCoord);
+      glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+   }
 }
 
 void TextureMaterial::disable() {
-   glDisableVertexAttribArray(aTexCoord);
+   if (hasTexCoord) {
+      glDisableVertexAttribArray(aTexCoord);
+   }
 
    Context::getInstance().getTextureUnitManager().release(textureUnit);
 }
