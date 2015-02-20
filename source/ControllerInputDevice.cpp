@@ -7,7 +7,7 @@ namespace {
 
 const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 0, 7, 6, 13, 1, 12 };
 
-const ControllerMap XBOX_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 0, 7, 6, 13, 11, 12 };
+const ControllerMap XBOX_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 0, -1, -1, -1, 11, 12 };
 
 const float AXIS_MIN = -1.0f;
 const float AXIS_MAX = 1.0f;
