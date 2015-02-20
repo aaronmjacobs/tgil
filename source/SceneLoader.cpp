@@ -80,6 +80,19 @@ SPtr<ShaderProgram> loadTextureShaderProgram(AssetManager &assetManager) {
    shaderProgram->addUniform("uTileSize");
 
    shaderProgram->addAttribute("aPosition");
+   shaderProgram->addAttribute("aNormal");
+
+   return shaderProgram;
+}
+
+SPtr<ShaderProgram> loadSkyboxShaderProgram(AssetManager &assetManager) {
+   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/skybox");
+
+   shaderProgram->addUniform("uProjMatrix");
+   shaderProgram->addUniform("uViewMatrix");
+   shaderProgram->addUniform("uSkybox");
+
+   shaderProgram->addAttribute("aPosition");
 
    return shaderProgram;
 }
@@ -284,22 +297,31 @@ SPtr<Scene> loadBasicScene(const Context &context) {
 
    SPtr<ShaderProgram> phongShaderProgram = loadPhongShaderProgram(assetManager);
    SPtr<ShaderProgram> textureShaderProgram = loadTextureShaderProgram(assetManager);
+   SPtr<ShaderProgram> skyboxShaderProgram = loadSkyboxShaderProgram(assetManager);
 
    GLuint lavaTextureID = assetManager.loadTexture("textures/lava.png", TextureWrap::Repeat);
    GLuint rockTextureID = assetManager.loadTexture("textures/rock.png", TextureWrap::Repeat);
+   GLuint skyboxID = assetManager.loadCubemap("textures/desert", "jpg");
 
    SPtr<PhongMaterial> boxMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.1f, 0.3f, 0.8f), 0.2f, 50.0f);
    SPtr<PhongMaterial> planeMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.4f), 0.2f, 50.0f);
    SPtr<TextureMaterial> rockMaterial(std::make_shared<TextureMaterial>(*textureShaderProgram, rockTextureID, "uTexture"));
    SPtr<TextureMaterial> lavaMaterial(std::make_shared<TextureMaterial>(*textureShaderProgram, lavaTextureID, "uTexture"));
+   SPtr<TextureMaterial> skyboxMaterial(std::make_shared<TextureMaterial>(*skyboxShaderProgram, skyboxID, "uSkybox", GL_TEXTURE_CUBE_MAP));
 
    SPtr<Mesh> boxMesh = assetManager.loadMesh("meshes/cube.obj");
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
    SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
 
+   SPtr<Model> skyboxModel(std::make_shared<Model>(skyboxShaderProgram, skyboxMaterial, boxMesh));
    SPtr<Model> boxModel(std::make_shared<Model>(textureShaderProgram, rockMaterial, boxMesh));
    SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMaterial, planeMesh));
    SPtr<Model> lavalModel(std::make_shared<Model>(textureShaderProgram, lavaMaterial, planeMesh));
+
+   SPtr<GameObject> skybox(std::make_shared<GameObject>());
+   skybox->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*skybox));
+   skybox->getGraphicsComponent().setModel(skyboxModel);
+   scene->setSkybox(skybox);
 
    // Light
    scene->addLight(createLight(glm::vec3(0.0f, 50.0f, 0.0f), glm::vec3(0.7f), 0.001f, 0.0005f, 0.0001f));

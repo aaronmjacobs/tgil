@@ -7,6 +7,7 @@ uniform vec2 uMeshSize = vec2(100.0);
 uniform float uTileSize = 10.0;
 
 attribute vec3 aPosition;
+attribute vec3 aNormal;
 
 varying vec2 vTexCoord;
 
@@ -15,6 +16,16 @@ void main() {
    vec4 lPosition = uModelMatrix * vec4(aPosition.xyz, 1.0);
    gl_Position = uProjMatrix * uViewMatrix * lPosition;
 
+   // Determine which face this is, and therefore which coordinates to use
+   vec2 coord;
+   if (aNormal.y != 0.0) {
+      coord = aPosition.xz;
+   } else if (aNormal.x != 0.0) {
+      coord = aPosition.zy;
+   } else {
+      coord = aPosition.xy;
+   }
+
    // Texturing
-   vTexCoord = ((aPosition.xz + 1.0) / 2.0) * uMeshSize / uTileSize;
+   vTexCoord = ((coord + 1.0) / 2.0) * uMeshSize / uTileSize;
 }
