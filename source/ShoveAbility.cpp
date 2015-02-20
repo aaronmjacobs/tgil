@@ -21,7 +21,7 @@
 namespace {
 
 const float COOLDOWN = 5.0f;
-const float FORCE = 100.0f;
+const float FORCE = 75.0f;
 const float LIFE_TIME = 0.25f;
 
 // TODO Handle in asset manager somehow
@@ -142,6 +142,7 @@ void ShoveAbility::use() {
       ghostTrans.setRotation(toBt(rot));
 
       glm::vec3 forceDir = rot * glm::vec3(0.0f, 0.0f, -1.0f);
+      forceDir.y += 0.5f;
 
       for (int i = 0; i < ghostObject->getNumOverlappingObjects(); i++) {
          btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(ghostObject->getOverlappingObject(i));
