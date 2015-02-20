@@ -21,8 +21,11 @@ protected:
    // The texture unit
    GLenum textureUnit;
 
+   // The texture target
+   GLenum target;
+
 public:
-   TextureMaterial(const ShaderProgram &shaderProgram, GLuint textureID, const std::string &textureUniformName);
+   TextureMaterial(const ShaderProgram &shaderProgram, GLuint textureID, const std::string &textureUniformName, GLenum target = GL_TEXTURE_2D);
 
    virtual ~TextureMaterial();
 

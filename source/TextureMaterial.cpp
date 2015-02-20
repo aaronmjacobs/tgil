@@ -6,8 +6,8 @@
 
 #include <string>
 
-TextureMaterial::TextureMaterial(const ShaderProgram &shaderProgram, GLuint textureID, const std::string &textureUniformName)
-   : textureID(textureID) {
+TextureMaterial::TextureMaterial(const ShaderProgram &shaderProgram, GLuint textureID, const std::string &textureUniformName, GLenum target)
+   : textureID(textureID), target(target) {
    uTexture = shaderProgram.getUniform(textureUniformName);
 
    hasTexCoord = shaderProgram.hasAttribute("aTexCoord");
@@ -24,7 +24,7 @@ void TextureMaterial::apply(const Mesh &mesh) {
 
    glUniform1i(uTexture, textureUnit);
    glActiveTexture(GL_TEXTURE0 + textureUnit);
-   glBindTexture(GL_TEXTURE_2D, textureID);
+   glBindTexture(target, textureID);
 
    if (hasTexCoord) {
       glBindBuffer(GL_ARRAY_BUFFER, mesh.getTBO());

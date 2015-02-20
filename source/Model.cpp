@@ -52,6 +52,11 @@ void Model::draw() {
    glBindBuffer(GL_ARRAY_BUFFER, 0);
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+   // Disable the material properties
+   for (SPtr<Material> material : materials) {
+      material->disable();
+   }
+
    shaderProgram->disable();
 }
 
