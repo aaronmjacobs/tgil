@@ -25,3 +25,7 @@ SPtr<Mesh> AssetManager::loadMesh(const std::string &fileName) {
 GLuint AssetManager::loadTexture(const std::string &fileName, TextureWrap::Type wrap) {
    return textureAssetManager.loadTexture(fileName, wrap);
 }
+
+GLuint AssetManager::loadCubemap(const std::string &path, const std::string &extension) {
+   return textureAssetManager.loadCubemap(path, extension);
+}

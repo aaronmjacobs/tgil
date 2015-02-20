@@ -20,6 +20,7 @@ enum Type {
 class TextureAssetManager {
 protected:
    std::map<std::string, GLuint> textureMap;
+   std::map<std::string, GLuint> cubemapMap;
 
 public:
    TextureAssetManager();
@@ -28,7 +29,7 @@ public:
 
    GLuint loadTexture(const std::string &fileName, TextureWrap::Type wrap);
 
-   GLuint loadCubemap(const std::string &path);
+   GLuint loadCubemap(const std::string &path, const std::string &extension);
 };
 
 #endif

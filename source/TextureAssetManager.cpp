@@ -91,13 +91,17 @@ GLuint TextureAssetManager::loadTexture(const std::string &fileName, TextureWrap
    return textureID;
 }
 
-GLuint TextureAssetManager::loadCubemap(const std::string &path) {
-   const std::string &rightName = "right.png";
-   const std::string &leftName = "left.png";
-   const std::string &upName = "up.png";
-   const std::string &downName = "down.png";
-   const std::string &backName = "back.png";
-   const std::string &frontName = "front.png";
+GLuint TextureAssetManager::loadCubemap(const std::string &path, const std::string &extension) {
+   if (cubemapMap.count(path)) {
+      return cubemapMap.at(path);
+   }
+
+   const std::string &rightName = "/right." + extension;
+   const std::string &leftName = "/left." + extension;
+   const std::string &upName = "/up." + extension;
+   const std::string &downName = "/down." + extension;
+   const std::string &backName = "/back." + extension;
+   const std::string &frontName = "/front." + extension;
 
    ImageInfo right = loadImage(path + rightName);
    ImageInfo left = loadImage(path + leftName);
@@ -132,5 +136,6 @@ GLuint TextureAssetManager::loadCubemap(const std::string &path) {
    stbi_image_free(back.pixels);
    stbi_image_free(front.pixels);
 
+   cubemapMap[path] = cubemapID;
    return cubemapID;
 }

@@ -41,6 +41,11 @@ public:
     * Loads the texture with the given file name, using a cached version if possible
     */
    GLuint loadTexture(const std::string &fileName, TextureWrap::Type wrap = TextureWrap::Edge);
+
+   /**
+    * Loads the cubemap at the given path, using a cached version if possible
+    */
+   GLuint loadCubemap(const std::string &path, const std::string &extension = "png");
 };
 
 #endif
