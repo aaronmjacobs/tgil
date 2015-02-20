@@ -56,6 +56,7 @@ protected:
 
    std::set<SPtr<ShaderProgram>> shaderPrograms;
 
+   SPtr<GameObject> skybox;
    GameObjectVectors players;
    GameObjectVectors cameras;
    GameObjectVectors lights;
@@ -92,6 +93,10 @@ public:
       return *debugDrawer;
    }
 
+   SPtr<GameObject> getSkybox() const {
+      return skybox;
+   }
+
    const std::vector<SPtr<GameObject>>& getPlayers() const {
       return players.objects;
    }
@@ -111,6 +116,8 @@ public:
    const std::set<SPtr<ShaderProgram>>& getShaderPrograms() const {
       return shaderPrograms;
    }
+
+   void setSkybox(SPtr<GameObject> skybox);
 
    void addPlayer(SPtr<GameObject> player);
 

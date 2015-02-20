@@ -219,6 +219,12 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
       }
    }
 
+   // Skybox
+   SPtr<GameObject> skybox = scene.getSkybox();
+   if (skybox) {
+      skybox->getGraphicsComponent().draw();
+   }
+
    // Objects
    const std::vector<SPtr<GameObject>> &gameObjects = scene.getObjects();
    for (SPtr<GameObject> gameObject : gameObjects) {
