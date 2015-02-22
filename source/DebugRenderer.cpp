@@ -21,12 +21,14 @@ DebugRenderer::DebugRenderer() {
    glGenBuffers(1, &vbo);
    glGenBuffers(1, &cbo);
    glGenBuffers(1, &ibo);
+   glGenVertexArrays(1, &vao);
 }
 
 DebugRenderer::~DebugRenderer() {
    glDeleteBuffers(1, &vbo);
    glDeleteBuffers(1, &cbo);
    glDeleteBuffers(1, &ibo);
+   glDeleteVertexArrays(1, &vao);
 }
 
 void DebugRenderer::init() {
@@ -38,6 +40,25 @@ void DebugRenderer::init() {
 
    shaderProgram->addAttribute("aPosition");
    shaderProgram->addAttribute("aColor");
+
+   glBindVertexArray(vao);
+
+   // Prepare the vertex buffer object
+   glBindBuffer(GL_ARRAY_BUFFER, vbo);
+   GLint aPosition = shaderProgram->getAttribute("aPosition");
+   glEnableVertexAttribArray(aPosition);
+   glVertexAttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+   // Prepare the color buffer object
+   glBindBuffer(GL_ARRAY_BUFFER, cbo);
+   GLint aColor = shaderProgram->getAttribute("aColor");
+   glEnableVertexAttribArray(aColor);
+   glVertexAttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+   // Prepare the index buffer object
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+   glBindVertexArray(0);
 }
 
 void DebugRenderer::render(const DebugDrawer &drawer, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix) {
@@ -70,20 +91,8 @@ void DebugRenderer::render(const DebugDrawer &drawer, const glm::mat4 &viewMatri
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_DYNAMIC_DRAW);
 
-   // Prepare the vertex buffer object
-   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-   GLint aPosition = shaderProgram->getAttribute("aPosition");
-   glEnableVertexAttribArray(aPosition);
-   glVertexAttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-   // Prepare the color buffer object
-   glBindBuffer(GL_ARRAY_BUFFER, cbo);
-   GLint aColor = shaderProgram->getAttribute("aColor");
-   glEnableVertexAttribArray(aColor);
-   glVertexAttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-   // Prepare the index buffer object
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+   // Bind
+   glBindVertexArray(vao);
 
    // Draw
    glPointSize(DEBUG_POINT_SIZE);
@@ -91,10 +100,7 @@ void DebugRenderer::render(const DebugDrawer &drawer, const glm::mat4 &viewMatri
    glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 
    // Unbind
-   glDisableVertexAttribArray(aPosition);
-   glDisableVertexAttribArray(aColor);
-   glBindBuffer(GL_ARRAY_BUFFER, 0);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+   glBindVertexArray(0);
 
    shaderProgram->disable();
 }

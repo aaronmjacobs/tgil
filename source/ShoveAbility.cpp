@@ -71,7 +71,7 @@ ShoveAbility::ShoveAbility(GameObject &gameObject)
 
 ShoveAbility::~ShoveAbility() {
 }
-#include "LogHelper.h"
+
 void ShoveAbility::use() {
    if (isOnCooldown()) {
       return;
@@ -128,6 +128,7 @@ void ShoveAbility::use() {
       }
 
       const glm::vec3 &cameraPos = player.getCameraComponent().getCameraPosition();
+      const glm::vec3 &front = player.getCameraComponent().getFrontVector();
 
       glm::quat rot = player.getOrientation();
       rot.x *= -1.0f;
@@ -135,11 +136,11 @@ void ShoveAbility::use() {
       rot.z *= -1.0f;
       rot = glm::normalize(rot);
 
-      gameObject.setPosition(cameraPos);
+      gameObject.setPosition(cameraPos + front / 4.0f);
       gameObject.setOrientation(rot);
       btTransform &ghostTrans = ghostObject->getWorldTransform();
-      ghostTrans.setOrigin(toBt(cameraPos));
-      ghostTrans.setRotation(toBt(rot));
+      ghostTrans.setOrigin(toBt(gameObject.getPosition()));
+      ghostTrans.setRotation(toBt(gameObject.getOrientation()));
 
       glm::vec3 forceDir = rot * glm::vec3(0.0f, 0.0f, -1.0f);
       forceDir.y += 0.5f;

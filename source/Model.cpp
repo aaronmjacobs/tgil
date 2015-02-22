@@ -42,6 +42,7 @@ Model::~Model() {
 void Model::draw() {
    shaderProgram->use();
 
+   // Bind
    glBindVertexArray(vao);
 
    // Apply the material properties
@@ -57,6 +58,7 @@ void Model::draw() {
       material->disable();
    }
 
+   // Unbind
    glBindVertexArray(0);
 
    shaderProgram->disable();

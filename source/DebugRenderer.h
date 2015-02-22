@@ -25,6 +25,11 @@ protected:
     */
    GLuint ibo;
 
+   /**
+    * Vertex array object
+    */
+   GLuint vao;
+
    SPtr<ShaderProgram> shaderProgram;
 
 public:
