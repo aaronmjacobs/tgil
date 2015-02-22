@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
    }
 
    Context::load(window);
-   const Context &context = Context::getInstance();
+   Context &context = Context::getInstance();
    Renderer &renderer = context.getRenderer();
    renderer.init(FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
 

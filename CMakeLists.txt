@@ -73,6 +73,7 @@ set(SOURCES
    ${SRC_DIR}/TextureMaterial.cpp
    ${SRC_DIR}/TextureUnitManager.cpp
    ${SRC_DIR}/ThrowAbility.cpp
+   ${SRC_DIR}/TimeMaterial.cpp
 )
 
 set(HEADERS
@@ -132,6 +133,7 @@ set(HEADERS
    ${SRC_DIR}/TextureMaterial.h
    ${SRC_DIR}/TextureUnitManager.h
    ${SRC_DIR}/ThrowAbility.h
+   ${SRC_DIR}/TimeMaterial.h
    ${SRC_DIR}/Transform.h
    ${SRC_DIR}/Types.h
 )

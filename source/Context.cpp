@@ -9,6 +9,12 @@
 
 #include <boxer/boxer.h>
 
+namespace {
+
+const float TIME_TO_NEXT_LEVEL = 3.0f;
+
+} // namespace
+
 // Static members
 
 UPtr<Context> Context::instance;
@@ -21,7 +27,7 @@ void Context::load(GLFWwindow *const window) {
    }
 }
 
-const Context& Context::getInstance() {
+Context& Context::getInstance() {
    ASSERT(instance, "Trying to get null Context instance");
    return *instance;
 }
@@ -29,7 +35,7 @@ const Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager) {
+   : window(window), assetManager(new AssetManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), timeSinceWinner(-1.0f) {
 }
 
 Context::~Context() {
@@ -37,7 +43,7 @@ Context::~Context() {
 
 void Context::init() {
    textureUnitManager->init();
-   scene = SceneLoader::loadBasicScene(*this);
+   scene = SceneLoader::loadNextScene(*this);
 }
 
 void Context::handleSpecialInputs(const InputValues &inputValues) const {
@@ -64,12 +70,26 @@ void Context::handleSpecialInputs(const InputValues &inputValues) const {
    }
 }
 
-void Context::tick(const float dt) const {
+void Context::checkForWinner() {
+   if (timeSinceWinner < 0.0f && scene->getGameState().hasWinner()) {
+      timeSinceWinner = runningTime;
+   }
+
+   if (runningTime - timeSinceWinner > TIME_TO_NEXT_LEVEL) {
+      timeSinceWinner = -1.0f;
+      scene = SceneLoader::loadNextScene(*this);
+   }
+}
+
+void Context::tick(const float dt) {
    inputHandler->pollInput();
 
    handleSpecialInputs(inputHandler->getInputValues(0));
 
    scene->tick(dt);
+
+   runningTime += dt;
+   checkForWinner();
 }
 
 void Context::onWindowFocusGained() const {

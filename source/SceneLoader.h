@@ -8,9 +8,19 @@ class Scene;
 
 namespace SceneLoader {
 
-SPtr<Scene> loadBasicScene(const Context &context);
-
 SPtr<Scene> loadTowerScene(const Context &context);
+
+SPtr<Scene> loadCenterPlatformScene(const Context &context);
+
+SPtr<Scene> loadMiniTowersScene(const Context &context);
+
+SPtr<Scene> loadSparsePlatformScene(const Context &context);
+
+SPtr<Scene> loadSpikyScene(const Context &context);
+
+SPtr<Scene> loadFourTowersScene(const Context &context);
+
+SPtr<Scene> loadNextScene(const Context &context);
 
 } // namespace SceneLoader
 

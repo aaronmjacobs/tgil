@@ -24,18 +24,22 @@ protected:
    const UPtr<Renderer> renderer;
    const UPtr<TextureUnitManager> textureUnitManager;
    SPtr<Scene> scene;
+   float runningTime;
+   float timeSinceWinner;
 
    void handleSpecialInputs(const InputValues &inputValues) const;
 
+   void checkForWinner();
+
 public:
    static void load(GLFWwindow* const window);
-   static const Context& getInstance();
+   static Context& getInstance();
 
    virtual ~Context();
 
    void init();
 
-   void tick(const float dt) const;
+   void tick(const float dt);
 
    void onWindowFocusGained() const;
 
@@ -46,6 +50,10 @@ public:
    TextureUnitManager& getTextureUnitManager() const;
 
    void setScene(SPtr<Scene> scene);
+
+   float getRunningTime() const {
+      return runningTime;
+   }
 };
 
 #endif
