@@ -66,7 +66,7 @@ protected:
    /**
     * Renders the contents of the framebuffer onto the xy plane. The location / size of the rendered image are chosen based on the camera number / total number of cameras (for split-screen).
     */
-   void renderFramebufferToPlane(int camera, int numCameras);
+   void renderFramebufferToPlane(int camera, int numCameras, float brightness);
 
    /**
     * Renders the scene from the given camera's perspective

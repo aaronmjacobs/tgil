@@ -101,6 +101,7 @@ void Renderer::init(float fov, int width, int height) {
    glEnable(GL_DEPTH_TEST);
 
    // Back face culling
+   glEnable(GL_CULL_FACE);
    glCullFace(GL_BACK);
 
    this->fov = fov;
@@ -119,6 +120,7 @@ void Renderer::loadPlane() {
 
    shaderProgram->addUniform("uColor");
    shaderProgram->addUniform("uDepth");
+   shaderProgram->addUniform("uBrightness");
    shaderProgram->addUniform("uModelMatrix");
    shaderProgram->addAttribute("aPosition");
    shaderProgram->addAttribute("aTexCoord");
@@ -141,7 +143,7 @@ void Renderer::initFramebuffer() {
 }
 
 void Renderer::onWindowSizeChange(int width, int height) {
-   projectionMatrix = glm::perspective(glm::radians(fov), (float)width / height, 0.1f, 100.0f);
+   projectionMatrix = glm::perspective(glm::radians(fov), (float)width / height, 0.1f, 200.0f);
    initFramebuffer();
 }
 
@@ -177,7 +179,9 @@ void Renderer::render(Scene &scene) {
 
       framebuffer->disable();
 
-      renderFramebufferToPlane(i, cameras.size());
+      PlayerLogicComponent* logic = static_cast<PlayerLogicComponent*>(&cameras[i]->getLogicComponent());
+      float brightness = logic && !logic->isAlive() ? 0.4f : 1.0f;
+      renderFramebufferToPlane(i, cameras.size(), brightness);
    }
 }
 
@@ -254,7 +258,7 @@ void Renderer::renderDebugInfo(Scene &scene, const glm::mat4 &viewMatrix) {
    debugDrawer.clear();
 }
 
-void Renderer::renderFramebufferToPlane(int camera, int numCameras) {
+void Renderer::renderFramebufferToPlane(int camera, int numCameras, float brightness) {
    ASSERT(xyPlane, "Plane not loaded");
    ASSERT(camera >= 0 && camera < numCameras, "Invalid camera number: %d", camera);
    ASSERT(numCameras > 0 && numCameras <= MAX_PLAYERS, "Invalid number of cameras: %d", numCameras);
@@ -278,6 +282,7 @@ void Renderer::renderFramebufferToPlane(int camera, int numCameras) {
    const glm::mat4 &modelMatrix = transMatrix * scaleMatrix;
 
    xyPlane->getShaderProgram()->use();
+   glUniform1f(xyPlane->getShaderProgram()->getUniform("uBrightness"), brightness);
    glUniformMatrix4fv(xyPlane->getShaderProgram()->getUniform("uModelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
    xyPlane->draw();
