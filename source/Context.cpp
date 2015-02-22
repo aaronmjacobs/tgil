@@ -75,7 +75,7 @@ void Context::checkForWinner() {
       timeSinceWinner = runningTime;
    }
 
-   if (runningTime - timeSinceWinner > TIME_TO_NEXT_LEVEL) {
+   if (timeSinceWinner >= 0.0f && runningTime - timeSinceWinner > TIME_TO_NEXT_LEVEL) {
       timeSinceWinner = -1.0f;
       scene = SceneLoader::loadNextScene(*this);
    }
