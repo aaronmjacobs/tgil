@@ -1,17 +1,17 @@
-#version 120
+#version 330 core
 
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uNormalMatrix;
 
-attribute vec3 aPosition;
-attribute vec3 aNormal;
-attribute vec2 aTexCoord;
+in vec3 aPosition;
+in vec3 aNormal;
+in vec2 aTexCoord;
 
-varying vec3 vWorldPosition;
-varying vec3 vNormal;
-varying vec2 vTexCoord;
+out vec3 vWorldPosition;
+out vec3 vNormal;
+out vec2 vTexCoord;
 
 void main() {
    // Transforms

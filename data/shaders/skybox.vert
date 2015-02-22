@@ -1,11 +1,11 @@
-#version 120
+#version 330 core
 
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
 
-attribute vec3 aPosition;
+in vec3 aPosition;
 
-varying vec3 vSkyboxCoord;
+out vec3 vSkyboxCoord;
 
 mat4 removeTranslation(mat4 matrix) {
    matrix[3][0] = 0.0;

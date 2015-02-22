@@ -49,6 +49,13 @@ int main(int argc, char *argv[]) {
       LOG_FATAL("Unable to initialize GLFW");
    }
 
+   // Set hints to use OpenGL 3.3
+   // TODO Fix for Windows / Linux
+   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
    GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, PROJECT_NAME, NULL, NULL);
    if (!window) {
       glfwTerminate();

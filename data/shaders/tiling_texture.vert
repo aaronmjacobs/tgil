@@ -1,4 +1,4 @@
-#version 120
+#version 330 core
 
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
@@ -6,10 +6,10 @@ uniform mat4 uModelMatrix;
 uniform vec2 uMeshSize = vec2(100.0);
 uniform float uTileSize = 10.0;
 
-attribute vec3 aPosition;
-attribute vec3 aNormal;
+in vec3 aPosition;
+in vec3 aNormal;
 
-varying vec2 vTexCoord;
+out vec2 vTexCoord;
 
 void main() {
    // Transforms

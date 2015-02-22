@@ -1,9 +1,11 @@
-#version 120
+#version 330 core
 
 uniform samplerCube uSkybox;
 
-varying vec3 vSkyboxCoord;
+in vec3 vSkyboxCoord;
+
+out vec4 color;
 
 void main() {
-  gl_FragColor = textureCube(uSkybox, vSkyboxCoord);
+  color = texture(uSkybox, vSkyboxCoord);
 }

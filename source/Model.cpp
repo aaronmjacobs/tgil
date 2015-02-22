@@ -9,18 +9,9 @@
 Model::Model(SPtr<ShaderProgram> shaderProgram, SPtr<Material> material, SPtr<Mesh> mesh)
    : shaderProgram(shaderProgram), mesh(mesh) {
    materials.push_back(material);
-}
 
-Model::~Model() {
-}
-
-void Model::draw() {
-   shaderProgram->use();
-
-   // Apply the material properties
-   for (SPtr<Material> material : materials) {
-      material->apply(*mesh);
-   }
+   glGenVertexArrays(1, &vao);
+   glBindVertexArray(vao);
 
    // Prepare the vertex buffer object
    glBindBuffer(GL_ARRAY_BUFFER, mesh->getVBO());
@@ -41,21 +32,32 @@ void Model::draw() {
    // Prepare the index buffer object
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->getIBO());
 
+   glBindVertexArray(0);
+}
+
+Model::~Model() {
+   glDeleteVertexArrays(1, &vao);
+}
+
+void Model::draw() {
+   shaderProgram->use();
+
+   glBindVertexArray(vao);
+
+   // Apply the material properties
+   for (SPtr<Material> material : materials) {
+      material->apply(*mesh);
+   }
+
    // Draw
    glDrawElements(GL_TRIANGLES, mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
-
-   // Unbind
-   glDisableVertexAttribArray(aPosition);
-   if (hasNormals) {
-      glDisableVertexAttribArray(aNormal);
-   }
-   glBindBuffer(GL_ARRAY_BUFFER, 0);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
    // Disable the material properties
    for (SPtr<Material> material : materials) {
       material->disable();
    }
+
+   glBindVertexArray(0);
 
    shaderProgram->disable();
 }

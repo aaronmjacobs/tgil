@@ -1,4 +1,4 @@
-#version 120
+#version 330 core
 
 #define MAX_LIGHTS 10
 
@@ -18,15 +18,15 @@ uniform Material uMaterial;
 uniform vec3 uCameraPos;
 uniform sampler2D uTexture;
 
-varying vec3 vWorldPosition;
-varying vec3 vNormal;
-varying vec2 vTexCoord;
+in vec3 vWorldPosition;
+in vec3 vNormal;
+in vec2 vTexCoord;
 
-//out vec4 color;
+out vec4 color;
 
 void main() {
    vec3 lNormal = normalize(vNormal);
-   vec3 surfaceColor = texture2D(uTexture, vTexCoord).rgb;
+   vec3 surfaceColor = texture(uTexture, vTexCoord).rgb;
 
    vec3 finalColor = vec3(0.0, 0.0, 0.0);
    for (int i = 0; i < uNumLights; ++i) {
@@ -63,5 +63,5 @@ void main() {
    finalColor += uMaterial.ambient;
    finalColor += uMaterial.emission;
 
-   gl_FragColor = vec4(finalColor.rgb, 1);
+   color = vec4(finalColor.rgb, 1);
 }

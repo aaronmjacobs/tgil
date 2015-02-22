@@ -668,7 +668,7 @@ SPtr<Scene> loadNextScene(const Context &context) {
    static int index = 0;
 
    if (loadFunctions.empty()) {
-      //loadFunctions.push_back(loadCenterPlatformScene);
+      loadFunctions.push_back(loadCenterPlatformScene);
       loadFunctions.push_back(loadMiniTowersScene);
       loadFunctions.push_back(loadSparsePlatformScene);
       loadFunctions.push_back(loadSpikyScene);

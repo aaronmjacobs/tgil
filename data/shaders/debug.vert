@@ -1,12 +1,12 @@
-#version 120
+#version 330 core
 
 uniform mat4 uViewMatrix;
 uniform mat4 uProjMatrix;
 
-attribute vec3 aPosition;
-attribute vec3 aColor;
+in vec3 aPosition;
+in vec3 aColor;
 
-varying vec3 vColor;
+out vec3 vColor;
 
 void main() {
    vColor = aColor;

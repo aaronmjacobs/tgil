@@ -1,6 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include "GLIncludes.h"
 #include "Types.h"
 
 #include <vector>
@@ -14,6 +15,9 @@ protected:
    std::vector<SPtr<Material>> materials;
    SPtr<ShaderProgram> shaderProgram;
    SPtr<Mesh> mesh;
+
+   // Vertex array object
+   GLuint vao;
 
 public:
    Model(SPtr<ShaderProgram> shaderProgram, SPtr<Material> material, SPtr<Mesh> mesh);

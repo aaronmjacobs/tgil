@@ -5,7 +5,7 @@
 #include "ShaderAssetManager.h"
 #include "ShaderProgram.h"
 
-#define GLSL(source) "#version 120\n" #source
+#define GLSL(source) "#version 330 core\n" #source
 
 namespace {
 
@@ -18,7 +18,7 @@ const std::string DEFAULT_VERTEX_SOURCE = GLSL(
    uniform mat4 uViewMatrix;
    uniform mat4 uProjMatrix;
 
-   attribute vec3 aPosition;
+   in vec3 aPosition;
 
    void main() {
       gl_Position = uProjMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.0);
@@ -37,8 +37,10 @@ const std::string DEFAULT_GEOMETRY_SOURCE = GLSL(
 );
 
 const std::string DEFAULT_FRAGMENT_SOURCE = GLSL(
+   out vec4 color;
+
    void main() {
-      gl_FragColor = vec4(1.0, 0.35, 0.44, 1.0);
+      color = vec4(1.0, 0.35, 0.44, 1.0);
    }
 );
 
