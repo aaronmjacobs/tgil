@@ -3,8 +3,8 @@
 
 #include "Types.h"
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
 class Mesh;
 
@@ -12,10 +12,12 @@ namespace Assimp {
 class Importer;
 } // namespace Assimp
 
+typedef std::unordered_map<std::string, SPtr<Mesh>> MeshMap;
+
 class MeshAssetManager {
 protected:
    const UPtr<Assimp::Importer> assimpImporter;
-   std::map<std::string, SPtr<Mesh>> meshMap;
+   MeshMap meshMap;
 
 public:
    MeshAssetManager();

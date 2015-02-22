@@ -3,8 +3,8 @@
 
 #include "GLIncludes.h"
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
 namespace TextureWrap {
 
@@ -17,10 +17,13 @@ enum Type {
 
 } // namespace TextureWrap
 
+typedef std::unordered_map<std::string, GLuint> TextureMap;
+typedef std::unordered_map<std::string, GLuint> CubemapMap;
+
 class TextureAssetManager {
 protected:
-   std::map<std::string, GLuint> textureMap;
-   std::map<std::string, GLuint> cubemapMap;
+   TextureMap textureMap;
+   CubemapMap cubemapMap;
 
 public:
    TextureAssetManager();

@@ -248,7 +248,7 @@ SPtr<ShaderProgram> ShaderAssetManager::loadShaderProgram(const std::string &fil
 void ShaderAssetManager::reloadShaders() {
    // TODO Only reload if files have been updated (check file modification time)
 
-   for (std::map<std::string, SPtr<Shader>>::iterator itr = shaderMap.begin(); itr != shaderMap.end(); ++itr) {
+   for (ShaderMap::iterator itr = shaderMap.begin(); itr != shaderMap.end(); ++itr) {
       const std::string& fileName = itr->first;
       SPtr<Shader> shader = itr->second;
 
@@ -269,7 +269,7 @@ void ShaderAssetManager::reloadShaders() {
       }
    }
 
-   for (std::map<std::string, SPtr<ShaderProgram>>::iterator itr = shaderProgramMap.begin(); itr != shaderProgramMap.end(); ++itr) {
+   for (ShaderProgramMap::iterator itr = shaderProgramMap.begin(); itr != shaderProgramMap.end(); ++itr) {
       const std::string& fileName = itr->first;
       SPtr<ShaderProgram> shaderProgram = itr->second;
 

@@ -4,10 +4,14 @@
 #include "GLIncludes.h"
 #include "Types.h"
 
-#include <map>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 class Shader;
+
+typedef std::unordered_map<std::string, GLint> AttributeMap;
+typedef std::unordered_map<std::string, GLint> UniformMap;
 
 class ShaderProgram {
 protected:
@@ -24,12 +28,12 @@ protected:
    /**
     * A map of attribute names to their locations
     */
-   std::map<std::string, GLint> attributeMap;
+   AttributeMap attributeMap;
 
    /**
     * A map of uniform names to their location
     */
-   std::map<std::string, GLint> uniformMap;
+   UniformMap uniformMap;
 
 public:
    ShaderProgram();

@@ -4,16 +4,19 @@
 #include "GLIncludes.h"
 #include "Types.h"
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
 class Shader;
 class ShaderProgram;
 
+typedef std::unordered_map<std::string, SPtr<Shader>> ShaderMap;
+typedef std::unordered_map<std::string, SPtr<ShaderProgram>> ShaderProgramMap;
+
 class ShaderAssetManager {
 protected:
-   std::map<std::string, SPtr<Shader>> shaderMap;
-   std::map<std::string, SPtr<ShaderProgram>> shaderProgramMap;
+   ShaderMap shaderMap;
+   ShaderProgramMap shaderProgramMap;
 
 public:
    ShaderAssetManager();
