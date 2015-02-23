@@ -6,7 +6,6 @@
 #include <glm/glm.hpp>
 
 class Context;
-class Framebuffer;
 class GameObject;
 class Model;
 class TextureMaterial;
@@ -19,9 +18,24 @@ protected:
    DebugRenderer debugRenderer;
 
    /**
+    * Width of the framebuffer (in pixels)
+    */
+   int width;
+
+   /**
+    * Height of the framebuffer (in pixels)
+    */
+   int height;
+
+   /**
     * Field of view of the perspective projection
     */
    float fov;
+
+   /**
+    * Number of frames that need clear calls
+    */
+   int clearFramesNeeded;
 
    /**
     * The perspective projection
@@ -32,41 +46,6 @@ protected:
     * If debug rendering is enabled
     */
    bool renderDebug;
-
-   /**
-    * Framebuffer used for composite rendering
-    */
-   UPtr<Framebuffer> framebuffer;
-
-   /**
-    * X/Y plane used for rendering the contents of the framebuffer to the back buffer
-    */
-   UPtr<Model> xyPlane;
-
-   /**
-    * Texture material for framebuffer color attachment
-    */
-   SPtr<TextureMaterial> colorTextureMaterial;
-
-   /**
-    * Texture material for framebuffer depth attachment
-    */
-   SPtr<TextureMaterial> depthTextureMaterial;
-
-   /**
-    * Loads the plane used render data from the framebuffer to the back buffer
-    */
-   void loadPlane();
-
-   /**
-    * Initializes the framebuffer and updates the attached texture materials
-    */
-   void initFramebuffer();
-
-   /**
-    * Renders the contents of the framebuffer onto the xy plane. The location / size of the rendered image are chosen based on the camera number / total number of cameras (for split-screen).
-    */
-   void renderFramebufferToPlane(int camera, int numCameras, float brightness);
 
    /**
     * Renders the scene from the given camera's perspective
@@ -89,14 +68,9 @@ public:
    void init(float fov, int width, int height);
 
    /**
-    * Updates the renderer to match the new window resolution
+    * Updates the renderer to match the new framebuffer resolution
     */
-   void onWindowSizeChange(int width, int height);
-
-   /**
-    * Updates the renderer to match the properties of the new monitor
-    */
-   void onMonitorChange();
+   void onFramebufferSizeChange(int width, int height);
 
    /**
     * Renders the given scene

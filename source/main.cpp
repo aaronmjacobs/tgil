@@ -26,12 +26,8 @@ void focusCallback(GLFWwindow* window, GLint focused) {
    }
 }
 
-void windowSizeCallback(GLFWwindow* window, int width, int height) {
-   Context::getInstance().getRenderer().onWindowSizeChange(width, height);
-}
-
-void monitorCallback(GLFWmonitor *monitor, int event) {
-   Context::getInstance().getRenderer().onMonitorChange();
+void framebufferSizeCallback(GLFWwindow *window, int width, int height) {
+   Context::getInstance().getRenderer().onFramebufferSizeChange(width, height);
 }
 
 } // namespace
@@ -75,10 +71,12 @@ int main(int argc, char *argv[]) {
    Context::load(window);
    Context &context = Context::getInstance();
    Renderer &renderer = context.getRenderer();
-   renderer.init(FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-   glfwSetWindowSizeCallback(window, windowSizeCallback);
-   glfwSetMonitorCallback(monitorCallback);
+   int framebufferWidth, framebufferHeight;
+   glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+   renderer.init(FOV, framebufferWidth, framebufferHeight);
+
+   glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
    glfwSetWindowFocusCallback(window, focusCallback);
 
    // Timing values

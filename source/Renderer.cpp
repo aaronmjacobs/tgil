@@ -4,7 +4,6 @@
 #include "Context.h"
 #include "DebugDrawer.h"
 #include "FancyAssert.h"
-#include "Framebuffer.h"
 #include "GameObject.h"
 #include "GLIncludes.h"
 #include "GraphicsComponent.h"
@@ -29,6 +28,17 @@
 #include <vector>
 
 namespace {
+
+struct Viewport {
+   int x;
+   int y;
+   int width;
+   int height;
+
+   Viewport(int x, int y, int width, int height)
+      : x(x), y(y), width(width), height(height) {
+   }
+};
 
 std::string getErrorName(GLenum error) {
    switch (error) {
@@ -62,31 +72,37 @@ void checkGLError() {
    }
 }
 
-const glm::vec3 DEFAULT_CLEAR_COLOR(0.5f);
+Viewport getViewport(int camera, int numCameras, int framebufferWidth, int framebufferHeight) {
+   ASSERT(numCameras > 0 && numCameras <= MAX_PLAYERS, "Number of cameras is invalid: %d", numCameras);
+   ASSERT(camera >= 0 && camera < numCameras, "Invalid camera number: %d (%d total)", camera, numCameras);
 
-glm::vec3 getClearColor(const Scene &scene) {
-   const GameState &gameState = scene.getGameState();
-   if (!gameState.hasWinner()) {
-      return DEFAULT_CLEAR_COLOR;
+   Viewport viewport(0, 0, framebufferWidth, framebufferHeight);
+
+   if (numCameras == 1) {
+      return viewport;
    }
 
-   SPtr<GameObject> player = scene.getPlayerByNumber(gameState.getWinner());
-   if (!player) {
-      return DEFAULT_CLEAR_COLOR;
+   int halfWidth = framebufferWidth / 2 + framebufferWidth % 2;
+   int halfHeight = framebufferHeight / 2 + framebufferHeight % 2;
+
+   viewport.width = halfWidth;
+   viewport.height = halfHeight;
+
+   if (numCameras == 2) {
+      viewport.x = halfWidth / 2;
+      viewport.y = camera == 0 ? halfHeight : 0;
+   } else {
+      viewport.x = camera % 2 == 0 ? 0 : halfWidth;
+      viewport.y = camera > 1 ? 0 : halfHeight;
    }
 
-   PlayerLogicComponent *playerLogic = static_cast<PlayerLogicComponent*>(&player->getLogicComponent());
-   if (!playerLogic) {
-      return DEFAULT_CLEAR_COLOR;
-   }
-
-   return playerLogic->getColor();
+   return viewport;
 }
 
 } // namespace
 
 Renderer::Renderer()
-   : renderDebug(false), framebuffer(new Framebuffer) {
+   : clearFramesNeeded(0), renderDebug(false) {
 }
 
 Renderer::~Renderer() {
@@ -106,57 +122,28 @@ void Renderer::init(float fov, int width, int height) {
 
    this->fov = fov;
 
-   loadPlane();
-
-   onWindowSizeChange(width, height);
+   onFramebufferSizeChange(width, height);
 
    debugRenderer.init();
 }
 
-void Renderer::loadPlane() {
-   AssetManager &assetManager = Context::getInstance().getAssetManager();
+void Renderer::onFramebufferSizeChange(int width, int height) {
+   this->width = width;
+   this->height = height;
+   clearFramesNeeded = 2; // Clear both the front and back buffers
 
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/framebuffer");
-
-   shaderProgram->addUniform("uColor");
-   shaderProgram->addUniform("uDepth");
-   shaderProgram->addUniform("uBrightness");
-   shaderProgram->addUniform("uModelMatrix");
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aTexCoord");
-
-   colorTextureMaterial = std::make_shared<TextureMaterial>(*shaderProgram, 0, "uColor");
-   depthTextureMaterial = std::make_shared<TextureMaterial>(*shaderProgram, 0, "uDepth");
-
-   SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xy_plane.obj");
-
-   xyPlane = UPtr<Model>(new Model(shaderProgram, colorTextureMaterial, planeMesh));
-   xyPlane->attachMaterial(depthTextureMaterial);
-}
-
-void Renderer::initFramebuffer() {
-   framebuffer->init();
-
-   ASSERT(colorTextureMaterial && depthTextureMaterial, "Trying to init framebuffer texture materials before they are created");
-   colorTextureMaterial->setTextureID(framebuffer->getTextureID());
-   depthTextureMaterial->setTextureID(framebuffer->getDepthTextureID());
-}
-
-void Renderer::onWindowSizeChange(int width, int height) {
    projectionMatrix = glm::perspective(glm::radians(fov), (float)width / height, 0.1f, 200.0f);
-   initFramebuffer();
-}
-
-void Renderer::onMonitorChange() {
-   // Update the framebuffer to match the size of the viewport
-   initFramebuffer();
 }
 
 void Renderer::render(Scene &scene) {
    RUN_DEBUG(checkGLError();)
 
-   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   GLbitfield mask = GL_DEPTH_BUFFER_BIT;
+   if (clearFramesNeeded) {
+      --clearFramesNeeded;
+      mask |= GL_COLOR_BUFFER_BIT;
+   }
+   glClear(mask);
 
    // Free all texture units
    Context::getInstance().getTextureUnitManager().reset();
@@ -173,23 +160,14 @@ void Renderer::render(Scene &scene) {
    }
 
    for (int i = 0; i < numCameras; ++i) {
-      framebuffer->use();
+      Viewport viewport(getViewport(i, numCameras, width, height));
+      glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 
       renderFromCamera(scene, *cameras[i]);
-
-      framebuffer->disable();
-
-      PlayerLogicComponent* logic = static_cast<PlayerLogicComponent*>(&cameras[i]->getLogicComponent());
-      float brightness = logic && !logic->isAlive() ? 0.4f : 1.0f;
-      renderFramebufferToPlane(i, cameras.size(), brightness);
    }
 }
 
 void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
-   glm::vec3 clearColor = getClearColor(scene);
-   glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f);
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
    // Set up shaders
    const CameraComponent &cameraComponent = camera.getCameraComponent();
    const glm::mat4 &viewMatrix = cameraComponent.getViewMatrix();
@@ -256,34 +234,4 @@ void Renderer::renderDebugInfo(Scene &scene, const glm::mat4 &viewMatrix) {
 
    // Clear the data
    debugDrawer.clear();
-}
-
-void Renderer::renderFramebufferToPlane(int camera, int numCameras, float brightness) {
-   ASSERT(xyPlane, "Plane not loaded");
-   ASSERT(camera >= 0 && camera < numCameras, "Invalid camera number: %d", camera);
-   ASSERT(numCameras > 0 && numCameras <= MAX_PLAYERS, "Invalid number of cameras: %d", numCameras);
-
-   // Set offset and scale based off of camera number / camera count (for split-screen)
-   glm::vec3 offset(0.0f);
-   glm::vec3 scale(1.0f);
-   if (numCameras > 1) {
-      scale = glm::vec3(0.5f);
-
-      if (numCameras > 2) {
-         offset.x = camera % 2 == 0 ? -0.5f : 0.5f;
-         offset.y = camera > 1 ? -0.5f : 0.5f;
-      } else {
-         offset.y = camera % 2 == 0 ? 0.5f : -0.5f;
-      }
-   }
-
-   const glm::mat4 &transMatrix = glm::translate(offset);
-   const glm::mat4 &scaleMatrix = glm::scale(scale);
-   const glm::mat4 &modelMatrix = transMatrix * scaleMatrix;
-
-   xyPlane->getShaderProgram()->use();
-   glUniform1f(xyPlane->getShaderProgram()->getUniform("uBrightness"), brightness);
-   glUniformMatrix4fv(xyPlane->getShaderProgram()->getUniform("uModelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
-
-   xyPlane->draw();
 }
