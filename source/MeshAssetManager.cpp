@@ -14,11 +14,11 @@ namespace {
  */
 const char* DEFAULT_MESH_SOURCE = "\nv -0.500000 -0.500000 0.500000\nv 0.500000 -0.500000 0.500000\nv -0.500000 0.500000 0.500000\nv 0.500000 0.500000 0.500000\nv -0.500000 0.500000 -0.500000\nv 0.500000 0.500000 -0.500000\nv -0.500000 -0.500000 -0.500000\nv 0.500000 -0.500000 -0.500000\n\nvt 0.000000 0.000000\nvt 1.000000 0.000000\nvt 0.000000 1.000000\nvt 1.000000 1.000000\n\nvn 0.000000 0.000000 1.000000\nvn 0.000000 1.000000 0.000000\nvn 0.000000 0.000000 -1.000000\nvn 0.000000 -1.000000 0.000000\nvn 1.000000 0.000000 0.000000\nvn -1.000000 0.000000 0.000000\n\ns 1\nf 1/1/1 2/2/1 3/3/1\nf 3/3/1 2/2/1 4/4/1\ns 2\nf 3/1/2 4/2/2 5/3/2\nf 5/3/2 4/2/2 6/4/2\ns 3\nf 5/4/3 6/3/3 7/2/3\nf 7/2/3 6/3/3 8/1/3\ns 4\nf 7/1/4 8/2/4 1/3/4\nf 1/3/4 8/2/4 2/4/4\ns 5\nf 2/1/5 8/2/5 4/3/5\nf 4/3/5 8/2/5 6/4/5\ns 6\nf 7/1/6 1/2/6 5/3/6\nf 5/3/6 1/2/6 3/4/6\n";
 
-SPtr<Mesh> DEFAULT_MESH;
-
 SPtr<Mesh> getDefaultMesh(Assimp::Importer &assimpImporter) {
-   if (DEFAULT_MESH) {
-      return DEFAULT_MESH;
+   static SPtr<Mesh> defaultMesh = nullptr;
+
+   if (defaultMesh) {
+      return defaultMesh;
    }
 
    unsigned int flags = aiProcess_GenSmoothNormals | aiProcess_Triangulate;
@@ -34,8 +34,8 @@ SPtr<Mesh> getDefaultMesh(Assimp::Importer &assimpImporter) {
       return nullptr;
    }
 
-   DEFAULT_MESH = std::make_shared<Mesh>(scene->mMeshes[0]);
-   return DEFAULT_MESH;
+   defaultMesh = std::make_shared<Mesh>(scene->mMeshes[0]);
+   return defaultMesh;
 }
 
 } // namespace

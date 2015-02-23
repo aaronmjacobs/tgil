@@ -44,11 +44,6 @@ const std::string DEFAULT_FRAGMENT_SOURCE = GLSL(
    }
 );
 
-SPtr<Shader> DEFAULT_VERTEX_SHADER;
-SPtr<Shader> DEFAULT_GEOMETRY_SHADER;
-SPtr<Shader> DEFAULT_FRAGMENT_SHADER;
-SPtr<ShaderProgram> DEFAULT_SHADER_PROGRAM;
-
 const char* getShaderTypeName(const GLenum type) {
    switch (type) {
       case GL_VERTEX_SHADER:
@@ -114,26 +109,30 @@ const std::string& getDefaultShaderSource(const GLenum type) {
 }
 
 SPtr<Shader> getDefaultShader(const GLenum type) {
+   static SPtr<Shader> defaultVertexShader = nullptr;
+   static SPtr<Shader> defaultGeometryShader = nullptr;
+   static SPtr<Shader> defaultFragmentShader = nullptr;
+
    const std::string *source;
 
    switch (type) {
       case GL_VERTEX_SHADER:
-         if (DEFAULT_VERTEX_SHADER) {
-            return DEFAULT_VERTEX_SHADER;
+         if (defaultVertexShader) {
+            return defaultVertexShader;
          } else {
             source = &DEFAULT_VERTEX_SOURCE;
          }
          break;
       case GL_GEOMETRY_SHADER:
-         if (DEFAULT_GEOMETRY_SHADER) {
-            return DEFAULT_GEOMETRY_SHADER;
+         if (defaultGeometryShader) {
+            return defaultGeometryShader;
          } else {
             source = &DEFAULT_GEOMETRY_SOURCE;
          }
          break;
       case GL_FRAGMENT_SHADER:
-         if (DEFAULT_FRAGMENT_SHADER) {
-            return DEFAULT_FRAGMENT_SHADER;
+         if (defaultFragmentShader) {
+            return defaultFragmentShader;
          } else {
             source = &DEFAULT_FRAGMENT_SOURCE;
          }
@@ -151,13 +150,13 @@ SPtr<Shader> getDefaultShader(const GLenum type) {
 
    switch (type) {
       case GL_VERTEX_SHADER:
-         DEFAULT_VERTEX_SHADER = shader;
+         defaultVertexShader = shader;
          break;
       case GL_GEOMETRY_SHADER:
-         DEFAULT_GEOMETRY_SHADER = shader;
+         defaultGeometryShader = shader;
          break;
       case GL_FRAGMENT_SHADER:
-         DEFAULT_FRAGMENT_SHADER = shader;
+         defaultFragmentShader = shader;
          break;
       default:
          ASSERT(false, "Invalid shader type: %i", type);
@@ -168,20 +167,22 @@ SPtr<Shader> getDefaultShader(const GLenum type) {
 }
 
 SPtr<ShaderProgram> getDefaultShaderProgram() {
-   if (DEFAULT_SHADER_PROGRAM) {
-      return DEFAULT_SHADER_PROGRAM;
+   static SPtr<ShaderProgram> defaultShaderProgram = nullptr;
+
+   if (defaultShaderProgram) {
+      return defaultShaderProgram;
    }
 
-   DEFAULT_SHADER_PROGRAM = std::make_shared<ShaderProgram>();
-   DEFAULT_SHADER_PROGRAM->attach(getDefaultShader(GL_VERTEX_SHADER));
-   DEFAULT_SHADER_PROGRAM->attach(getDefaultShader(GL_FRAGMENT_SHADER));
+   defaultShaderProgram = std::make_shared<ShaderProgram>();
+   defaultShaderProgram->attach(getDefaultShader(GL_VERTEX_SHADER));
+   defaultShaderProgram->attach(getDefaultShader(GL_FRAGMENT_SHADER));
 
-   if (!DEFAULT_SHADER_PROGRAM->link()) {
-      LOG_MESSAGE("Error linking default shader program. Error message: \"" << getShaderLinkError(DEFAULT_SHADER_PROGRAM) << "\"");
+   if (!defaultShaderProgram->link()) {
+      LOG_MESSAGE("Error linking default shader program. Error message: \"" << getShaderLinkError(defaultShaderProgram) << "\"");
       LOG_FATAL("Unable to link default shader");
    }
 
-   return DEFAULT_SHADER_PROGRAM;
+   return defaultShaderProgram;
 }
 
 } // namespace

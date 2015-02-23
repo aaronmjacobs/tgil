@@ -1,3 +1,4 @@
+#include "DefaultImageSource.h"
 #include "FancyAssert.h"
 #include "IOUtils.h"
 #include "LogHelper.h"
@@ -16,6 +17,22 @@ struct ImageInfo {
    unsigned char *pixels;
 };
 
+ImageInfo getDefaultImageInfo() {
+   static ImageInfo defaultImageInfo = { 0 };
+
+   if (defaultImageInfo.pixels) {
+      return defaultImageInfo;
+   }
+
+   defaultImageInfo.pixels = stbi_load_from_memory(DEFAULT_IMAGE_SOURCE, DEFAULT_IMAGE_SOURCE_SIZE, &defaultImageInfo.width, &defaultImageInfo.height, &defaultImageInfo.composition, 0);
+
+   if (!defaultImageInfo.pixels) {
+      LOG_FATAL("Unable to load default texture");
+   }
+
+   return defaultImageInfo;
+}
+
 ImageInfo loadImage(const std::string &fileName) {
    ImageInfo info;
 
@@ -23,8 +40,8 @@ ImageInfo loadImage(const std::string &fileName) {
    info.pixels = stbi_load(dataFileName.c_str(), &info.width, &info.height, &info.composition, 0);
 
    if (!info.pixels) {
-      // TODO Revert to default (black? checkered?) texture
       LOG_WARNING("Unable to load image from file: " << dataFileName);
+      info = getDefaultImageInfo();
    }
 
    return info;
@@ -68,7 +85,11 @@ GLuint TextureAssetManager::loadTexture(const std::string &fileName, TextureWrap
    GLint format;
    if (!getFormat(info, &format)) {
       LOG_WARNING("Unsupported image composition for image: " << fileName);
-      // TODO Revert to default texture
+
+      info = getDefaultImageInfo();
+      if (!getFormat(info, &format)) {
+         LOG_FATAL("Unsupported image composition for default image");
+      }
    }
 
    GLuint textureID;

@@ -87,6 +87,7 @@ set(HEADERS
    ${SRC_DIR}/Conversions.h
    ${SRC_DIR}/DebugDrawer.h
    ${SRC_DIR}/DebugRenderer.h
+   ${SRC_DIR}/DefaultImageSource.h
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/FlyCameraComponent.h
    ${SRC_DIR}/FlyCameraLogicComponent.h
