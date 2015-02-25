@@ -21,7 +21,7 @@
 
 namespace {
 
-const float COOLDOWN = 1.0f;
+const float COOLDOWN = 0.5f;
 const float EXPLOSION_FORCE = 50.0f;
 
 // TODO Handle in asset manager somehow

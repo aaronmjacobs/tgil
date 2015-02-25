@@ -20,7 +20,7 @@
 
 namespace {
 
-const float COOLDOWN = 5.0f;
+const float COOLDOWN = 3.0f;
 const float FORCE = 75.0f;
 const float LIFE_TIME = 0.25f;
 
