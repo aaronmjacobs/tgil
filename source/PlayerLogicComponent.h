@@ -22,6 +22,7 @@ class PlayerLogicComponent : public LogicComponent {
 protected:
    bool alive;
    bool wasJumpingLastFrame;
+   bool canDoubleJump;
    glm::vec3 color;
    SPtr<Ability> primaryAbility;
    SPtr<Ability> secondaryAbility;
@@ -31,6 +32,13 @@ protected:
    folly::Optional<glm::vec3> calcSpringForce(const Ground &ground, const btRigidBody *rigidBody) const;
 
    glm::vec3 calcMoveIntention(const InputValues &inputValues) const;
+
+   /**
+    * Calculates how related the two given vectors are (in terms of direction), from 0 (same direction) to 1 (opposite directions)
+    */
+   float calcRelation(const glm::vec3 &first, const glm::vec3 &second);
+
+   glm::vec3 calcJumpImpulse(const InputValues &inputValues, const glm::vec3 &velocity, const glm::vec3 &horizontalMoveIntention, bool onGround);
 
    void handleOrientation(const float dt, const InputValues &inputValues);
 

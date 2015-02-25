@@ -27,7 +27,7 @@ const float Y_LOOK_BOUND = 0.99f;
 const float MAX_MOVE_FORCE = 150.0f;
 const float NORMAL_MOVE_FORCE = 150.0f;
 const float AIR_MOVE_MULTIPLIER = 0.05f;
-const float JUMP_FORCE = 400.0f;
+const float JUMP_IMPULSE = 7.0f;
 
 // Ground / friction constants
 const float FRICTION_CONSTANT = 30.0f;
@@ -53,7 +53,7 @@ float calcHorizontalMovementForce(glm::vec3 velocity, folly::Optional<Ground> gr
 } // namespace
 
 PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color)
-   : LogicComponent(gameObject), alive(true), wasJumpingLastFrame(false), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
+   : LogicComponent(gameObject), alive(true), wasJumpingLastFrame(false), canDoubleJump(false), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
 }
 
 PlayerLogicComponent::~PlayerLogicComponent() {
@@ -156,6 +156,55 @@ glm::vec3 PlayerLogicComponent::calcMoveIntention(const InputValues &inputValues
    return moveIntention;
 }
 
+float PlayerLogicComponent::calcRelation(const glm::vec3 &first, const glm::vec3 &second) {
+   float relation = 0.0f;
+   float firstLength = glm::length(second);
+   float secondLength = glm::length(first);
+
+   if (firstLength > 0.0f && secondLength > 0.0f) {
+      relation = glm::dot(first, second) / (firstLength * secondLength);
+      relation = (1.0f - relation) / 2.0f; // 0.0 = same direction, 1.0 = opposite
+   }
+
+   return relation;
+}
+
+glm::vec3 PlayerLogicComponent::calcJumpImpulse(const InputValues &inputValues, const glm::vec3 &velocity, const glm::vec3 &horizontalMoveIntention, bool onGround) {
+   glm::vec3 jumpImpulse(0.0f);
+
+   if (onGround) {
+      canDoubleJump = true;
+   }
+
+   if (inputValues.jump && !wasJumpingLastFrame && (onGround || canDoubleJump)) {
+      wasJumpingLastFrame = true;
+      jumpImpulse += glm::vec3(0.0f, JUMP_IMPULSE, 0.0f);
+
+      if (!onGround && canDoubleJump) {
+         canDoubleJump = false;
+
+         // Cancel out any negative Y movement
+         float cancelNegativeY = glm::max(0.0f, -velocity.y);
+         jumpImpulse += glm::vec3(0.0f, cancelNegativeY, 0.0f);
+
+         glm::vec3 horizontalVelocity = velocity;
+         horizontalVelocity.y = 0.0f;
+
+         // Apply a horizontal impulse at a max of the square root of the current horizontal velocity,
+         // based on the current horizontal velocity and where the player is trying to go
+         float relation = calcRelation(horizontalVelocity, horizontalMoveIntention);
+         float horizontalImpulseMultiplier = relation * glm::sqrt(glm::length(horizontalVelocity));
+         jumpImpulse += horizontalMoveIntention * horizontalImpulseMultiplier;
+      }
+   }
+
+   if (!inputValues.jump) {
+      wasJumpingLastFrame = false;
+   }
+
+   return jumpImpulse;
+}
+
 void PlayerLogicComponent::handleOrientation(const float dt, const InputValues &inputValues) {
    CameraComponent &cameraComponent = gameObject.getCameraComponent();
    float lookAmount = dt * LOOK_SPEED;
@@ -184,6 +233,7 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
       return;
    }
 
+   btVector3 netImpulse(0.0f, 0.0f, 0.0f);
    btVector3 netForce(0.0f, 0.0f, 0.0f);
    btVector3 velocity = rigidBody->getLinearVelocity();
 
@@ -214,16 +264,11 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
    glm::vec3 horizontalForce = horizontalMoveIntention * glm::vec3(horizontalForceAmount);
    netForce += toBt(horizontalForce);
 
-   // Calculate the jump force
-   if (ground && inputValues.jump && !wasJumpingLastFrame) {
-      wasJumpingLastFrame = true;
-      netForce += btVector3(0.0f, JUMP_FORCE, 0.0f);
-   }
-   if (!inputValues.jump) {
-      wasJumpingLastFrame = false;
-   }
+   // Calculate the jump impulse
+   netImpulse += toBt(calcJumpImpulse(inputValues, toGlm(velocity), horizontalMoveIntention, ground.hasValue()));
 
-   // Apply the forces
+   // Apply the impulses and forces
+   rigidBody->applyCentralImpulse(netImpulse);
    rigidBody->applyCentralForce(netForce);
 }
 
