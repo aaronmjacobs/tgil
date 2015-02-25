@@ -46,7 +46,10 @@ float getAxisValue(const float *axes, const int axisCount, const ControllerAxis 
       return 0.0f;
    }
 
-   return applyDeadzone(axes[axis.index], deadzone, axis.centerDeadzone) * (axis.invert ? -1.0f : 1.0f);
+   float val = applyDeadzone(axes[axis.index], deadzone, axis.centerDeadzone) * (axis.invert ? -1.0f : 1.0f);
+
+   // Take the square of the value to make small movements easier
+   return val * val * glm::sign(val);
 }
 
 bool getButtonValue(const unsigned char *buttons, const int buttonCount, const int button) {
