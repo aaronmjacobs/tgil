@@ -1,4 +1,5 @@
 #include "AssetManager.h"
+#include "AudioManager.h"
 #include "Context.h"
 #include "FancyAssert.h"
 #include "InputHandler.h"
@@ -35,13 +36,14 @@ Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), timeSinceWinner(-1.0f) {
+   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), timeSinceWinner(-1.0f) {
 }
 
 Context::~Context() {
 }
 
 void Context::init() {
+   audioManager->init();
    textureUnitManager->init();
    scene = SceneLoader::loadNextScene(*this);
 }
@@ -82,6 +84,7 @@ void Context::checkForWinner() {
 }
 
 void Context::tick(const float dt) {
+   audioManager->update();
    inputHandler->pollInput();
 
    handleSpecialInputs(inputHandler->getInputValues(0));
@@ -98,6 +101,10 @@ void Context::onWindowFocusGained() const {
 
 AssetManager& Context::getAssetManager() const {
    return *assetManager;
+}
+
+AudioManager& Context::getAudioManager() const {
+   return *audioManager;
 }
 
 InputHandler& Context::getInputHandler() const {

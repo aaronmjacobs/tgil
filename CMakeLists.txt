@@ -32,6 +32,7 @@ configure_file (
 # Source content
 set(SOURCES
    ${SRC_DIR}/AssetManager.cpp
+   ${SRC_DIR}/AudioManager.cpp
    ${SRC_DIR}/Context.cpp
    ${SRC_DIR}/ControllerInputDevice.cpp
    ${SRC_DIR}/DebugDrawer.cpp
@@ -80,6 +81,7 @@ set(HEADERS
    ${BIN_INCLUDE_DIR}/Constants.h
    ${SRC_DIR}/Ability.h
    ${SRC_DIR}/AssetManager.h
+   ${SRC_DIR}/AudioManager.h
    ${SRC_DIR}/CameraComponent.h
    ${SRC_DIR}/Component.h
    ${SRC_DIR}/Context.h

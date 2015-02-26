@@ -4,6 +4,7 @@
 #include "Types.h"
 
 class AssetManager;
+class AudioManager;
 class InputHandler;
 class Renderer;
 class Scene;
@@ -20,6 +21,7 @@ private:
 protected:
    GLFWwindow* const window;
    const UPtr<AssetManager> assetManager;
+   const UPtr<AudioManager> audioManager;
    const UPtr<InputHandler> inputHandler;
    const UPtr<Renderer> renderer;
    const UPtr<TextureUnitManager> textureUnitManager;
@@ -44,6 +46,7 @@ public:
    void onWindowFocusGained() const;
 
    AssetManager& getAssetManager() const;
+   AudioManager& getAudioManager() const;
    InputHandler& getInputHandler() const;
    Renderer& getRenderer() const;
    Scene& getScene() const;
