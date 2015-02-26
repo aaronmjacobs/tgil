@@ -18,11 +18,7 @@ struct ImageInfo {
 };
 
 ImageInfo getDefaultImageInfo() {
-   static ImageInfo defaultImageInfo = { 0 };
-
-   if (defaultImageInfo.pixels) {
-      return defaultImageInfo;
-   }
+   ImageInfo defaultImageInfo;
 
    defaultImageInfo.pixels = stbi_load_from_memory(DEFAULT_IMAGE_SOURCE, DEFAULT_IMAGE_SOURCE_SIZE, &defaultImageInfo.width, &defaultImageInfo.height, &defaultImageInfo.composition, 0);
 
