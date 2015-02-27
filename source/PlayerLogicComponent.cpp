@@ -26,7 +26,8 @@ const float Y_LOOK_BOUND = 0.99f;
 // Movement constants
 const float MAX_MOVE_FORCE = 150.0f;
 const float NORMAL_MOVE_FORCE = 150.0f;
-const float AIR_MOVE_MULTIPLIER = 0.05f;
+const float AIR_MOVE_MULTIPLIER = 0.2f;
+const float MAX_AIR_MOVE_SPEED = 7.0f;
 const float JUMP_IMPULSE = 7.0f;
 
 // Ground / friction constants
@@ -39,12 +40,38 @@ const float SPRING_FORCE_MULTIPLIER = 100.0f;
 const float SPRING_STIFFNESS = 2.0f;
 const float SPRING_DAMPING = 0.3f;
 
-float calcHorizontalMovementForce(glm::vec3 velocity, folly::Optional<Ground> ground) {
+/**
+ * Calculates how related the two given vectors are (in terms of direction), from 0 (same direction) to 1 (opposite directions)
+*/
+float calcRelation(const glm::vec3 &first, const glm::vec3 &second) {
+   float relation = 0.0f;
+   float firstLength = glm::length(second);
+   float secondLength = glm::length(first);
+
+   if (firstLength > 0.0f && secondLength > 0.0f) {
+      relation = glm::dot(first, second) / (firstLength * secondLength);
+      relation = (1.0f - relation) / 2.0f; // 0.0 = same direction, 1.0 = opposite
+   }
+
+   return relation;
+}
+
+float calcHorizontalMovementForce(glm::vec3 velocity, const glm::vec3 &horizontalMoveIntention, folly::Optional<Ground> ground) {
    velocity.y = 0.0f;
    float speed = glm::length(velocity);
 
-   float groundFriction = ground && ground->friction > 0.0f ? ground->friction : DEFAULT_GROUND_FRICTION;
-   float forceModifier = ground ? groundFriction : AIR_MOVE_MULTIPLIER;
+   float forceModifier;
+   if (ground) {
+      forceModifier = ground->friction > 0.0f ? ground->friction : DEFAULT_GROUND_FRICTION;
+   } else {
+      forceModifier = AIR_MOVE_MULTIPLIER;
+
+      // Don't allow players to move themselves too quickly through the air
+      if (speed > MAX_AIR_MOVE_SPEED) {
+         forceModifier *= calcRelation(velocity, horizontalMoveIntention);
+      }
+   }
+
    float normalMoveForce = NORMAL_MOVE_FORCE * forceModifier;
    float maxMoveForce = MAX_MOVE_FORCE * forceModifier;
    return speed < normalMoveForce / maxMoveForce ? maxMoveForce : glm::min(maxMoveForce, normalMoveForce / speed);
@@ -156,19 +183,6 @@ glm::vec3 PlayerLogicComponent::calcMoveIntention(const InputValues &inputValues
    return moveIntention;
 }
 
-float PlayerLogicComponent::calcRelation(const glm::vec3 &first, const glm::vec3 &second) {
-   float relation = 0.0f;
-   float firstLength = glm::length(second);
-   float secondLength = glm::length(first);
-
-   if (firstLength > 0.0f && secondLength > 0.0f) {
-      relation = glm::dot(first, second) / (firstLength * secondLength);
-      relation = (1.0f - relation) / 2.0f; // 0.0 = same direction, 1.0 = opposite
-   }
-
-   return relation;
-}
-
 glm::vec3 PlayerLogicComponent::calcJumpImpulse(const InputValues &inputValues, const glm::vec3 &velocity, const glm::vec3 &horizontalMoveIntention, bool onGround) {
    glm::vec3 jumpImpulse(0.0f);
 
@@ -259,8 +273,8 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
    }
 
    // Calculate the horizontal movement force
-   float horizontalForceAmount = calcHorizontalMovementForce(toGlm(velocity), ground);
    glm::vec3 horizontalMoveIntention = calcMoveIntention(inputValues);
+   float horizontalForceAmount = calcHorizontalMovementForce(toGlm(velocity), horizontalMoveIntention, ground);
    glm::vec3 horizontalForce = horizontalMoveIntention * glm::vec3(horizontalForceAmount);
    netForce += toBt(horizontalForce);
 
