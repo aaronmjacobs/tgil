@@ -128,3 +128,12 @@ btGhostObject& PlayerPhysicsComponent::getGhostObject() const {
    ASSERT(ghostObject, "Ghost shouldn't be null");
    return *ghostObject;
 }
+
+glm::vec3 PlayerPhysicsComponent::getVelocity() const {
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(getCollisionObject());
+   if (!rigidBody) {
+      return glm::vec3(0.0f);
+   }
+
+   return toGlm(rigidBody->getLinearVelocity());
+}

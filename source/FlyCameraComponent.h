@@ -13,6 +13,8 @@ public:
 
    virtual glm::vec3 getRightVector() const;
 
+   virtual glm::vec3 getUpVector() const;
+
    virtual glm::mat4 getViewMatrix() const;
 
    virtual glm::vec3 getCameraPosition() const;

@@ -1,6 +1,8 @@
 #ifndef AUDIO_MANAGER_H
 #define AUDIO_MANAGER_H
 
+#include <glm/glm.hpp>
+
 #include <string>
 #include <unordered_map>
 
@@ -14,9 +16,11 @@ class System;
 
 typedef std::unordered_map<std::string, FMOD::Sound*> SoundMap;
 
-enum class SoundType {
-   Music,
-   SoundEffect
+struct ListenerAttributes {
+   glm::vec3 position;
+   glm::vec3 velocity;
+   glm::vec3 forward;
+   glm::vec3 up;
 };
 
 class AudioManager {
@@ -28,6 +32,8 @@ protected:
    SoundMap musicMap;
    SoundMap effectsMap;
 
+   int numListeners;
+
    void release();
 
 public:
@@ -37,13 +43,17 @@ public:
 
    void init();
 
-   void update();
+   void update(ListenerAttributes *listeners, int numListeners);
 
-   void loadSound(const std::string &fileName, SoundType type, bool threeDimensional = false);
+   void loadMusic(const std::string &fileName);
+
+   void loadSoundEffect(const std::string &fileName, float minDistance = 5.0f);
 
    void playMusic(const std::string &fileName);
 
    void playSoundEffect(const std::string &fileName);
+
+   void playSoundEffect(const std::string &fileName, const glm::vec3 &pos, const glm::vec3 &vel = glm::vec3(0.0f));
 };
 
 #endif

@@ -84,7 +84,6 @@ void Context::checkForWinner() {
 }
 
 void Context::tick(const float dt) {
-   audioManager->update();
    inputHandler->pollInput();
 
    handleSpecialInputs(inputHandler->getInputValues(0));

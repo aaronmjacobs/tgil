@@ -39,6 +39,8 @@ public:
    virtual void onNotify(const GameObject &gameObject, Event event);
 
    btGhostObject& getGhostObject() const;
+
+   glm::vec3 getVelocity() const;
 };
 
 #endif

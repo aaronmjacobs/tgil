@@ -18,6 +18,10 @@ glm::vec3 FlyCameraComponent::getRightVector() const {
    return glm::vec3(1.0f, 0.0f, 0.0f) * glm::normalize(gameObject.getOrientation());
 }
 
+glm::vec3 FlyCameraComponent::getUpVector() const {
+   return glm::cross(getRightVector(), getFrontVector());
+}
+
 glm::mat4 FlyCameraComponent::getViewMatrix() const {
    const glm::vec3 position = getCameraPosition();
    return glm::lookAt(position,

@@ -11,6 +11,7 @@
 namespace {
 
 const int MAX_CHANNELS = 64;
+const float MAX_DISTANCE = 10000.0f;
 const float MUSIC_VOLUME = 0.8f;
 
 enum class ErrorLevel {
@@ -69,10 +70,14 @@ FMOD_RESULT F_CALLBACK debugCallback(FMOD_DEBUG_FLAGS flags, const char *file, i
    return FMOD_OK;
 }
 
+FMOD_VECTOR toFmod(const glm::vec3 &vector) {
+   return { vector.x, vector.y, vector.z };
+}
+
 } // namespace
 
 AudioManager::AudioManager()
-   : system(nullptr) {
+   : system(nullptr), musicGroup(nullptr), effectsGroup(nullptr), numListeners(1) {
 }
 
 AudioManager::~AudioManager() {
@@ -123,29 +128,45 @@ void AudioManager::init() {
    check(musicGroup->setVolume(MUSIC_VOLUME));
 }
 
-void AudioManager::update() {
+void AudioManager::update(ListenerAttributes *listeners, int numListeners) {
    ASSERT(system, "Audio system not initialized");
+   ASSERT(numListeners > 0 && numListeners < 5, "Invalid number of listeners");
+
+   if (numListeners > 0 && numListeners < 5) {
+      if (this->numListeners != numListeners) {
+         this->numListeners = numListeners;
+         check(system->set3DNumListeners(numListeners));
+      }
+
+      for (int i = 0; i < numListeners; ++i) {
+         FMOD_VECTOR position = toFmod(listeners[i].position);
+         FMOD_VECTOR velocity = toFmod(listeners[i].velocity);
+         FMOD_VECTOR forward = toFmod(listeners[i].forward);
+         FMOD_VECTOR up = toFmod(listeners[i].up);
+
+         check(system->set3DListenerAttributes(i, &position, &velocity, &forward, &up));
+      }
+   }
 
    check(system->update());
 }
 
-void AudioManager::loadSound(const std::string &fileName, SoundType type, bool threeDimensional) {
+void AudioManager::loadMusic(const std::string &fileName) {
    ASSERT(system, "Audio system not initialized");
 
    FMOD::Sound *sound;
-   FMOD_MODE mode = threeDimensional ? FMOD_3D : FMOD_DEFAULT;
+   if (check(system->createStream(IOUtils::dataPath(fileName).c_str(), FMOD_LOOP_NORMAL, nullptr, &sound))) {
+      musicMap[fileName] = sound;
+   }
+}
 
-   switch (type) {
-      case SoundType::Music:
-         if (check(system->createStream(IOUtils::dataPath(fileName).c_str(), mode | FMOD_LOOP_NORMAL, nullptr, &sound))) {
-            musicMap[fileName] = sound;
-         }
-         break;
-      case SoundType::SoundEffect:
-         if (check(system->createSound(IOUtils::dataPath(fileName).c_str(), mode, nullptr, &sound))) {
-            effectsMap[fileName] = sound;
-         }
-         break;
+void AudioManager::loadSoundEffect(const std::string &fileName, float minDistance) {
+   ASSERT(system, "Audio system not initialized");
+
+   FMOD::Sound *sound;
+   if (check(system->createSound(IOUtils::dataPath(fileName).c_str(), FMOD_3D, nullptr, &sound))) {
+      sound->set3DMinMaxDistance(minDistance, MAX_DISTANCE);
+      effectsMap[fileName] = sound;
    }
 }
 
@@ -173,4 +194,25 @@ void AudioManager::playSoundEffect(const std::string &fileName) {
    }
 
    check(system->playSound(effectsMap.at(fileName), effectsGroup, false, nullptr));
+}
+
+void AudioManager::playSoundEffect(const std::string &fileName, const glm::vec3 &pos, const glm::vec3 &vel) {
+   ASSERT(system, "Audio system not initialized");
+
+   if (!effectsMap.count(fileName)) {
+      LOG_WARNING("No sound effect with file name: " << fileName);
+      return;
+   }
+
+   FMOD::Channel *channel = nullptr;
+   check(system->playSound(effectsMap.at(fileName), effectsGroup, true, &channel));
+
+   if (!channel) {
+      return;
+   }
+
+   FMOD_VECTOR fmodPos = toFmod(pos);
+   FMOD_VECTOR fmodVel = toFmod(vel);
+   check(channel->set3DAttributes(&fmodPos, &fmodVel));
+   check(channel->setPaused(false));
 }

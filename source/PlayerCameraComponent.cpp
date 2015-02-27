@@ -25,6 +25,10 @@ glm::vec3 PlayerCameraComponent::getRightVector() const {
    return glm::vec3(1.0f, 0.0f, 0.0f) * glm::normalize(gameObject.getOrientation());
 }
 
+glm::vec3 PlayerCameraComponent::getUpVector() const {
+   return glm::cross(getRightVector(), getFrontVector());
+}
+
 glm::mat4 PlayerCameraComponent::getViewMatrix() const {
    const glm::vec3 position = getCameraPosition();
    return glm::lookAt(position,

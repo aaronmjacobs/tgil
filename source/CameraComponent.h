@@ -16,6 +16,8 @@ public:
 
    virtual glm::vec3 getRightVector() const = 0;
 
+   virtual glm::vec3 getUpVector() const = 0;
+
    virtual glm::mat4 getViewMatrix() const = 0;
 
    virtual glm::vec3 getCameraPosition() const = 0;
@@ -37,6 +39,10 @@ public:
    }
 
    virtual glm::vec3 getRightVector() const {
+      return DEFAULT_VEC3;
+   }
+
+   virtual glm::vec3 getUpVector() const {
       return DEFAULT_VEC3;
    }
 

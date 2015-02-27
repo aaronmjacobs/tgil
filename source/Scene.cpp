@@ -1,4 +1,7 @@
+#include "AudioManager.h"
+#include "CameraComponent.h"
 #include "Constants.h"
+#include "Context.h"
 #include "DebugDrawer.h"
 #include "FancyAssert.h"
 #include "GameObject.h"
@@ -9,6 +12,7 @@
 #include "PhysicsComponent.h"
 #include "PhysicsManager.h"
 #include "PlayerLogicComponent.h"
+#include "PlayerPhysicsComponent.h"
 #include "Scene.h"
 
 #include <algorithm>
@@ -107,12 +111,35 @@ void Scene::updateWinState() {
    setWinner(playerNumber);
 }
 
+void Scene::updateAudio() {
+   AudioManager &audioManager = Context::getInstance().getAudioManager();
+
+   int numPlayers = players.objects.size();
+   UPtr<ListenerAttributes[]> attributes(new ListenerAttributes[numPlayers]);
+
+   for (int i = 0; i < numPlayers; ++i) {
+      CameraComponent &cameraComponent = players.objects[i]->getCameraComponent();
+      PlayerPhysicsComponent *physicsComponent = dynamic_cast<PlayerPhysicsComponent*>(&players.objects[i]->getPhysicsComponent());
+
+      glm::vec3 velocity(0.0f);
+      if (physicsComponent) {
+         velocity = physicsComponent->getVelocity();
+      }
+
+      attributes[i] = { cameraComponent.getCameraPosition(), velocity, cameraComponent.getFrontVector(), cameraComponent.getUpVector() };
+   }
+
+   audioManager.update(attributes.get(), players.objects.size());
+}
+
 void Scene::setWinner(int player) {
    ASSERT(player >= 0 && player < MAX_PLAYERS, "Invalid player index");
    gameState.setWinner(player);
 }
 
 void Scene::tick(const float dt) {
+   updateAudio();
+
    processPendingObjects();
 
    ticking = true;

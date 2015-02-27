@@ -72,6 +72,8 @@ protected:
 
    void updateWinState();
 
+   void updateAudio();
+
 public:
    Scene();
 
