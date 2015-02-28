@@ -1,4 +1,6 @@
 #include "AssetManager.h"
+#include "AudioComponent.h"
+#include "AudioManager.h"
 #include "Context.h"
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
@@ -212,7 +214,13 @@ SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3
 
    // Logic
    player->setLogicComponent(std::make_shared<PlayerLogicComponent>(*player, color));
-      
+
+   // Audio
+   SPtr<AudioComponent> audioComponent(std::make_shared<AudioComponent>(*player));
+   audioComponent->registerSoundEvent(Event::STEP, SoundGroup::STEP);
+   audioComponent->registerSoundEvent(Event::JUMP, SoundGroup::JUMP);
+   player->setAudioComponent(audioComponent);
+
    return player;
 }
 

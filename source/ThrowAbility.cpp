@@ -1,4 +1,6 @@
 #include "AssetManager.h"
+#include "AudioComponent.h"
+#include "AudioManager.h"
 #include "CameraComponent.h"
 #include "Context.h"
 #include "Conversions.h"
@@ -129,6 +131,11 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
       }
    });
 
+   // Audio
+   SPtr<AudioComponent> audioComponent(std::make_shared<AudioComponent>(*explosion));
+   audioComponent->registerSoundEvent(Event::SET_SCENE, SoundGroup::EXPLOSION);
+   explosion->setAudioComponent(audioComponent);
+
    return explosion;
 }
 
@@ -197,6 +204,11 @@ void ThrowAbility::use() {
       scene->addObject(createExplosion(projectile->getPosition(), 1.0f));
    });
    projectile->setLogicComponent(logic);
+
+   // Audio
+   SPtr<AudioComponent> audioComponent(std::make_shared<AudioComponent>(*projectile));
+   audioComponent->registerSoundEvent(Event::SET_SCENE, SoundGroup::THROW);
+   projectile->setAudioComponent(audioComponent);
 
    scene->addObject(projectile);
 

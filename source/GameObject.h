@@ -10,6 +10,7 @@
 
 #include <functional>
 
+class AudioComponent;
 class CameraComponent;
 class GraphicsComponent;
 class InputComponent;
@@ -27,6 +28,7 @@ protected:
    WPtr<Scene> wScene;
 
    // Components
+   SPtr<AudioComponent> audioComponent;
    SPtr<CameraComponent> cameraComponent;
    SPtr<GraphicsComponent> graphicsComponent;
    SPtr<InputComponent> inputComponent;
@@ -83,6 +85,7 @@ public:
       tickCallback = nullptr;
    }
 
+   AudioComponent& getAudioComponent() const;
    CameraComponent& getCameraComponent() const;
    GraphicsComponent& getGraphicsComponent() const;
    InputComponent& getInputComponent() const;
@@ -90,6 +93,7 @@ public:
    LogicComponent& getLogicComponent() const;
    PhysicsComponent& getPhysicsComponent() const;
 
+   void setAudioComponent(SPtr<AudioComponent> audioComponent);
    void setCameraComponent(SPtr<CameraComponent> cameraComponent);
    void setGraphicsComponent(SPtr<GraphicsComponent> graphicsComponent);
    void setInputComponent(SPtr<InputComponent> inputComponent);

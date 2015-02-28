@@ -6,6 +6,7 @@
 #include <FMOD/fmod.hpp>
 #include <FMOD/fmod_errors.h>
 
+#include <random>
 #include <sstream>
 
 namespace {
@@ -13,6 +14,8 @@ namespace {
 const int MAX_CHANNELS = 64;
 const float MAX_DISTANCE = 10000.0f;
 const float MUSIC_VOLUME = 0.8f;
+
+std::default_random_engine generator;
 
 enum class ErrorLevel {
    Warning,
@@ -76,6 +79,33 @@ FMOD_VECTOR toFmod(const glm::vec3 &vector) {
 
 } // namespace
 
+// SoundGroup
+
+SoundGroup::SoundGroup(const std::vector<std::string> &soundFiles, bool stream, bool threeDimensional, float minDistance)
+   : soundFiles(soundFiles), stream(stream), threeDimensional(threeDimensional), minDistance(minDistance) {
+   ASSERT(!soundFiles.empty(), "Must have at least one sound");
+}
+
+SoundGroup::~SoundGroup() {
+}
+
+const std::string& SoundGroup::getSoundFile() const {
+   std::uniform_int_distribution<size_t> distribution(0, soundFiles.size() - 1);
+   return soundFiles[distribution(generator)];
+}
+
+// Music
+const SoundGroup SoundGroup::OH_YEAH({"music/ohyeah.ogg"}, true, false, 0.0f);
+
+// Sound effects
+const SoundGroup SoundGroup::JUMP({"sounds/jump/jump1.ogg", "sounds/jump/jump2.ogg", "sounds/jump/jump3.ogg"}, false, true, 3.0f);
+const SoundGroup SoundGroup::STEP({"sounds/step/step1.ogg", "sounds/step/step2.ogg", "sounds/step/step3.ogg"}, false, true, 1.0f);
+const SoundGroup SoundGroup::EXPLOSION({"sounds/explosion.ogg"}, false, true, 5.0f);
+const SoundGroup SoundGroup::SHOVE({"sounds/shove.ogg"}, false, true, 5.0f);
+const SoundGroup SoundGroup::THROW({"sounds/throw.ogg"}, false, true, 5.0f);
+
+// AudioManager
+
 AudioManager::AudioManager()
    : system(nullptr), musicGroup(nullptr), effectsGroup(nullptr), numListeners(1) {
 }
@@ -91,6 +121,36 @@ void AudioManager::release() {
 
       if (result != FMOD_OK) {
          LOG_WARNING("Unable to release FMOD system");
+      }
+   }
+}
+
+void AudioManager::load(const SoundGroup &soundGroup) {
+   ASSERT(system, "Audio system not initialized");
+
+   FMOD_MODE mode = FMOD_DEFAULT;
+   if (soundGroup.isThreeDimensional()) {
+      mode |= FMOD_3D;
+   }
+
+   if (soundGroup.isStream()) {
+      mode |= FMOD_LOOP_NORMAL;
+
+      for (const std::string &fileName : soundGroup.getSoundFiles()) {
+         FMOD::Sound *sound;
+         if (check(system->createStream(IOUtils::dataPath(fileName).c_str(), mode, nullptr, &sound))) {
+            soundMap[fileName] = sound;
+         }
+      }
+   } else {
+      for (const std::string &fileName : soundGroup.getSoundFiles()) {
+         FMOD::Sound *sound;
+         if (check(system->createSound(IOUtils::dataPath(fileName).c_str(), mode, nullptr, &sound))) {
+            if (soundGroup.isThreeDimensional()) {
+               sound->set3DMinMaxDistance(soundGroup.getMinDistance(), MAX_DISTANCE);
+            }
+            soundMap[fileName] = sound;
+         }
       }
    }
 }
@@ -126,6 +186,15 @@ void AudioManager::init() {
    check(system->createChannelGroup("effects", &effectsGroup));
 
    check(musicGroup->setVolume(MUSIC_VOLUME));
+
+   load(SoundGroup::OH_YEAH);
+   load(SoundGroup::JUMP);
+   load(SoundGroup::STEP);
+   load(SoundGroup::EXPLOSION);
+   load(SoundGroup::SHOVE);
+   load(SoundGroup::THROW);
+
+   play(SoundGroup::OH_YEAH);
 }
 
 void AudioManager::update(ListenerAttributes *listeners, int numListeners) {
@@ -151,68 +220,38 @@ void AudioManager::update(ListenerAttributes *listeners, int numListeners) {
    check(system->update());
 }
 
-void AudioManager::loadMusic(const std::string &fileName) {
+void AudioManager::play(const SoundGroup &soundGroup, const glm::vec3 &pos, const glm::vec3 &vel) {
    ASSERT(system, "Audio system not initialized");
 
-   FMOD::Sound *sound;
-   if (check(system->createStream(IOUtils::dataPath(fileName).c_str(), FMOD_LOOP_NORMAL, nullptr, &sound))) {
-      musicMap[fileName] = sound;
-   }
-}
-
-void AudioManager::loadSoundEffect(const std::string &fileName, float minDistance) {
-   ASSERT(system, "Audio system not initialized");
-
-   FMOD::Sound *sound;
-   if (check(system->createSound(IOUtils::dataPath(fileName).c_str(), FMOD_3D, nullptr, &sound))) {
-      sound->set3DMinMaxDistance(minDistance, MAX_DISTANCE);
-      effectsMap[fileName] = sound;
-   }
-}
-
-void AudioManager::playMusic(const std::string &fileName) {
-   ASSERT(system, "Audio system not initialized");
-
-   if (!musicMap.count(fileName)) {
-      LOG_WARNING("No music with file name: " << fileName);
-      return;
-   }
-
-   FMOD::Channel *channel = nullptr;
-   check(system->playSound(musicMap.at(fileName), musicGroup, false, &channel));
-   if (channel) {
-      check(channel->setLoopCount(-1));
-   }
-}
-
-void AudioManager::playSoundEffect(const std::string &fileName) {
-   ASSERT(system, "Audio system not initialized");
-
-   if (!effectsMap.count(fileName)) {
+   const std::string &fileName = soundGroup.getSoundFile();
+   if (!soundMap.count(fileName)) {
       LOG_WARNING("No sound effect with file name: " << fileName);
       return;
    }
 
-   check(system->playSound(effectsMap.at(fileName), effectsGroup, false, nullptr));
-}
-
-void AudioManager::playSoundEffect(const std::string &fileName, const glm::vec3 &pos, const glm::vec3 &vel) {
-   ASSERT(system, "Audio system not initialized");
-
-   if (!effectsMap.count(fileName)) {
-      LOG_WARNING("No sound effect with file name: " << fileName);
-      return;
+   FMOD::ChannelGroup *group;
+   if (soundGroup.isStream()) {
+      group = musicGroup;
+   } else {
+      group = effectsGroup;
    }
 
    FMOD::Channel *channel = nullptr;
-   check(system->playSound(effectsMap.at(fileName), effectsGroup, true, &channel));
+   check(system->playSound(soundMap.at(fileName), group, true, &channel));
 
    if (!channel) {
       return;
    }
 
-   FMOD_VECTOR fmodPos = toFmod(pos);
-   FMOD_VECTOR fmodVel = toFmod(vel);
-   check(channel->set3DAttributes(&fmodPos, &fmodVel));
+   if (soundGroup.isThreeDimensional()) {
+      FMOD_VECTOR fmodPos = toFmod(pos);
+      FMOD_VECTOR fmodVel = toFmod(vel);
+      check(channel->set3DAttributes(&fmodPos, &fmodVel));
+   }
+
+   if (soundGroup.isStream()) {
+      check(channel->setLoopCount(-1));
+   }
+
    check(channel->setPaused(false));
 }

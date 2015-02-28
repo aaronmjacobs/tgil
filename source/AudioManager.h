@@ -5,6 +5,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace FMOD {
 
@@ -23,6 +24,47 @@ struct ListenerAttributes {
    glm::vec3 up;
 };
 
+class SoundGroup {
+protected:
+   const std::vector<std::string> soundFiles;
+   const bool stream;
+   const bool threeDimensional;
+   const float minDistance;
+
+   SoundGroup(const std::vector<std::string> &soundFiles, bool stream, bool threeDimensional, float minDistance);
+
+public:
+   // Music
+   static const SoundGroup OH_YEAH;
+
+   // Sound effects
+   static const SoundGroup JUMP;
+   static const SoundGroup STEP;
+   static const SoundGroup EXPLOSION;
+   static const SoundGroup SHOVE;
+   static const SoundGroup THROW;
+
+   virtual ~SoundGroup();
+
+   const std::string& getSoundFile() const;
+
+   const std::vector<std::string>& getSoundFiles() const {
+      return soundFiles;
+   }
+
+   bool isStream() const {
+      return stream;
+   }
+
+   bool isThreeDimensional() const {
+      return threeDimensional;
+   }
+
+   float getMinDistance() const {
+      return minDistance;
+   }
+};
+
 class AudioManager {
 protected:
    FMOD::System *system;
@@ -32,9 +74,13 @@ protected:
    SoundMap musicMap;
    SoundMap effectsMap;
 
+   SoundMap soundMap;
+
    int numListeners;
 
    void release();
+
+   void load(const SoundGroup &soundGroup);
 
 public:
    AudioManager();
@@ -45,15 +91,7 @@ public:
 
    void update(ListenerAttributes *listeners, int numListeners);
 
-   void loadMusic(const std::string &fileName);
-
-   void loadSoundEffect(const std::string &fileName, float minDistance = 5.0f);
-
-   void playMusic(const std::string &fileName);
-
-   void playSoundEffect(const std::string &fileName);
-
-   void playSoundEffect(const std::string &fileName, const glm::vec3 &pos, const glm::vec3 &vel = glm::vec3(0.0f));
+   void play(const SoundGroup &soundGroup, const glm::vec3 &pos = glm::vec3(0.0f), const glm::vec3 &vel = glm::vec3(0.0f));
 };
 
 #endif

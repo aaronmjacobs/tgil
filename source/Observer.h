@@ -4,7 +4,9 @@
 enum class Event {
    NOTHING,
    SET_SCENE,
-   SCALE
+   SCALE,
+   STEP,
+   JUMP
 };
 
 /**

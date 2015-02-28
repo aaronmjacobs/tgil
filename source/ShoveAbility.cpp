@@ -1,4 +1,6 @@
 #include "AssetManager.h"
+#include "AudioComponent.h"
+#include "AudioManager.h"
 #include "CameraComponent.h"
 #include "Context.h"
 #include "Conversions.h"
@@ -166,6 +168,11 @@ void ShoveAbility::use() {
          rigidBody->applyCentralForce(force);
       }
    });
+
+   // Audio
+   SPtr<AudioComponent> audioComponent(std::make_shared<AudioComponent>(*shove));
+   audioComponent->registerSoundEvent(Event::SET_SCENE, SoundGroup::SHOVE);
+   shove->setAudioComponent(audioComponent);
 
    scene->addObject(shove);
 

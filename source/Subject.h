@@ -15,7 +15,17 @@ class Subject {
 private:
    std::vector<WPtr<Observer<Entity>>> observers;
 
-protected:
+public:
+   virtual ~Subject() {}
+
+   void addObserver(SPtr<Observer<Entity>> observer) {
+      observers.push_back(observer);
+   }
+
+   void removeObserver(SPtr<Observer<Entity>> observer) {
+      observers.erase(std::remove(observers.begin(), observers.end(), observer), observers.end());
+   }
+
    void notify(const Entity &entity, Event event) {
       for (typename std::vector<WPtr<Observer<Entity>>>::iterator itr = observers.begin(); itr != observers.end();) {
          SPtr<Observer<Entity>> observer = itr->lock();
@@ -26,17 +36,6 @@ protected:
             itr = observers.erase(itr);
          }
       }
-   }
-
-public:
-   virtual ~Subject() {}
-
-   void addObserver(SPtr<Observer<Entity>> observer) {
-      observers.push_back(observer);
-   }
-
-   void removeObserver(SPtr<Observer<Entity>> observer) {
-      observers.erase(std::remove(observers.begin(), observers.end(), observer), observers.end());
    }
 };
 

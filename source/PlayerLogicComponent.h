@@ -23,6 +23,7 @@ protected:
    bool alive;
    bool wasJumpingLastFrame;
    bool canDoubleJump;
+   float distanceSinceStep;
    glm::vec3 color;
    SPtr<Ability> primaryAbility;
    SPtr<Ability> secondaryAbility;

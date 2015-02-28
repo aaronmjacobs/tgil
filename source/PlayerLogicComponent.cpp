@@ -28,6 +28,7 @@ const float MAX_MOVE_FORCE = 150.0f;
 const float NORMAL_MOVE_FORCE = 150.0f;
 const float AIR_MOVE_MULTIPLIER = 0.05f;
 const float JUMP_IMPULSE = 7.0f;
+const float STEP_DISTANCE = 1.3f;
 
 // Ground / friction constants
 const float FRICTION_CONSTANT = 30.0f;
@@ -53,7 +54,7 @@ float calcHorizontalMovementForce(glm::vec3 velocity, folly::Optional<Ground> gr
 } // namespace
 
 PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color)
-   : LogicComponent(gameObject), alive(true), wasJumpingLastFrame(false), canDoubleJump(false), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
+   : LogicComponent(gameObject), alive(true), wasJumpingLastFrame(false), canDoubleJump(false), distanceSinceStep(STEP_DISTANCE), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
 }
 
 PlayerLogicComponent::~PlayerLogicComponent() {
@@ -179,6 +180,7 @@ glm::vec3 PlayerLogicComponent::calcJumpImpulse(const InputValues &inputValues, 
    if (inputValues.jump && !wasJumpingLastFrame && (onGround || canDoubleJump)) {
       wasJumpingLastFrame = true;
       jumpImpulse += glm::vec3(0.0f, JUMP_IMPULSE, 0.0f);
+      gameObject.notify(gameObject, Event::JUMP);
 
       if (!onGround && canDoubleJump) {
          canDoubleJump = false;
@@ -255,6 +257,19 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
       } else {
          // If not, clear the ground
          ground = folly::none;
+      }
+   }
+
+   // Step
+   if (ground) {
+      btVector3 horizontalVelocity = velocity;
+      horizontalVelocity.setY(0.0f);
+
+      distanceSinceStep += horizontalVelocity.length() * dt;
+
+      if (distanceSinceStep >= STEP_DISTANCE) {
+         distanceSinceStep = 0.0f;
+         gameObject.notify(gameObject, Event::STEP);
       }
    }
 

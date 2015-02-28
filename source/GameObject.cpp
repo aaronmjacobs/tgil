@@ -1,3 +1,4 @@
+#include "AudioComponent.h"
 #include "CameraComponent.h"
 #include "GameObject.h"
 #include "GraphicsComponent.h"
@@ -29,7 +30,19 @@ void GameObject::tick(const float dt) {
 
 void GameObject::setScene(WPtr<Scene> scene) {
    wScene = scene;
-   notify(*this, Event::SET_SCENE);
+
+   if (!scene.expired()) {
+      notify(*this, Event::SET_SCENE);
+   }
+}
+
+AudioComponent& GameObject::getAudioComponent() const {
+   return *audioComponent;
+}
+
+void GameObject::setAudioComponent(SPtr<AudioComponent> audioComponent) {
+   this->audioComponent = audioComponent;
+   addObserver(audioComponent);
 }
 
 CameraComponent& GameObject::getCameraComponent() const {
@@ -79,4 +92,5 @@ PhysicsComponent& GameObject::getPhysicsComponent() const {
 void GameObject::setPhysicsComponent(SPtr<PhysicsComponent> physicsComponent) {
    this->physicsComponent = physicsComponent;
    physicsComponent->init();
+   addObserver(physicsComponent);
 }

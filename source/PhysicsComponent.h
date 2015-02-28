@@ -30,7 +30,7 @@ enum Group : short {
 
 } // namsepace CollisionGroup
 
-class PhysicsComponent : public Component, public Observer<GameObject>, public std::enable_shared_from_this<PhysicsComponent> {
+class PhysicsComponent : public Component, public Observer<GameObject> {
 protected:
    const CollisionGroup::Group collisionGroup;
    const short collisionMask;

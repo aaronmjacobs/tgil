@@ -27,9 +27,6 @@ void PhysicsComponent::init() {
    ASSERT(collisionShape, "Collision shape not instantiated by physics component");
 
    collisionObject->setUserPointer(&gameObject);
-
-   // Listen for events from the game object
-   gameObject.addObserver(shared_from_this());
 }
 
 void PhysicsComponent::addToManager(SPtr<PhysicsManager> manager) {
