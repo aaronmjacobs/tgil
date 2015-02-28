@@ -34,11 +34,6 @@ protected:
 
    glm::vec3 calcMoveIntention(const InputValues &inputValues) const;
 
-   /**
-    * Calculates how related the two given vectors are (in terms of direction), from 0 (same direction) to 1 (opposite directions)
-    */
-   float calcRelation(const glm::vec3 &first, const glm::vec3 &second);
-
    glm::vec3 calcJumpImpulse(const InputValues &inputValues, const glm::vec3 &velocity, const glm::vec3 &horizontalMoveIntention, bool onGround);
 
    void handleOrientation(const float dt, const InputValues &inputValues);
