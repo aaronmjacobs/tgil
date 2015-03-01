@@ -24,6 +24,7 @@ protected:
    bool wasJumpingLastFrame;
    bool canDoubleJump;
    float distanceSinceStep;
+   float deathTime;
    glm::vec3 color;
    SPtr<Ability> primaryAbility;
    SPtr<Ability> secondaryAbility;
@@ -57,9 +58,9 @@ public:
       return alive;
    }
 
-   void setAlive(bool alive) {
-      this->alive = alive;
-   }
+   void setAlive(bool alive);
+
+   float timeSinceDeath() const;
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "CameraComponent.h"
 #include "Conversions.h"
+#include "Context.h"
 #include "FancyAssert.h"
 #include "GameObject.h"
 #include "InputComponent.h"
@@ -81,7 +82,7 @@ float calcHorizontalMovementForce(glm::vec3 velocity, const glm::vec3 &horizonta
 } // namespace
 
 PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color)
-   : LogicComponent(gameObject), alive(true), wasJumpingLastFrame(false), canDoubleJump(false), distanceSinceStep(STEP_DISTANCE), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
+   : LogicComponent(gameObject), alive(true), wasJumpingLastFrame(false), canDoubleJump(false), distanceSinceStep(STEP_DISTANCE), deathTime(0.0f), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
 }
 
 PlayerLogicComponent::~PlayerLogicComponent() {
@@ -328,4 +329,20 @@ void PlayerLogicComponent::tick(const float dt) {
       handleMovement(dt, inputValues, scene);
       handleAttack(dt, inputValues, scene);
    }
+}
+
+void PlayerLogicComponent::setAlive(bool alive) {
+   if (this->alive == alive) {
+      return;
+   }
+
+   this->alive = alive;
+
+   if (!alive) {
+      deathTime = Context::getInstance().getRunningTime();
+   }
+}
+
+float PlayerLogicComponent::timeSinceDeath() const {
+   return Context::getInstance().getRunningTime() - deathTime;
 }

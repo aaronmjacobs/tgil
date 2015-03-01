@@ -130,6 +130,8 @@ void Renderer::init(float fov, int width, int height) {
 
    hudRenderer.init();
 
+   postProcessRenderer.init();
+
    debugRenderer.init();
 }
 
@@ -229,7 +231,15 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    }
 
    glDisable(GL_DEPTH_TEST);
+
    hudRenderer.render(width, height);
+
+   PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&camera.getLogicComponent());
+   if (playerLogic && !playerLogic->isAlive()) {
+      float opacity = 0.75f * glm::min(1.0f, playerLogic->timeSinceDeath());
+      postProcessRenderer.render(opacity, glm::vec3(0.0f));
+   }
+
    glEnable(GL_DEPTH_TEST);
 }
 

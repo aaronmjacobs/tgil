@@ -1,8 +1,9 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "HUDRenderer.h"
 #include "DebugRenderer.h"
+#include "HUDRenderer.h"
+#include "PostProcessRenderer.h"
 
 #include <glm/glm.hpp>
 
@@ -14,6 +15,11 @@ protected:
     * Renderer used to draw the HUD for each player
     */
    HUDRenderer hudRenderer;
+
+   /**
+    * Renderer used to draw post-processing effects
+    */
+   PostProcessRenderer postProcessRenderer;
 
    /**
     * Renderer used to draw debug physics information
