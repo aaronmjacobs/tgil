@@ -1,17 +1,20 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "HUDRenderer.h"
 #include "DebugRenderer.h"
 
 #include <glm/glm.hpp>
 
-class Context;
 class GameObject;
-class Model;
-class TextureMaterial;
 
 class Renderer {
 protected:
+   /**
+    * Renderer used to draw the HUD for each player
+    */
+   HUDRenderer hudRenderer;
+
    /**
     * Renderer used to draw debug physics information
     */

@@ -45,6 +45,7 @@ set(SOURCES
    ${SRC_DIR}/GameObjectMotionState.cpp
    ${SRC_DIR}/GeometricGraphicsComponent.cpp
    ${SRC_DIR}/GhostPhysicsComponent.cpp
+   ${SRC_DIR}/HUDRenderer.cpp
    ${SRC_DIR}/InputComponent.cpp
    ${SRC_DIR}/InputHandler.cpp
    ${SRC_DIR}/IOUtils.cpp
@@ -102,6 +103,7 @@ set(HEADERS
    ${SRC_DIR}/GhostPhysicsComponent.h
    ${SRC_DIR}/GLIncludes.h
    ${SRC_DIR}/GraphicsComponent.h
+   ${SRC_DIR}/HUDRenderer.h
    ${SRC_DIR}/InputComponent.h
    ${SRC_DIR}/InputDevice.h
    ${SRC_DIR}/InputHandler.h

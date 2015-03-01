@@ -120,9 +120,15 @@ void Renderer::init(float fov, int width, int height) {
    glEnable(GL_CULL_FACE);
    glCullFace(GL_BACK);
 
+   // Transparency
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
    this->fov = fov;
 
    onFramebufferSizeChange(width, height);
+
+   hudRenderer.init();
 
    debugRenderer.init();
 }
@@ -221,6 +227,10 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    if (renderDebug) {
       renderDebugInfo(scene, viewMatrix);
    }
+
+   glDisable(GL_DEPTH_TEST);
+   hudRenderer.render(width, height);
+   glEnable(GL_DEPTH_TEST);
 }
 
 void Renderer::renderDebugInfo(Scene &scene, const glm::mat4 &viewMatrix) {

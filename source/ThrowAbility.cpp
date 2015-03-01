@@ -158,7 +158,7 @@ void ThrowAbility::use() {
       return;
    }
 
-   const glm::vec3 &position = gameObject.getPosition();
+   const glm::vec3 &position = gameObject.getCameraComponent().getCameraPosition();
    const glm::vec3 &front = gameObject.getCameraComponent().getFrontVector();
 
    SPtr<GameObject> projectile(std::make_shared<GameObject>());
