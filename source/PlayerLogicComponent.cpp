@@ -13,9 +13,10 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
-// For some reason, min is defined on Windows, which conflicts with glm::min
+// For some reason, min and max are defined on Windows, which conflicts with glm::min / glm::max
 #ifdef _WIN32
 #undef min
+#undef max
 #endif // _WIN32
 
 namespace {

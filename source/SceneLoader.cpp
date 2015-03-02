@@ -399,7 +399,7 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    GLuint lavatileTextureID = assetManager.loadTexture("textures/lavatile2.jpg", TextureWrap::Repeat);
    GLuint noiseID = assetManager.loadTexture("textures/cloud.png", TextureWrap::Repeat);
 
-   SPtr<PhongMaterial> boxMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.1f, 0.3f, 0.8f), 0.2f, 50.0f);
+   SPtr<PhongMaterial> boxMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(1.0f), 0.2f, 50.0f);
    //SPtr<PhongMaterial> planeMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.4f), 0.2f, 50.0f);
    SPtr<TextureMaterial> rockMaterial(std::make_shared<TextureMaterial>(*phongTextureShaderProgram, rockTextureID, "uTexture"));
    //SPtr<TextureMaterial> lavaMaterial(std::make_shared<TextureMaterial>(*tilingTextureShaderProgram, lavaTextureID, "uTexture"));

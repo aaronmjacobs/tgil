@@ -55,7 +55,7 @@ void main() {
                     + uLights[i].squareFalloff * lightDistance * lightDistance);
       }
 
-      finalColor += (surfaceColor * diffuseAmount
+      finalColor += (surfaceColor * uMaterial.diffuse * diffuseAmount
                   + uMaterial.specular * specularAmount)
                   * falloff * uLights[i].color;
    }
