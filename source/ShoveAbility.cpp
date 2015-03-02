@@ -101,7 +101,7 @@ void ShoveAbility::use() {
    shove->getGraphicsComponent().setModel(model);
 
    // Physics
-   shove->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*shove, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries));
+   shove->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*shove, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries | CollisionGroup::Projectiles));
 
    // Logic
    const float startTime = glfwGetTime();

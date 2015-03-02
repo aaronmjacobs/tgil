@@ -100,7 +100,7 @@ void PlayerPhysicsComponent::addToManager(SPtr<PhysicsManager> manager) {
 
    PhysicsComponent::addToManager(manager);
 
-   manager->getDynamicsWorld().addCollisionObject(ghostObject.get(), CollisionGroup::Ghosts, CollisionGroup::Everything);
+   manager->getDynamicsWorld().addCollisionObject(ghostObject.get(), CollisionGroup::Ghosts, CollisionGroup::Everything ^ CollisionGroup::Projectiles);
 }
 
 void PlayerPhysicsComponent::removeFromManager(SPtr<PhysicsManager> manager) {

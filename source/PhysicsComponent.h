@@ -25,6 +25,7 @@ enum Group : short {
    Sensors = BIT(4),
    Characters = BIT(5),
    Ghosts = BIT(6),
+   Projectiles = BIT(7),
    Everything = -1
 };
 

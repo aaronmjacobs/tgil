@@ -83,7 +83,7 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
    explosion->getGraphicsComponent().setModel(model);
 
    // Physics
-   explosion->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*explosion, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries));
+   explosion->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*explosion, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries | CollisionGroup::Projectiles));
 
    // Logic
    const float startTime = glfwGetTime();
@@ -175,7 +175,7 @@ void ThrowAbility::use() {
    projectile->getGraphicsComponent().setModel(model);
 
    // Physics
-   projectile->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*projectile, 0.05f, CollisionGroup::Default, CollisionGroup::Everything));
+   projectile->setPhysicsComponent(std::make_shared<MeshPhysicsComponent>(*projectile, 0.05f, CollisionGroup::Projectiles, CollisionGroup::Everything));
    btRigidBody *projectileRigidBody = dynamic_cast<btRigidBody*>(projectile->getPhysicsComponent().getCollisionObject());
    projectileRigidBody->setFriction(1.0f);
    projectileRigidBody->setRollingFriction(0.25f);
