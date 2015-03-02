@@ -393,10 +393,10 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    SPtr<ShaderProgram> skyboxShaderProgram = loadSkyboxShaderProgram(assetManager);
 
    //GLuint lavaTextureID = assetManager.loadTexture("textures/lava.png", TextureWrap::Repeat);
-   GLuint rockTextureID = assetManager.loadTexture("textures/rock.png", TextureWrap::Repeat);
+   GLuint rockTextureID = assetManager.loadTexture("textures/soil.jpg", TextureWrap::Repeat);
    GLuint skyboxID = assetManager.loadCubemap("textures/desert", "jpg");
 
-   GLuint lavatileTextureID = assetManager.loadTexture("textures/lavatile.jpg", TextureWrap::Repeat);
+   GLuint lavatileTextureID = assetManager.loadTexture("textures/lavatile2.jpg", TextureWrap::Repeat);
    GLuint noiseID = assetManager.loadTexture("textures/cloud.png", TextureWrap::Repeat);
 
    SPtr<PhongMaterial> boxMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.1f, 0.3f, 0.8f), 0.2f, 50.0f);
@@ -429,12 +429,12 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
 
    // Light
    float sunDistance = 300.0f;
-   glm::vec3 sunPos = glm::vec3(-1.0f, 0.8f, 0.5f) * sunDistance;
+   glm::vec3 sunPos = glm::vec3(-1.0f, 3.0f, 0.5f) * sunDistance;
    float sunIntensity = 2.0f;
    glm::vec3 sunColor = glm::normalize(glm::vec3(1.0f, 0.95f, 0.75f)) * sunIntensity;
    scene->addLight(createLight(sunPos, sunColor, 0.0f, 0.0f, 0.0f));
 
-   glm::vec3 lavaLightColor(0.9f, 0.4f, 0.1f);
+   glm::vec3 lavaLightColor = glm::vec3(0.9f, 0.4f, 0.1f) * 0.5f;
    scene->addLight(createLight(glm::vec3(-80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
    scene->addLight(createLight(glm::vec3(80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
    scene->addLight(createLight(glm::vec3(-80.0f, -50.0f, 80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
