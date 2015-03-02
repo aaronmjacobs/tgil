@@ -582,7 +582,7 @@ SPtr<Scene> loadSparsePlatformScene(const Context &context) {
    return loadBasicScene(context, spawnLocations, [SIZE, DISTANCE, PLATFORM_HEIGHT, platformScale](Scene &scene, SPtr<Model> boxModel) {
       const float HEIGHT_RANGE = 2.0f;
       std::default_random_engine generator;
-      std::uniform_int_distribution<float> distribution(-HEIGHT_RANGE, HEIGHT_RANGE);
+      std::uniform_real_distribution<float> distribution(-HEIGHT_RANGE, HEIGHT_RANGE);
 
       for (float x = -SIZE; x < SIZE; x += DISTANCE) {
          for (float z = -SIZE; z < SIZE; z += DISTANCE) {
