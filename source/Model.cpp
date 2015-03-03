@@ -6,10 +6,8 @@
 
 #include <string>
 
-Model::Model(SPtr<ShaderProgram> shaderProgram, SPtr<Material> material, SPtr<Mesh> mesh)
+Model::Model(SPtr<ShaderProgram> shaderProgram, SPtr<Mesh> mesh)
    : shaderProgram(shaderProgram), mesh(mesh) {
-   materials.push_back(material);
-
    glGenVertexArrays(1, &vao);
    glBindVertexArray(vao);
 
@@ -66,6 +64,10 @@ void Model::draw() {
 
 void Model::attachMaterial(SPtr<Material> material) {
    materials.push_back(material);
+}
+
+void Model::clearMaterials() {
+   materials.clear();
 }
 
 const Mesh& Model::getMesh() const {

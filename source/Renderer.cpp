@@ -233,21 +233,25 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
 
    glDisable(GL_DEPTH_TEST);
 
-   hudRenderer.render(width, height);
-
-   int playerNum = camera.getInputComponent().getPlayerNum();
-   if (scene.getGameState().hasWinner() && scene.getGameState().getWinner() == playerNum) {
-      float runningTime = Context::getInstance().getRunningTime() * 5.0f;
-      float offset = glm::pi<float>() * 2.0f / 3.0f;
-      float red = (glm::sin(runningTime) + 1.0f) / 2.0f;
-      float green = (glm::sin(runningTime + offset) + 1.0f) / 2.0f;
-      float blue = (glm::sin(runningTime + offset * 2.0f) + 1.0f) / 2.0f;
-      postProcessRenderer.render(0.5f, glm::vec3(red, green, blue));
-   }
    PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&camera.getLogicComponent());
-   if (playerLogic && !playerLogic->isAlive()) {
-      float opacity = 0.75f * glm::min(1.0f, playerLogic->timeSinceDeath());
-      postProcessRenderer.render(opacity, glm::vec3(0.0f));
+
+   if (playerLogic) {
+      hudRenderer.render(*playerLogic, width, height);
+
+      int playerNum = camera.getInputComponent().getPlayerNum();
+      if (scene.getGameState().hasWinner() && scene.getGameState().getWinner() == playerNum) {
+         float runningTime = Context::getInstance().getRunningTime() * 5.0f;
+         float offset = glm::pi<float>() * 2.0f / 3.0f;
+         float red = (glm::sin(runningTime) + 1.0f) / 2.0f;
+         float green = (glm::sin(runningTime + offset) + 1.0f) / 2.0f;
+         float blue = (glm::sin(runningTime + offset * 2.0f) + 1.0f) / 2.0f;
+         postProcessRenderer.render(0.5f, glm::vec3(red, green, blue));
+      }
+
+      if (!playerLogic->isAlive()) {
+         float opacity = 0.75f * glm::min(1.0f, playerLogic->timeSinceDeath());
+         postProcessRenderer.render(opacity, glm::vec3(0.0f));
+      }
    }
 
    glEnable(GL_DEPTH_TEST);

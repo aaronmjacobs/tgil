@@ -23,8 +23,16 @@ public:
    virtual ~Ability() {
    }
 
-   bool isOnCooldown() {
+   bool isOnCooldown() const {
       return timeSinceLastUse < cooldown;
+   }
+
+   float getCooldownTime() const {
+      return cooldown;
+   }
+
+   float getRemainingCooldownTime() const {
+      return isOnCooldown() ? cooldown - timeSinceLastUse : 0.0f;
    }
 
    virtual void tick(const float dt) {

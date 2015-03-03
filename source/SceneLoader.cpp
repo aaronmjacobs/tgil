@@ -195,7 +195,8 @@ SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3
    player->setPosition(position);
 
    // Graphics
-   SPtr<Model> model(std::make_shared<Model>(shaderProgram, createPhongMaterial(*shaderProgram, color, 0.2f, 50.0f), mesh));
+   SPtr<Model> model(std::make_shared<Model>(shaderProgram, mesh));
+   model->attachMaterial(createPhongMaterial(*shaderProgram, color, 0.2f, 50.0f));
    player->setGraphicsComponent(std::make_shared<PlayerGraphicsComponent>(*player));
    player->getGraphicsComponent().setModel(model);
 
@@ -413,11 +414,14 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
    SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
 
-   SPtr<Model> skyboxModel(std::make_shared<Model>(skyboxShaderProgram, skyboxMaterial, skyboxMesh));
-   SPtr<Model> boxModel(std::make_shared<Model>(phongTextureShaderProgram, rockMaterial, boxMesh));
+   SPtr<Model> skyboxModel(std::make_shared<Model>(skyboxShaderProgram, skyboxMesh));
+   skyboxModel->attachMaterial(skyboxMaterial);
+   SPtr<Model> boxModel(std::make_shared<Model>(phongTextureShaderProgram, boxMesh));
+   boxModel->attachMaterial(rockMaterial);
    boxModel->attachMaterial(boxMaterial);
    //SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMaterial, planeMesh));
-   SPtr<Model> lavaModel(std::make_shared<Model>(lavaShaderProgram, lavatileMaterial, planeMesh));
+   SPtr<Model> lavaModel(std::make_shared<Model>(lavaShaderProgram, planeMesh));
+   lavaModel->attachMaterial(lavatileMaterial);
    lavaModel->attachMaterial(noiseMaterial);
    lavaModel->attachMaterial(timeMaterial);
    //SPtr<Model> lavalModel(std::make_shared<Model>(tilingTextureShaderProgram, lavaMaterial, planeMesh));
@@ -486,8 +490,10 @@ SPtr<Scene> loadTowerScene(const Context &context) {
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
    SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
 
-   SPtr<Model> boxModel(std::make_shared<Model>(phongShaderProgram, boxMaterial, boxMesh));
-   SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMaterial, planeMesh));
+   SPtr<Model> boxModel(std::make_shared<Model>(phongShaderProgram, boxMesh));
+   boxModel->attachMaterial(boxMaterial);
+   SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMesh));
+   planeModel->attachMaterial(planeMaterial);
 
    // Light
    scene->addLight(createLight(glm::vec3(0.0f, 50.0f, 0.0f), glm::vec3(0.7f), 0.001f, 0.0005f, 0.0001f));

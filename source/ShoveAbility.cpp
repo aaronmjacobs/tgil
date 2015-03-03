@@ -96,7 +96,8 @@ void ShoveAbility::use() {
    glm::vec3 color(1.0f, 0.35f, 0.15f);
    SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
    SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
-   SPtr<Model> model(std::make_shared<Model>(shaderProgram, material, mesh));
+   SPtr<Model> model(std::make_shared<Model>(shaderProgram, mesh));
+   model->attachMaterial(material);
    shove->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*shove));
    shove->getGraphicsComponent().setModel(model);
 

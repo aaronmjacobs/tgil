@@ -61,6 +61,10 @@ public:
    void setAlive(bool alive);
 
    float timeSinceDeath() const;
+
+   const Ability &getPrimaryAbility() const;
+
+   const Ability &getSecondaryAbility() const;
 };
 
 #endif

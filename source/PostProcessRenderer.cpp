@@ -67,7 +67,8 @@ void PostProcessRenderer::loadPlane() {
 
    // TODO Hardcode the mesh
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xy_plane.obj");
-   xyPlane = UPtr<Model>(new Model(shaderProgram, material, planeMesh));
+   xyPlane = UPtr<Model>(new Model(shaderProgram, planeMesh));
+   xyPlane->attachMaterial(material);
 }
 
 void PostProcessRenderer::init() {

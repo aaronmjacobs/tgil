@@ -347,3 +347,11 @@ void PlayerLogicComponent::setAlive(bool alive) {
 float PlayerLogicComponent::timeSinceDeath() const {
    return Context::getInstance().getRunningTime() - deathTime;
 }
+
+const Ability& PlayerLogicComponent::getPrimaryAbility() const {
+   return *primaryAbility;
+}
+
+const Ability& PlayerLogicComponent::getSecondaryAbility() const {
+   return *secondaryAbility;
+}

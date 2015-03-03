@@ -78,7 +78,8 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
    glm::vec3 color(1.0f, 0.35f, 0.15f);
    SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
    SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
-   SPtr<Model> model(std::make_shared<Model>(shaderProgram, material, sphereMesh));
+   SPtr<Model> model(std::make_shared<Model>(shaderProgram, sphereMesh));
+   model->attachMaterial(material);
    explosion->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*explosion));
    explosion->getGraphicsComponent().setModel(model);
 
@@ -170,7 +171,8 @@ void ThrowAbility::use() {
    SPtr<Mesh> mesh = Context::getInstance().getAssetManager().loadMesh("meshes/sphere.obj");
    glm::vec3 color(0.4f);
    SPtr<Material> material(std::make_shared<PhongMaterial>(*playerModel->getShaderProgram(), color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
-   SPtr<Model> model(std::make_shared<Model>(playerModel->getShaderProgram(), material, mesh));
+   SPtr<Model> model(std::make_shared<Model>(playerModel->getShaderProgram(), mesh));
+   model->attachMaterial(material);
    projectile->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*projectile));
    projectile->getGraphicsComponent().setModel(model);
 

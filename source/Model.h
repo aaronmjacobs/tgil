@@ -20,13 +20,15 @@ protected:
    GLuint vao;
 
 public:
-   Model(SPtr<ShaderProgram> shaderProgram, SPtr<Material> material, SPtr<Mesh> mesh);
+   Model(SPtr<ShaderProgram> shaderProgram, SPtr<Mesh> mesh);
 
    virtual ~Model();
 
    virtual void draw();
 
    void attachMaterial(SPtr<Material> material);
+
+   void clearMaterials();
 
    const Mesh& getMesh() const;
 
