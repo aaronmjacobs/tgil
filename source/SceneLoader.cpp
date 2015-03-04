@@ -563,10 +563,11 @@ SPtr<Scene> loadMiniTowersScene(const Context &context) {
       scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 0.0f, -distanceFromCenter), glm::vec3(5.0f, 20.0f, 5.0f), 1.0f, 0.3f));
 
       // Four tightropes
-      scene.addObject(createStaticObject(boxModel, glm::vec3(-distanceFromCenter / 2.0f, 0.0f, 0.0f), glm::vec3(distanceFromCenter, 18.0f, 0.5f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 0.0f, distanceFromCenter / 2.0f), glm::vec3(0.5f, 18.0f, distanceFromCenter), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(distanceFromCenter / 2.0f, 0.0f, 0.0f), glm::vec3(distanceFromCenter, 18.0f, 0.5f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 0.0f, -distanceFromCenter / 2.0f), glm::vec3(0.5f, 18.0f, distanceFromCenter), 1.0f, 0.3f));
+      const float TIGHTROPE_WIDTH = 2.0f;
+      scene.addObject(createStaticObject(boxModel, glm::vec3(-distanceFromCenter / 2.0f, 0.0f, 0.0f), glm::vec3(distanceFromCenter, 18.0f, TIGHTROPE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 0.0f, distanceFromCenter / 2.0f), glm::vec3(TIGHTROPE_WIDTH, 18.0f, distanceFromCenter), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(distanceFromCenter / 2.0f, 0.0f, 0.0f), glm::vec3(distanceFromCenter, 18.0f, TIGHTROPE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 0.0f, -distanceFromCenter / 2.0f), glm::vec3(TIGHTROPE_WIDTH, 18.0f, distanceFromCenter), 1.0f, 0.3f));
    });
 }
 
@@ -575,7 +576,7 @@ SPtr<Scene> loadSparsePlatformScene(const Context &context) {
    const float DISTANCE = 8.0f;
    const float PLATFORM_HEIGHT = 15.0f;
    const float SPAWN_HEIGHT = PLATFORM_HEIGHT + 5.0f;
-   const float platformWidth = 3.0f;
+   const float platformWidth = 5.0f;
    const glm::vec3 platformScale(platformWidth, 2.0f, platformWidth);
 
    glm::vec3 spawnLocations[] = {
@@ -608,29 +609,30 @@ SPtr<Scene> loadSpikyScene(const Context &context) {
    };
 
    return loadBasicScene(context, spawnLocations, [](Scene &scene, SPtr<Model> boxModel) {
+      const float SPIKE_WIDTH = 5.0f;
       // Spawn platforms
-      scene.addObject(createStaticObject(boxModel, glm::vec3(-10.0f, 25.0f, 0.0f), glm::vec3(3.0f, 50.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 25.0f, 10.0f), glm::vec3(3.0f, 50.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(10.0f, 25.0f, 0.0f), glm::vec3(3.0f, 50.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 25.0f, -10.0f), glm::vec3(3.0f, 50.0f, 3.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(-10.0f, 25.0f, 0.0f), glm::vec3(SPIKE_WIDTH, 50.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 25.0f, 10.0f), glm::vec3(SPIKE_WIDTH, 50.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(10.0f, 25.0f, 0.0f), glm::vec3(SPIKE_WIDTH, 50.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 25.0f, -10.0f), glm::vec3(SPIKE_WIDTH, 50.0f, SPIKE_WIDTH), 1.0f, 0.3f));
 
       // Lower platforms
-      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
 
-      scene.addObject(createStaticObject(boxModel, glm::vec3(-10.0f, 20.0f, -10.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(-10.0f, 20.0f, 10.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(10.0f, 20.0f, -10.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(10.0f, 20.0f, 10.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(-10.0f, 20.0f, -10.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(-10.0f, 20.0f, 10.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(10.0f, 20.0f, -10.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(10.0f, 20.0f, 10.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
 
-      scene.addObject(createStaticObject(boxModel, glm::vec3(-20.0f, 20.0f, 0.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 20.0f, 20.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(20.0f, 20.0f, 0.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 20.0f, -20.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(-20.0f, 20.0f, 0.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 20.0f, 20.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(20.0f, 20.0f, 0.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f, 20.0f, -20.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
 
-      scene.addObject(createStaticObject(boxModel, glm::vec3(-20.0f, 20.0f, -20.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(-20.0f, 20.0f, 20.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(20.0f, 20.0f, -20.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(boxModel, glm::vec3(20.0f, 20.0f, 20.0f), glm::vec3(3.0f, 40.0f, 3.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(-20.0f, 20.0f, -20.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(-20.0f, 20.0f, 20.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(20.0f, 20.0f, -20.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(boxModel, glm::vec3(20.0f, 20.0f, 20.0f), glm::vec3(SPIKE_WIDTH, 40.0f, SPIKE_WIDTH), 1.0f, 0.3f));
    });
 }
 
