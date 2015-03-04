@@ -24,7 +24,7 @@
 namespace {
 
 const float COOLDOWN = 0.5f;
-const float EXPLOSION_FORCE = 50.0f;
+const float EXPLOSION_FORCE = 65.0f;
 
 // TODO Handle in asset manager somehow
 const int MAX_LIGHTS = 10;
@@ -161,9 +161,10 @@ void ThrowAbility::use() {
 
    const glm::vec3 &position = gameObject.getCameraComponent().getCameraPosition();
    const glm::vec3 &front = gameObject.getCameraComponent().getFrontVector();
+   const glm::vec3 &right = gameObject.getCameraComponent().getRightVector();
 
    SPtr<GameObject> projectile(std::make_shared<GameObject>());
-   projectile->setPosition(position + front);
+   projectile->setPosition(position + front + right * 0.25f);
    projectile->setScale(glm::vec3(0.2f));
 
    // Graphics
