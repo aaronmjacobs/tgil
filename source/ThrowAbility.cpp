@@ -12,6 +12,7 @@
 #include "MeshPhysicsComponent.h"
 #include "Model.h"
 #include "PhongMaterial.h"
+#include "PlayerLogicComponent.h"
 #include "ProjectileLogicComponent.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
@@ -69,7 +70,7 @@ SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
    return shaderProgram;
 }
 
-SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
+SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, const glm::vec3 &color) {
    SPtr<GameObject> explosion(std::make_shared<GameObject>());
 
    explosion->setPosition(position);
@@ -79,7 +80,6 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
 
    // Graphics
    SPtr<Mesh> sphereMesh = assetManager.loadMesh("meshes/sphere.obj");
-   glm::vec3 color(1.0f, 0.75f, 0.15f);
    SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
    SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 1.0f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, sphereMesh));
@@ -179,6 +179,10 @@ void ThrowAbility::use() {
    SPtr<Model> playerModel = gameObject.getGraphicsComponent().getModel();
    SPtr<Mesh> mesh = Context::getInstance().getAssetManager().loadMesh("meshes/sphere.obj");
    glm::vec3 color(1.0f, 0.75f, 0.15f);
+   PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&gameObject.getLogicComponent());
+   if (playerLogic) {
+      color = playerLogic->getColor();
+   }
    SPtr<Material> material(std::make_shared<PhongMaterial>(*playerModel->getShaderProgram(), color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(playerModel->getShaderProgram(), mesh));
    model->attachMaterial(material);
@@ -196,7 +200,7 @@ void ThrowAbility::use() {
    // Logic
    SPtr<ProjectileLogicComponent> logic(std::make_shared<ProjectileLogicComponent>(*projectile));
    WPtr<GameObject> wProjectile(projectile);
-   logic->setCollisionCallback([wProjectile](GameObject &gameObject, const float lifeTime, const float dt) {
+   logic->setCollisionCallback([wProjectile, color](GameObject &gameObject, const float lifeTime, const float dt) {
       if (lifeTime < 0.25f) {
          //return;
       }
@@ -213,7 +217,7 @@ void ThrowAbility::use() {
 
       scene->removeObject(projectile);
 
-      SPtr<GameObject> explosion(createExplosion(projectile->getPosition(), 1.0f));
+      SPtr<GameObject> explosion(createExplosion(projectile->getPosition(), 1.0f, color));
       scene->addLight(explosion);
       scene->addObject(explosion);
    });

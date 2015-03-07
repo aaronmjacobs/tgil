@@ -12,6 +12,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "PhongMaterial.h"
+#include "PlayerLogicComponent.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
 #include "ShoveAbility.h"
@@ -98,6 +99,10 @@ void ShoveAbility::use() {
    // Graphics
    SPtr<Mesh> mesh = assetManager.loadMesh("meshes/shove.obj");
    glm::vec3 color(1.0f, 0.35f, 0.15f);
+   PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&gameObject.getLogicComponent());
+   if (playerLogic) {
+      color = playerLogic->getColor();
+   }
    SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
    SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 0.8f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, mesh));
