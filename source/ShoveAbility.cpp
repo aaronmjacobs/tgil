@@ -7,6 +7,7 @@
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
 #include "GhostPhysicsComponent.h"
+#include "LightComponent.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "Model.h"
@@ -98,11 +99,14 @@ void ShoveAbility::use() {
    SPtr<Mesh> mesh = assetManager.loadMesh("meshes/shove.obj");
    glm::vec3 color(1.0f, 0.35f, 0.15f);
    SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
-   SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 0.8f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, mesh));
    model->attachMaterial(material);
    shove->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*shove));
    shove->getGraphicsComponent().setModel(model);
+
+   // Light
+   shove->setLightComponent(std::make_shared<LightComponent>(*shove, LightComponent::Spot, color * 2.0f, gameObject.getCameraComponent().getFrontVector(), 0.0f, 0.02f, 0.5f, 0.6f));
 
    // Physics
    shove->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*shove, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries | CollisionGroup::Projectiles));
@@ -121,6 +125,7 @@ void ShoveAbility::use() {
          SPtr<GameObject> shove(wShove.lock());
          if (shove) {
             scene->removeObject(shove);
+            scene->removeLight(shove);
          }
       }
 
@@ -147,6 +152,8 @@ void ShoveAbility::use() {
       btTransform &ghostTrans = ghostObject->getWorldTransform();
       ghostTrans.setOrigin(toBt(gameObject.getPosition()));
       ghostTrans.setRotation(toBt(gameObject.getOrientation()));
+
+      gameObject.getLightComponent().setDirection(front);
 
       glm::vec3 forceDir = rot * glm::vec3(0.0f, 0.0f, -1.0f);
       forceDir.y += 0.5f;
@@ -178,6 +185,7 @@ void ShoveAbility::use() {
    audioComponent->registerSoundEvent(Event::SET_SCENE, SoundGroup::SHOVE);
    shove->setAudioComponent(audioComponent);
 
+   scene->addLight(shove);
    scene->addObject(shove);
 
    resetTimeSinceLastUse();

@@ -7,6 +7,7 @@
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
 #include "GhostPhysicsComponent.h"
+#include "LightComponent.h"
 #include "Mesh.h"
 #include "MeshPhysicsComponent.h"
 #include "Model.h"
@@ -78,13 +79,16 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
 
    // Graphics
    SPtr<Mesh> sphereMesh = assetManager.loadMesh("meshes/sphere.obj");
-   glm::vec3 color(1.0f, 0.35f, 0.15f);
+   glm::vec3 color(1.0f, 0.75f, 0.15f);
    SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
-   SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 1.0f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, sphereMesh));
    model->attachMaterial(material);
    explosion->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*explosion));
    explosion->getGraphicsComponent().setModel(model);
+
+   // Light
+   explosion->setLightComponent(std::make_shared<LightComponent>(*explosion, LightComponent::Point, color * 2.0f, glm::vec3(0.0f), 0.0f, 0.1f));
 
    // Physics
    explosion->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*explosion, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries | CollisionGroup::Projectiles));
@@ -102,6 +106,7 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
          SPtr<GameObject> explosion(wExplosion.lock());
          if (explosion) {
             scene->removeObject(explosion);
+            scene->removeLight(explosion);
          }
       }
 
@@ -173,7 +178,7 @@ void ThrowAbility::use() {
    // Graphics
    SPtr<Model> playerModel = gameObject.getGraphicsComponent().getModel();
    SPtr<Mesh> mesh = Context::getInstance().getAssetManager().loadMesh("meshes/sphere.obj");
-   glm::vec3 color(0.4f);
+   glm::vec3 color(1.0f, 0.75f, 0.15f);
    SPtr<Material> material(std::make_shared<PhongMaterial>(*playerModel->getShaderProgram(), color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(playerModel->getShaderProgram(), mesh));
    model->attachMaterial(material);
@@ -207,7 +212,10 @@ void ThrowAbility::use() {
       }
 
       scene->removeObject(projectile);
-      scene->addObject(createExplosion(projectile->getPosition(), 1.0f));
+
+      SPtr<GameObject> explosion(createExplosion(projectile->getPosition(), 1.0f));
+      scene->addLight(explosion);
+      scene->addObject(explosion);
    });
    projectile->setLogicComponent(logic);
 
