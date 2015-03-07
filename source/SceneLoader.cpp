@@ -7,6 +7,7 @@
 #include "GhostPhysicsComponent.h"
 #include "InputComponent.h"
 #include "InputHandler.h"
+#include "LightComponent.h"
 #include "LogHelper.h"
 #include "MeshPhysicsComponent.h"
 #include "Model.h"
@@ -15,7 +16,6 @@
 #include "PlayerGraphicsComponent.h"
 #include "PlayerLogicComponent.h"
 #include "PlayerPhysicsComponent.h"
-#include "PointLightComponent.h"
 #include "Scene.h"
 #include "SceneLoader.h"
 #include "Shader.h"
@@ -43,11 +43,14 @@ void addLightUniforms(ShaderProgram &shaderProgram) {
       ss << "uLights[" << i << "].";
       std::string lightName = ss.str();
 
-      shaderProgram.addUniform(lightName + "position");
+      shaderProgram.addUniform(lightName + "type");
       shaderProgram.addUniform(lightName + "color");
-      shaderProgram.addUniform(lightName + "constFalloff");
+      shaderProgram.addUniform(lightName + "position");
+      shaderProgram.addUniform(lightName + "direction");
       shaderProgram.addUniform(lightName + "linearFalloff");
       shaderProgram.addUniform(lightName + "squareFalloff");
+      shaderProgram.addUniform(lightName + "beamAngle");
+      shaderProgram.addUniform(lightName + "cutoffAngle");
    }
 }
 
@@ -225,19 +228,41 @@ SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3
    return player;
 }
 
-SPtr<GameObject> createLight(const glm::vec3 &position, const glm::vec3 &color, float constFalloff, float linearFalloff, float squareFalloff) {
+SPtr<GameObject> createPointLight(const glm::vec3 &position, const glm::vec3 &color, float linearFalloff, float squareFalloff) {
    SPtr<GameObject> light(std::make_shared<GameObject>());
 
    // Transform
    light->setPosition(position);
 
    // Light
-   SPtr<PointLightComponent> pointLightComponent(std::make_shared<PointLightComponent>(*light));
+   SPtr<LightComponent> pointLightComponent(std::make_shared<LightComponent>(*light, LightComponent::Point, color, glm::vec3(0.0f), linearFalloff, squareFalloff));
    light->setLightComponent(pointLightComponent);
-   pointLightComponent->setColor(color);
-   pointLightComponent->setConstFalloff(constFalloff);
-   pointLightComponent->setLinearFalloff(linearFalloff);
-   pointLightComponent->setSquareFalloff(squareFalloff);
+
+   return light;
+}
+
+SPtr<GameObject> createDirectionalLight(const glm::vec3 &position, const glm::vec3 &color, const glm::vec3 &direction) {
+   SPtr<GameObject> light(std::make_shared<GameObject>());
+
+   // Transform
+   light->setPosition(position);
+
+   // Light
+   SPtr<LightComponent> directionalLightComponent(std::make_shared<LightComponent>(*light, LightComponent::Directional, color, direction));
+   light->setLightComponent(directionalLightComponent);
+
+   return light;
+}
+
+SPtr<GameObject> createSpotLight(const glm::vec3 &position, const glm::vec3 &color, const glm::vec3 &direction, float linearFalloff, float squareFalloff, float beamAngle, float cutoffAngle) {
+   SPtr<GameObject> light(std::make_shared<GameObject>());
+
+   // Transform
+   light->setPosition(position);
+
+   // Light
+   SPtr<LightComponent> pointLightComponent(std::make_shared<LightComponent>(*light, LightComponent::Spot, color, direction, linearFalloff, squareFalloff, beamAngle, cutoffAngle));
+   light->setLightComponent(pointLightComponent);
 
    return light;
 }
@@ -434,15 +459,17 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    // Light
    float sunDistance = 300.0f;
    glm::vec3 sunPos = glm::vec3(-1.0f, 3.0f, 0.5f) * sunDistance;
-   float sunIntensity = 2.0f;
+   float sunIntensity = 1.25f;
    glm::vec3 sunColor = glm::normalize(glm::vec3(1.0f, 0.95f, 0.75f)) * sunIntensity;
-   scene->addLight(createLight(sunPos, sunColor, 0.0f, 0.0f, 0.0f));
+   scene->addLight(createDirectionalLight(sunPos, sunColor, glm::vec3(1.0f, -3.0f, -0.5f)));
+
+   //scene->addLight(createSpotLight(glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, 0.0f, 0.4f, 0.5f));
 
    glm::vec3 lavaLightColor = glm::vec3(0.9f, 0.4f, 0.1f) * 0.5f;
-   scene->addLight(createLight(glm::vec3(-80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
-   scene->addLight(createLight(glm::vec3(80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
-   scene->addLight(createLight(glm::vec3(-80.0f, -50.0f, 80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
-   scene->addLight(createLight(glm::vec3(80.0f, -50.0f, 80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
+   scene->addLight(createPointLight(glm::vec3(-80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f));
+   scene->addLight(createPointLight(glm::vec3(80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f));
+   scene->addLight(createPointLight(glm::vec3(-80.0f, -50.0f, 80.0f), lavaLightColor, 0.0f, 0.0f));
+   scene->addLight(createPointLight(glm::vec3(80.0f, -50.0f, 80.0f), lavaLightColor, 0.0f, 0.0f));
 
    // Lava
    float lavaSize = 100.0f;
@@ -496,7 +523,7 @@ SPtr<Scene> loadTowerScene(const Context &context) {
    planeModel->attachMaterial(planeMaterial);
 
    // Light
-   scene->addLight(createLight(glm::vec3(0.0f, 50.0f, 0.0f), glm::vec3(0.7f), 0.001f, 0.0005f, 0.0001f));
+   scene->addLight(createPointLight(glm::vec3(0.0f, 50.0f, 0.0f), glm::vec3(0.7f), 0.0005f, 0.0001f));
 
    // Ground plane
    scene->addObject(createStaticObject(planeModel, glm::vec3(0.0f), glm::vec3(100.0f), 1.0f, 0.3f));

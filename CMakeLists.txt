@@ -50,6 +50,7 @@ set(SOURCES
    ${SRC_DIR}/InputHandler.cpp
    ${SRC_DIR}/IOUtils.cpp
    ${SRC_DIR}/KeyboardInputDevice.cpp
+   ${SRC_DIR}/LightComponent.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/Mesh.cpp
    ${SRC_DIR}/MeshAssetManager.cpp
@@ -63,7 +64,6 @@ set(SOURCES
    ${SRC_DIR}/PlayerGraphicsComponent.cpp
    ${SRC_DIR}/PlayerLogicComponent.cpp
    ${SRC_DIR}/PlayerPhysicsComponent.cpp
-   ${SRC_DIR}/PointLightComponent.cpp
    ${SRC_DIR}/PostProcessRenderer.cpp
    ${SRC_DIR}/ProjectileLogicComponent.cpp
    ${SRC_DIR}/Renderer.cpp
@@ -127,7 +127,6 @@ set(HEADERS
    ${SRC_DIR}/PlayerGraphicsComponent.h
    ${SRC_DIR}/PlayerLogicComponent.h
    ${SRC_DIR}/PlayerPhysicsComponent.h
-   ${SRC_DIR}/PointLightComponent.h
    ${SRC_DIR}/PostProcessRenderer.h
    ${SRC_DIR}/ProjectileLogicComponent.h
    ${SRC_DIR}/Renderer.h

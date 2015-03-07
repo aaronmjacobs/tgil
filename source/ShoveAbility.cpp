@@ -35,11 +35,14 @@ void addLightUniforms(ShaderProgram &shaderProgram) {
       ss << "uLights[" << i << "].";
       std::string lightName = ss.str();
 
-      shaderProgram.addUniform(lightName + "position");
+      shaderProgram.addUniform(lightName + "type");
       shaderProgram.addUniform(lightName + "color");
-      shaderProgram.addUniform(lightName + "constFalloff");
+      shaderProgram.addUniform(lightName + "position");
+      shaderProgram.addUniform(lightName + "direction");
       shaderProgram.addUniform(lightName + "linearFalloff");
       shaderProgram.addUniform(lightName + "squareFalloff");
+      shaderProgram.addUniform(lightName + "beamAngle");
+      shaderProgram.addUniform(lightName + "cutoffAngle");
    }
 }
 

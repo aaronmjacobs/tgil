@@ -11,7 +11,7 @@ GameObject::GameObject()
    : cameraComponent(std::make_shared<NullCameraComponent>(*this)),
      graphicsComponent(std::make_shared<NullGraphicsComponent>(*this)),
      inputComponent(std::make_shared<NullInputComponent>(*this)),
-     lightComponent(std::make_shared<NullLightComponent>(*this)),
+     lightComponent(std::make_shared<LightComponent>(*this)),
      logicComponent(std::make_shared<NullLogicComponent>(*this)),
      physicsComponent(std::make_shared<NullPhysicsComponent>(*this)) {
 }
