@@ -61,7 +61,6 @@ void PostProcessRenderer::loadPlane() {
    SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/tint");
    shaderProgram->addUniform("uOpacity");
    shaderProgram->addUniform("uTint");
-   shaderProgram->addAttribute("aPosition");
 
    material = std::make_shared<TintMaterial>(*shaderProgram);
 

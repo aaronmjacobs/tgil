@@ -35,16 +35,6 @@ void ShaderProgram::disable() const {
    glUseProgram(0);
 }
 
-GLint ShaderProgram::addAttribute(const std::string &name) {
-   GLint location = glGetAttribLocation(id, name.c_str());
-   if (location == -1) {
-      LOG_WARNING("Unable to get attribute location: " << name);
-   }
-
-   attributeMap[name] = location;
-   return location;
-}
-
 GLint ShaderProgram::addUniform(const std::string &name) {
    GLint location = glGetUniformLocation(id, name.c_str());
    if (location == -1) {
@@ -55,22 +45,11 @@ GLint ShaderProgram::addUniform(const std::string &name) {
    return location;
 }
 
-GLint ShaderProgram::getAttribute(const std::string &name) const {
-   // Make sure the attribute exists in the map
-   ASSERT(hasAttribute(name), "Unable to find attribute: %s", name.c_str());
-
-   return attributeMap.at(name);
-}
-
 GLint ShaderProgram::getUniform(const std::string &name) const {
    // Make sure the uniform exists in the map
    ASSERT(hasUniform(name), "Unable to find uniform: %s", name.c_str());
 
    return uniformMap.at(name);
-}
-
-bool ShaderProgram::hasAttribute(const std::string &name) const {
-   return attributeMap.count(name) > 0;
 }
 
 bool ShaderProgram::hasUniform(const std::string &name) const {

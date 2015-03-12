@@ -10,7 +10,15 @@
 
 class Shader;
 
-typedef std::unordered_map<std::string, GLint> AttributeMap;
+namespace ShaderAttributes {
+   enum Attributes : GLint {
+      POSITION = 0,
+      NORMAL = 1,
+      TEX_COORD = 2,
+      COLOR = 3,
+   };
+} // namespace ShaderAttributes
+
 typedef std::unordered_map<std::string, GLint> UniformMap;
 
 class ShaderProgram {
@@ -24,11 +32,6 @@ protected:
     * All shaders attached to the program
     */
    std::vector<SPtr<Shader>> shaders;
-
-   /**
-    * A map of attribute names to their locations
-    */
-   AttributeMap attributeMap;
 
    /**
     * A map of uniform names to their location
@@ -68,30 +71,14 @@ public:
    void disable() const;
 
    /**
-    * Adds the attribute with the given name to the attribute map
-    */
-   GLint addAttribute(const std::string &name);
-
-   /**
     * Adds the uniform with the given name to the uniform map
     */
    GLint addUniform(const std::string &name);
 
    /**
-    * Gets the location of the attribute with the given name from the attribute
-    * map
-    */
-   GLint getAttribute(const std::string &name) const;
-
-   /**
     * Gets the location of the uniform with the given name from the uniform map
     */
    GLint getUniform(const std::string &name) const;
-
-   /**
-    * Returns whether the program has an attribute with the given name
-    */
-   bool hasAttribute(const std::string &name) const;
 
    /**
     * Returns whether the program has a uniform with the given name

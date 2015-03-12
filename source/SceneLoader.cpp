@@ -70,9 +70,6 @@ SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
    shaderProgram->addUniform("uCameraPos");
    addLightUniforms(*shaderProgram);
 
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aNormal");
-
    return shaderProgram;
 }
 
@@ -92,11 +89,7 @@ SPtr<ShaderProgram> loadPhongTextureShaderProgram(AssetManager &assetManager) {
    shaderProgram->addUniform("uCameraPos");
    addLightUniforms(*shaderProgram);
 
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aNormal");
-
    shaderProgram->addUniform("uTexture");
-   shaderProgram->addAttribute("aTexCoord");
 
    return shaderProgram;
 }
@@ -107,9 +100,6 @@ SPtr<ShaderProgram> loadTilingTextureShaderProgram(AssetManager &assetManager) {
    shaderProgram->addUniform("uProjMatrix");
    shaderProgram->addUniform("uViewMatrix");
    shaderProgram->addUniform("uModelMatrix");
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aNormal");
 
    shaderProgram->addUniform("uTexture");
 
@@ -122,9 +112,6 @@ SPtr<ShaderProgram> loadLavaShaderProgram(AssetManager &assetManager) {
    shaderProgram->addUniform("uProjMatrix");
    shaderProgram->addUniform("uViewMatrix");
    shaderProgram->addUniform("uModelMatrix");
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aTexCoord");
 
    shaderProgram->addUniform("uTexture");
    shaderProgram->addUniform("uNoiseTexture");
@@ -139,8 +126,6 @@ SPtr<ShaderProgram> loadSkyboxShaderProgram(AssetManager &assetManager) {
    shaderProgram->addUniform("uProjMatrix");
    shaderProgram->addUniform("uViewMatrix");
    shaderProgram->addUniform("uSkybox");
-
-   shaderProgram->addAttribute("aPosition");
 
    return shaderProgram;
 }

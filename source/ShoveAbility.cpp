@@ -63,9 +63,6 @@ SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
    shaderProgram->addUniform("uMaterial.specular");
    shaderProgram->addUniform("uCameraPos");
    addLightUniforms(*shaderProgram);
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aNormal");
       
    return shaderProgram;
 }

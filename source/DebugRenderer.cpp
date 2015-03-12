@@ -38,22 +38,17 @@ void DebugRenderer::init() {
    shaderProgram->addUniform("uViewMatrix");
    shaderProgram->addUniform("uProjMatrix");
 
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aColor");
-
    glBindVertexArray(vao);
 
    // Prepare the vertex buffer object
    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-   GLint aPosition = shaderProgram->getAttribute("aPosition");
-   glEnableVertexAttribArray(aPosition);
-   glVertexAttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+   glEnableVertexAttribArray(ShaderAttributes::POSITION);
+   glVertexAttribPointer(ShaderAttributes::POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
    // Prepare the color buffer object
    glBindBuffer(GL_ARRAY_BUFFER, cbo);
-   GLint aColor = shaderProgram->getAttribute("aColor");
-   glEnableVertexAttribArray(aColor);
-   glVertexAttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+   glEnableVertexAttribArray(ShaderAttributes::COLOR);
+   glVertexAttribPointer(ShaderAttributes::COLOR, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
    // Prepare the index buffer object
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);

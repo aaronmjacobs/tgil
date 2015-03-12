@@ -3,7 +3,7 @@
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
 
-in vec3 aPosition;
+layout(location = 0) in vec3 aPosition;
 
 out vec3 vSkyboxCoord;
 

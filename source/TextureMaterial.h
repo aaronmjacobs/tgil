@@ -11,10 +11,6 @@ protected:
    // Location of the texture uniform
    GLint uTexture;
 
-   // Location of the texture coordinate attribute
-   GLint aTexCoord;
-   bool hasTexCoord;
-
    // The texture ID
    GLuint textureID;
 

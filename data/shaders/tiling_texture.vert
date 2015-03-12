@@ -6,8 +6,8 @@ uniform mat4 uModelMatrix;
 uniform vec2 uMeshSize = vec2(100.0);
 uniform float uTileSize = 10.0;
 
-in vec3 aPosition;
-in vec3 aNormal;
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec3 aNormal;
 
 out vec2 vTexCoord;
 

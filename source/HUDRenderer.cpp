@@ -67,8 +67,6 @@ void HUDRenderer::loadPlane() {
    shaderProgram->addUniform("uOpacity");
    shaderProgram->addUniform("uTint");
    shaderProgram->addUniform("uFill");
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aTexCoord");
    uTransform = shaderProgram->getUniform("uTransform");
    uOpacity = shaderProgram->getUniform("uOpacity");
    uTint = shaderProgram->getUniform("uTint");
