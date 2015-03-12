@@ -9,7 +9,7 @@ public:
 
    virtual ~PlayerGraphicsComponent();
 
-   virtual void draw();
+   virtual void draw(const RenderData &renderData);
 };
 
 

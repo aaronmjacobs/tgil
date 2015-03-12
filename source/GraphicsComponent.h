@@ -5,6 +5,7 @@
 #include "Types.h"
 
 class Model;
+class RenderData;
 
 class GraphicsComponent : public Component {
 protected:
@@ -16,7 +17,7 @@ public:
 
    virtual ~GraphicsComponent() {}
 
-   virtual void draw() = 0;
+   virtual void draw(const RenderData &renderData) = 0;
 
    SPtr<Model> getModel() const {
       return model;
@@ -34,7 +35,7 @@ public:
 
    virtual ~NullGraphicsComponent() {}
 
-   virtual void draw() {}
+   virtual void draw(const RenderData &renderData) {}
 };
 
 #endif

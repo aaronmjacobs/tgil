@@ -13,6 +13,7 @@
 #include "Model.h"
 #include "PhysicsManager.h"
 #include "PlayerLogicComponent.h"
+#include "RenderData.h"
 #include "Renderer.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
@@ -177,6 +178,8 @@ void Renderer::render(Scene &scene) {
 }
 
 void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
+   RenderData renderData;
+
    // Set up shaders
    const CameraComponent &cameraComponent = camera.getCameraComponent();
    const glm::mat4 &viewMatrix = cameraComponent.getViewMatrix();
@@ -213,7 +216,7 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    // Skybox
    SPtr<GameObject> skybox = scene.getSkybox();
    if (skybox) {
-      skybox->getGraphicsComponent().draw();
+      skybox->getGraphicsComponent().draw(renderData);
    }
 
    // Objects
@@ -224,7 +227,7 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
          continue;
       }
 
-      gameObject->getGraphicsComponent().draw();
+      gameObject->getGraphicsComponent().draw(renderData);
    }
 
    if (renderDebug) {

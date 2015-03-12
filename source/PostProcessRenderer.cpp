@@ -3,6 +3,7 @@
 #include "Material.h"
 #include "Model.h"
 #include "PostProcessRenderer.h"
+#include "RenderData.h"
 #include "ShaderProgram.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -81,5 +82,6 @@ void PostProcessRenderer::render(float opacity, const glm::vec3 &tint) {
 
    material->apply(xyPlane->getMesh());
 
-   xyPlane->draw();
+   RenderData renderData;
+   xyPlane->draw(renderData);
 }

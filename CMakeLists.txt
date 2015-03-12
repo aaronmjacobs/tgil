@@ -66,6 +66,7 @@ set(SOURCES
    ${SRC_DIR}/PlayerPhysicsComponent.cpp
    ${SRC_DIR}/PostProcessRenderer.cpp
    ${SRC_DIR}/ProjectileLogicComponent.cpp
+   ${SRC_DIR}/RenderData.cpp
    ${SRC_DIR}/Renderer.cpp
    ${SRC_DIR}/Scene.cpp
    ${SRC_DIR}/SceneLoader.cpp
@@ -129,6 +130,7 @@ set(HEADERS
    ${SRC_DIR}/PlayerPhysicsComponent.h
    ${SRC_DIR}/PostProcessRenderer.h
    ${SRC_DIR}/ProjectileLogicComponent.h
+   ${SRC_DIR}/RenderData.h
    ${SRC_DIR}/Renderer.h
    ${SRC_DIR}/Scene.h
    ${SRC_DIR}/SceneLoader.h

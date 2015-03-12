@@ -31,7 +31,7 @@ Model::~Model() {
    glDeleteVertexArrays(1, &vao);
 }
 
-void Model::draw() {
+void Model::draw(const RenderData &renderData) {
    shaderProgram->use();
 
    // Bind

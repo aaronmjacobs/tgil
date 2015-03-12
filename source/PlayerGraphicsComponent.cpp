@@ -19,7 +19,7 @@ PlayerGraphicsComponent::PlayerGraphicsComponent(GameObject &gameObject)
 PlayerGraphicsComponent::~PlayerGraphicsComponent() {
 }
 
-void PlayerGraphicsComponent::draw() {
+void PlayerGraphicsComponent::draw(const RenderData &renderData) {
    if (!model) {
       return;
    }
@@ -44,5 +44,5 @@ void PlayerGraphicsComponent::draw() {
    glUniformMatrix4fv(shaderProgram->getUniform("uModelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
    glUniformMatrix4fv(shaderProgram->getUniform("uNormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
-   model->draw();
+   model->draw(renderData);
 }

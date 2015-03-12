@@ -19,7 +19,7 @@ GeometricGraphicsComponent::GeometricGraphicsComponent(GameObject &gameObject)
 GeometricGraphicsComponent::~GeometricGraphicsComponent() {
 }
 
-void GeometricGraphicsComponent::draw() {
+void GeometricGraphicsComponent::draw(const RenderData &renderData) {
    if (!model) {
       return;
    }
@@ -41,5 +41,5 @@ void GeometricGraphicsComponent::draw() {
       }
    }
 
-   model->draw();
+   model->draw(renderData);
 }
