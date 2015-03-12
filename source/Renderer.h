@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 class GameObject;
+class ShadowMap;
 
 class Renderer {
 protected:
@@ -51,10 +52,14 @@ protected:
     */
    glm::mat4 projectionMatrix;
 
+   SPtr<ShadowMap> shadowMap;
+
    /**
     * If debug rendering is enabled
     */
    bool renderDebug;
+
+   void renderShadowMap(Scene &scene);
 
    /**
     * Renders the scene from the given camera's perspective

@@ -17,6 +17,7 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
+#include "ShadowMap.h"
 #include "TextureMaterial.h"
 #include "TextureUnitManager.h"
 
@@ -128,6 +129,9 @@ void Renderer::init(float fov, int width, int height) {
 
    this->fov = fov;
 
+   shadowMap = std::make_shared<ShadowMap>();
+   shadowMap->init(1024);
+
    onFramebufferSizeChange(width, height);
 
    hudRenderer.init();
@@ -158,6 +162,8 @@ void Renderer::render(Scene &scene) {
    // Free all texture units
    Context::getInstance().getTextureUnitManager().reset();
 
+   renderShadowMap(scene);
+
    const std::vector<SPtr<GameObject>> &cameras = scene.getCameras();
    if (cameras.empty()) {
       LOG_WARNING("Scene must have camera to render");
@@ -175,6 +181,17 @@ void Renderer::render(Scene &scene) {
 
       renderFromCamera(scene, *cameras[i]);
    }
+}
+
+void Renderer::renderShadowMap(Scene &scene) {
+   glm::mat4 projectionMatrix = shadowMap->getProjectionMatrix();
+   glm::mat4 viewMatrix = shadowMap->getViewMatrix();
+
+   shadowMap->enable();
+
+   // TODO Draw
+
+   shadowMap->disable();
 }
 
 void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
