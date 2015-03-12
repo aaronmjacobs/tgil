@@ -2,6 +2,7 @@
 #include "GeometricGraphicsComponent.h"
 #include "Material.h"
 #include "Model.h"
+#include "RenderData.h"
 #include "ShaderProgram.h"
 
 #include <glm/glm.hpp>
@@ -24,7 +25,8 @@ void GeometricGraphicsComponent::draw(const RenderData &renderData) {
       return;
    }
 
-   SPtr<ShaderProgram> shaderProgram = model->getShaderProgram();
+   SPtr<ShaderProgram> overrideProgram = renderData.getOverrideProgram();
+   SPtr<ShaderProgram> shaderProgram = overrideProgram ? overrideProgram : model->getShaderProgram();
    shaderProgram->use();
 
    if (shaderProgram->hasUniform("uModelMatrix")) {

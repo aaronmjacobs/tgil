@@ -2,6 +2,7 @@
 
 #include "Material.h"
 #include "Mesh.h"
+#include "RenderData.h"
 #include "ShaderProgram.h"
 
 #include <string>
@@ -32,28 +33,32 @@ Model::~Model() {
 }
 
 void Model::draw(const RenderData &renderData) {
-   shaderProgram->use();
+   SPtr<ShaderProgram> overrideProgram = renderData.getOverrideProgram();
+   SPtr<ShaderProgram> program = overrideProgram ? overrideProgram : shaderProgram;
+   program->use();
 
    // Bind
    glBindVertexArray(vao);
 
-   // Apply the material properties
-   for (SPtr<Material> material : materials) {
-      material->apply(*mesh);
+   if (!overrideProgram) {
+      // Apply the material properties
+      for (SPtr<Material> material : materials) {
+         material->apply(*mesh);
+      }
    }
 
    // Draw
    glDrawElements(GL_TRIANGLES, mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
 
-   // Disable the material properties
-   for (SPtr<Material> material : materials) {
-      material->disable();
+   if (!overrideProgram) {
+      // Disable the material properties
+      for (SPtr<Material> material : materials) {
+         material->disable();
+      }
    }
 
    // Unbind
    glBindVertexArray(0);
-
-   shaderProgram->disable();
 }
 
 void Model::attachMaterial(SPtr<Material> material) {

@@ -5,6 +5,7 @@
 #include "HUDRenderer.h"
 #include "Model.h"
 #include "PlayerLogicComponent.h"
+#include "RenderData.h"
 #include "ShaderProgram.h"
 #include "TextureMaterial.h"
 
@@ -132,6 +133,7 @@ void HUDRenderer::render(const PlayerLogicComponent &playerLogic, int width, int
       glm::mat4 transform = translate * ratio * scale;
       glUniformMatrix4fv(uTransform, 1, GL_FALSE, glm::value_ptr(transform));
 
-      xyPlane->draw();
+      RenderData renderData;
+      xyPlane->draw(renderData);
    }
 }

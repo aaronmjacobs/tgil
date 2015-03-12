@@ -2,6 +2,7 @@
 #include "PlayerGraphicsComponent.h"
 #include "Material.h"
 #include "Model.h"
+#include "RenderData.h"
 #include "ShaderProgram.h"
 
 #include <glm/glm.hpp>
@@ -38,7 +39,8 @@ void PlayerGraphicsComponent::draw(const RenderData &renderData) {
    const glm::mat4 &modelMatrix = transMatrix * rotMatrix * scaleMatrix;
    const glm::mat4 &normalMatrix = glm::transpose(glm::inverse(modelMatrix));
 
-   SPtr<ShaderProgram> shaderProgram = model->getShaderProgram();
+   SPtr<ShaderProgram> overrideProgram = renderData.getOverrideProgram();
+   SPtr<ShaderProgram> shaderProgram = overrideProgram ? overrideProgram : model->getShaderProgram();
    shaderProgram->use();
 
    glUniformMatrix4fv(shaderProgram->getUniform("uModelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
