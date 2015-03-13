@@ -21,6 +21,7 @@ void TextureMaterial::apply(const Mesh &mesh) {
    glActiveTexture(GL_TEXTURE0 + textureUnit);
    glBindTexture(target, textureID);
 
+   // TODO Could be simplified with VAOs?
    glBindBuffer(GL_ARRAY_BUFFER, mesh.getTBO());
    glEnableVertexAttribArray(ShaderAttributes::TEX_COORD);
    glVertexAttribPointer(ShaderAttributes::TEX_COORD, 2, GL_FLOAT, GL_FALSE, 0, 0);

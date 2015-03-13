@@ -68,6 +68,9 @@ SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
    shaderProgram->addUniform("uMaterial.shininess");
    shaderProgram->addUniform("uMaterial.specular");
    shaderProgram->addUniform("uCameraPos");
+   shaderProgram->addUniform("uShadowProj");
+   shaderProgram->addUniform("uShadowView");
+   shaderProgram->addUniform("uShadowMap");
    addLightUniforms(*shaderProgram);
 
    return shaderProgram;
@@ -87,6 +90,9 @@ SPtr<ShaderProgram> loadPhongTextureShaderProgram(AssetManager &assetManager) {
    shaderProgram->addUniform("uMaterial.shininess");
    shaderProgram->addUniform("uMaterial.specular");
    shaderProgram->addUniform("uCameraPos");
+   shaderProgram->addUniform("uShadowProj");
+   shaderProgram->addUniform("uShadowView");
+   shaderProgram->addUniform("uShadowMap");
    addLightUniforms(*shaderProgram);
 
    shaderProgram->addUniform("uTexture");
@@ -443,7 +449,7 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
 
    // Light
    float sunDistance = 300.0f;
-   glm::vec3 sunPos = glm::vec3(-1.0f, 3.0f, 0.5f) * sunDistance;
+   glm::vec3 sunPos = glm::vec3(-1.0f, 1.0f, 0.5f) * sunDistance;
    float sunIntensity = 1.25f;
    glm::vec3 sunColor = glm::normalize(glm::vec3(1.0f, 0.95f, 0.75f)) * sunIntensity;
    scene->addLight(createDirectionalLight(sunPos, sunColor, glm::vec3(1.0f, -3.0f, -0.5f)));

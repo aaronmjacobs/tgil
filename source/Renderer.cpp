@@ -184,12 +184,29 @@ void Renderer::render(Scene &scene) {
 }
 
 void Renderer::renderShadowMap(Scene &scene) {
-   glm::mat4 projectionMatrix = shadowMap->getProjectionMatrix();
-   glm::mat4 viewMatrix = shadowMap->getViewMatrix();
-
    shadowMap->enable();
 
-   // TODO Draw
+   glClear(GL_DEPTH_BUFFER_BIT);
+
+   SPtr<ShaderProgram> shadowProgram = shadowMap->getShadowProgram();
+   shadowProgram->use();
+
+   // Projection matrix
+   GLint uProjMatrix = shadowProgram->getUniform("uProjMatrix");
+   glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(shadowMap->getProjectionMatrix()));
+
+   // View matrix
+   GLint uViewMatrix = shadowProgram->getUniform("uViewMatrix");
+   glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(shadowMap->getViewMatrix()));
+
+   RenderData renderData;
+   renderData.setOverrideProgram(shadowProgram);
+
+   // Objects
+   const std::vector<SPtr<GameObject>> &gameObjects = scene.getObjects();
+   for (SPtr<GameObject> gameObject : gameObjects) {
+      gameObject->getGraphicsComponent().draw(renderData);
+   }
 
    shadowMap->disable();
 }
@@ -201,7 +218,10 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    const CameraComponent &cameraComponent = camera.getCameraComponent();
    const glm::mat4 &viewMatrix = cameraComponent.getViewMatrix();
    const glm::vec3 &cameraPosition = cameraComponent.getCameraPosition();
+   const glm::mat4 &shadowProj = shadowMap->getBiasedProjectionMatrix();
+   const glm::mat4 &shadowView = shadowMap->getViewMatrix();
    const std::vector<SPtr<GameObject>> &lights = scene.getLights();
+   GLenum shadowTextureUnit = Context::getInstance().getTextureUnitManager().get();
    const std::set<SPtr<ShaderProgram>> &shaderPrograms = scene.getShaderPrograms();
    for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
       shaderProgram->use();
@@ -218,6 +238,22 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
       if (shaderProgram->hasUniform("uCameraPos")) {
          GLint uCameraPos = shaderProgram->getUniform("uCameraPos");
          glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraPosition));
+      }
+
+      // Shadows
+      if (shaderProgram->hasUniform("uShadowProj")) {
+         GLint uShadowProj = shaderProgram->getUniform("uShadowProj");
+         glUniformMatrix4fv(uShadowProj, 1, GL_FALSE, glm::value_ptr(shadowProj));
+      }
+      if (shaderProgram->hasUniform("uShadowView")) {
+         GLint uShadowView = shaderProgram->getUniform("uShadowView");
+         glUniformMatrix4fv(uShadowView, 1, GL_FALSE, glm::value_ptr(shadowView));
+      }
+      if (shaderProgram->hasUniform("uShadowMap")) {
+         GLint uShadowMap = shaderProgram->getUniform("uShadowMap");
+         glUniform1i(uShadowMap, shadowTextureUnit);
+         glActiveTexture(GL_TEXTURE0 + shadowTextureUnit);
+         glBindTexture(GL_TEXTURE_2D, shadowMap->getTextureID());
       }
 
       // Lights
@@ -246,6 +282,8 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
 
       gameObject->getGraphicsComponent().draw(renderData);
    }
+
+   Context::getInstance().getTextureUnitManager().release(shadowTextureUnit);
 
    if (renderDebug) {
       renderDebugInfo(scene, viewMatrix);

@@ -21,10 +21,12 @@ uniform int uNumLights;
 uniform Material uMaterial;
 uniform vec3 uCameraPos;
 uniform sampler2D uTexture;
+uniform sampler2DShadow uShadowMap;
 
 in vec3 vWorldPosition;
 in vec3 vNormal;
 in vec2 vTexCoord;
+in vec4 vShadowCoord;
 
 out vec4 color;
 
@@ -83,6 +85,12 @@ void main() {
    for (int i = 0; i < uNumLights; ++i) {
       finalColor += calcLighting(lNormal, surfaceColor, uLights[i]);
    }
+
+   // TODO Do for each light
+   float bias = 0.001;
+   vec3 shadowInfo = vec3(vShadowCoord.xy, vShadowCoord.z - bias);
+   float visibility = texture(uShadowMap, shadowInfo);
+   finalColor *= visibility * 0.75 + 0.25;
 
    finalColor += uMaterial.ambient;
    finalColor += uMaterial.emission;
