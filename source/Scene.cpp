@@ -236,7 +236,7 @@ std::vector<SPtr<GameObject>> Scene::getLivingPlayers() const {
    std::vector<SPtr<GameObject>> livingPlayers;
 
    for (SPtr<GameObject> player : players.objects) {
-      PlayerLogicComponent *playerLogic = static_cast<PlayerLogicComponent*>(&player->getLogicComponent());
+      PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&player->getLogicComponent());
       ASSERT(playerLogic, "Player should have PlayerLogicComponent");
 
       if (playerLogic && playerLogic->isAlive()) {

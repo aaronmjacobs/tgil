@@ -327,7 +327,7 @@ void buildDeathVolume(SPtr<Scene> scene, glm::vec3 position, glm::vec3 scale) {
             continue;
          }
 
-         PlayerLogicComponent *playerLogic = static_cast<PlayerLogicComponent*>(&collidingGameObject->getLogicComponent());
+         PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&collidingGameObject->getLogicComponent());
          if (!playerLogic) {
             continue;
          }

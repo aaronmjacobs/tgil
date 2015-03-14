@@ -90,7 +90,7 @@ PlayerLogicComponent::~PlayerLogicComponent() {
 }
 
 folly::Optional<Ground> PlayerLogicComponent::getGround() const {
-   PlayerPhysicsComponent *playerPhysicsComponent = static_cast<PlayerPhysicsComponent*>(&gameObject.getPhysicsComponent());
+   PlayerPhysicsComponent *playerPhysicsComponent = dynamic_cast<PlayerPhysicsComponent*>(&gameObject.getPhysicsComponent());
    ASSERT(playerPhysicsComponent, "Player should have PlayerPhysicsComponent");
    if (!playerPhysicsComponent) {
       return folly::none;
