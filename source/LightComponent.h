@@ -29,7 +29,7 @@ public:
 
    virtual ~LightComponent();
 
-   virtual void draw(const ShaderProgram &shaderProgram, const unsigned int index);
+   virtual void draw(ShaderProgram &shaderProgram, const unsigned int index);
 
    void setDirection(const glm::vec3 &direction) {
       this->direction = direction;

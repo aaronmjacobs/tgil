@@ -2,16 +2,15 @@
 #include "ShaderProgram.h"
 #include "TimeMaterial.h"
 
-TimeMaterial::TimeMaterial(const ShaderProgram &shaderProgram) {
-   uTime = shaderProgram.getUniform("uTime");
+TimeMaterial::TimeMaterial() {
 }
 
 TimeMaterial::~TimeMaterial() {
 }
 
-void TimeMaterial::apply(const Mesh &mesh) {
+void TimeMaterial::apply(ShaderProgram &shaderProgram) {
    float time = Context::getInstance().getRunningTime();
-   glUniform1f(uTime, time);
+   shaderProgram.setUniformValue("uTime", time);
 }
 
 void TimeMaterial::disable() {

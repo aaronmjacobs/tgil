@@ -41,15 +41,9 @@ void PlayerGraphicsComponent::draw(const RenderData &renderData) {
 
    SPtr<ShaderProgram> overrideProgram = renderData.getOverrideProgram();
    SPtr<ShaderProgram> shaderProgram = overrideProgram ? overrideProgram : model->getShaderProgram();
-   shaderProgram->use();
 
-   if (shaderProgram->hasUniform("uModelMatrix")) {
-      glUniformMatrix4fv(shaderProgram->getUniform("uModelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
-
-      if (shaderProgram->hasUniform("uNormalMatrix")) {
-         glUniformMatrix4fv(shaderProgram->getUniform("uNormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
-      }
-   }
+   shaderProgram->setUniformValue("uModelMatrix", modelMatrix, true);
+   shaderProgram->setUniformValue("uNormalMatrix", normalMatrix, true);
 
    model->draw(renderData);
 }

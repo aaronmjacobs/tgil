@@ -11,6 +11,7 @@
 class Model;
 class PlayerLogicComponent;
 class TextureMaterial;
+class Uniform;
 
 class HUDElement {
 public:
@@ -50,11 +51,6 @@ protected:
    UPtr<Model> xyPlane;
 
    SPtr<TextureMaterial> textureMaterial;
-
-   GLint uTransform;
-   GLint uOpacity;
-   GLint uTint;
-   GLint uFill;
 
    std::vector<HUDElement> elements;
 

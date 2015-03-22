@@ -28,45 +28,6 @@ namespace {
 const float COOLDOWN = 0.5f;
 const float EXPLOSION_FORCE = 65.0f;
 
-// TODO Handle in asset manager somehow
-const int MAX_LIGHTS = 10;
-
-void addLightUniforms(ShaderProgram &shaderProgram) {
-   for (int i = 0; i < MAX_LIGHTS; ++i) {
-      std::stringstream ss;
-      ss << "uLights[" << i << "].";
-      std::string lightName = ss.str();
-
-      shaderProgram.addUniform(lightName + "type");
-      shaderProgram.addUniform(lightName + "color");
-      shaderProgram.addUniform(lightName + "position");
-      shaderProgram.addUniform(lightName + "direction");
-      shaderProgram.addUniform(lightName + "linearFalloff");
-      shaderProgram.addUniform(lightName + "squareFalloff");
-      shaderProgram.addUniform(lightName + "beamAngle");
-      shaderProgram.addUniform(lightName + "cutoffAngle");
-   }
-}
-
-SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/phong");
-
-   shaderProgram->addUniform("uProjMatrix");
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uModelMatrix");
-   shaderProgram->addUniform("uNormalMatrix");
-   shaderProgram->addUniform("uNumLights");
-   shaderProgram->addUniform("uMaterial.ambient");
-   shaderProgram->addUniform("uMaterial.diffuse");
-   shaderProgram->addUniform("uMaterial.emission");
-   shaderProgram->addUniform("uMaterial.shininess");
-   shaderProgram->addUniform("uMaterial.specular");
-   shaderProgram->addUniform("uCameraPos");
-   addLightUniforms(*shaderProgram);
-      
-   return shaderProgram;
-}
-
 SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, const glm::vec3 &color) {
    SPtr<GameObject> explosion(std::make_shared<GameObject>());
 
@@ -77,8 +38,8 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, c
 
    // Graphics
    SPtr<Mesh> sphereMesh = assetManager.loadMesh("meshes/sphere.obj");
-   SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
-   SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 1.0f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   SPtr<ShaderProgram> shaderProgram(assetManager.loadShaderProgram("shaders/phong"));
+   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 1.0f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, sphereMesh));
    model->attachMaterial(material);
    explosion->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*explosion));
@@ -180,7 +141,7 @@ void ThrowAbility::use() {
    if (playerLogic) {
       color = playerLogic->getColor();
    }
-   SPtr<Material> material(std::make_shared<PhongMaterial>(*playerModel->getShaderProgram(), color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(playerModel->getShaderProgram(), mesh));
    model->attachMaterial(material);
    projectile->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*projectile));

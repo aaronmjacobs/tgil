@@ -35,9 +35,6 @@ void DebugRenderer::init() {
    const Context &context = Context::getInstance();
    shaderProgram = context.getAssetManager().loadShaderProgram("shaders/debug");
 
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uProjMatrix");
-
    glBindVertexArray(vao);
 
    // Prepare the vertex buffer object
@@ -57,15 +54,13 @@ void DebugRenderer::init() {
 }
 
 void DebugRenderer::render(const DebugDrawer &drawer, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix) {
-   shaderProgram->use();
-
    // View matrix
-   GLint uViewMatrix = shaderProgram->getUniform("uViewMatrix");
-   glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+   shaderProgram->setUniformValue("uViewMatrix", viewMatrix);
 
    // Projection matrix
-   GLint uProjMatrix = shaderProgram->getUniform("uProjMatrix");
-   glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+   shaderProgram->setUniformValue("uProjMatrix", projectionMatrix);
+
+   shaderProgram->commit();
 
    const std::vector<Line> &lines = drawer.getLines();
    const std::vector<LineColor> &colors = drawer.getColors();
@@ -96,6 +91,4 @@ void DebugRenderer::render(const DebugDrawer &drawer, const glm::mat4 &viewMatri
 
    // Unbind
    glBindVertexArray(0);
-
-   shaderProgram->disable();
 }

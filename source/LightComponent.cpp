@@ -14,18 +14,17 @@ LightComponent::LightComponent(GameObject &gameObject, LightType type, const glm
 LightComponent::~LightComponent() {
 }
 
-void LightComponent::draw(const ShaderProgram &shaderProgram, const unsigned int index) {
+void LightComponent::draw(ShaderProgram &shaderProgram, const unsigned int index) {
    std::stringstream ss;
    ss << "uLights[" << index << "]";
    const std::string &lightName = ss.str();
 
-   shaderProgram.use();
-   glUniform1i(shaderProgram.getUniform(lightName + ".type"), type);
-   glUniform3fv(shaderProgram.getUniform(lightName + ".color"), 1, glm::value_ptr(color));
-   glUniform3fv(shaderProgram.getUniform(lightName + ".position"), 1, glm::value_ptr(gameObject.getPosition()));
-   glUniform3fv(shaderProgram.getUniform(lightName + ".direction"), 1, glm::value_ptr(direction));
-   glUniform1f(shaderProgram.getUniform(lightName + ".linearFalloff"), linearFalloff);
-   glUniform1f(shaderProgram.getUniform(lightName + ".squareFalloff"), squareFalloff);
-   glUniform1f(shaderProgram.getUniform(lightName + ".beamAngle"), beamAngle);
-   glUniform1f(shaderProgram.getUniform(lightName + ".cutoffAngle"), cutoffAngle);
+   shaderProgram.setUniformValue(lightName + ".type", type);
+   shaderProgram.setUniformValue(lightName + ".color", color);
+   shaderProgram.setUniformValue(lightName + ".position", gameObject.getPosition());
+   shaderProgram.setUniformValue(lightName + ".direction", direction);
+   shaderProgram.setUniformValue(lightName + ".linearFalloff", linearFalloff);
+   shaderProgram.setUniformValue(lightName + ".squareFalloff", squareFalloff);
+   shaderProgram.setUniformValue(lightName + ".beamAngle", beamAngle);
+   shaderProgram.setUniformValue(lightName + ".cutoffAngle", cutoffAngle);
 }

@@ -7,16 +7,12 @@
 class ShaderProgram;
 
 class TimeMaterial : public Material {
-protected:
-   // Location of the time uniform
-   GLint uTime;
-
 public:
-   TimeMaterial(const ShaderProgram &shaderProgram);
+   TimeMaterial();
 
    virtual ~TimeMaterial();
 
-   virtual void apply(const Mesh &mesh);
+   virtual void apply(ShaderProgram &shaderProgram);
 
    virtual void disable();
 };

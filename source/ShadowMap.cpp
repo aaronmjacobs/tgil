@@ -19,9 +19,6 @@ ShadowMap::~ShadowMap() {
 
 void ShadowMap::init(int size) {
    shadowProgram = Context::getInstance().getAssetManager().loadShaderProgram("shaders/shadow");
-   shadowProgram->addUniform("uProjMatrix");
-   shadowProgram->addUniform("uViewMatrix");
-   shadowProgram->addUniform("uModelMatrix");
 
    cube = false;
    this->size = size;
@@ -54,9 +51,6 @@ void ShadowMap::init(int size) {
 
 void ShadowMap::initCube(int size) {
    shadowProgram = Context::getInstance().getAssetManager().loadShaderProgram("shaders/shadow");
-   shadowProgram->addUniform("uProjMatrix");
-   shadowProgram->addUniform("uViewMatrix");
-   shadowProgram->addUniform("uModelMatrix");
 
    cube = true;
    this->size = size;

@@ -22,6 +22,13 @@ Model::Model(SPtr<ShaderProgram> shaderProgram, SPtr<Mesh> mesh)
    glEnableVertexAttribArray(ShaderAttributes::NORMAL);
    glVertexAttribPointer(ShaderAttributes::NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+   if (mesh->hasTBO()) {
+      // Prepare the texture buffer object
+      glBindBuffer(GL_ARRAY_BUFFER, mesh->getTBO());
+      glEnableVertexAttribArray(ShaderAttributes::TEX_COORD);
+      glVertexAttribPointer(ShaderAttributes::TEX_COORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
+   }
+
    // Prepare the index buffer object
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->getIBO());
 
@@ -35,7 +42,6 @@ Model::~Model() {
 void Model::draw(const RenderData &renderData) {
    SPtr<ShaderProgram> overrideProgram = renderData.getOverrideProgram();
    SPtr<ShaderProgram> program = overrideProgram ? overrideProgram : shaderProgram;
-   program->use();
 
    // Bind
    glBindVertexArray(vao);
@@ -43,9 +49,11 @@ void Model::draw(const RenderData &renderData) {
    if (!overrideProgram) {
       // Apply the material properties
       for (SPtr<Material> material : materials) {
-         material->apply(*mesh);
+         material->apply(*program);
       }
    }
+
+   program->commit();
 
    // Draw
    glDrawElements(GL_TRIANGLES, mesh->getNumIndices(), GL_UNSIGNED_INT, 0);

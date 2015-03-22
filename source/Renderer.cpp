@@ -189,15 +189,12 @@ void Renderer::renderShadowMap(Scene &scene) {
    glClear(GL_DEPTH_BUFFER_BIT);
 
    SPtr<ShaderProgram> shadowProgram = shadowMap->getShadowProgram();
-   shadowProgram->use();
 
    // Projection matrix
-   GLint uProjMatrix = shadowProgram->getUniform("uProjMatrix");
-   glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(shadowMap->getProjectionMatrix()));
+   shadowProgram->setUniformValue("uProjMatrix", shadowMap->getProjectionMatrix());
 
    // View matrix
-   GLint uViewMatrix = shadowProgram->getUniform("uViewMatrix");
-   glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(shadowMap->getViewMatrix()));
+   shadowProgram->setUniformValue("uViewMatrix", shadowMap->getViewMatrix());
 
    RenderData renderData;
    renderData.setOverrideProgram(shadowProgram);
@@ -224,41 +221,28 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    GLenum shadowTextureUnit = Context::getInstance().getTextureUnitManager().get();
    const std::set<SPtr<ShaderProgram>> &shaderPrograms = scene.getShaderPrograms();
    for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
-      shaderProgram->use();
-
       // Projection matrix
-      GLint uProjMatrix = shaderProgram->getUniform("uProjMatrix");
-      glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+      shaderProgram->setUniformValue("uProjMatrix", projectionMatrix);
 
       // View matrix
-      GLint uViewMatrix = shaderProgram->getUniform("uViewMatrix");
-      glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+      shaderProgram->setUniformValue("uViewMatrix", viewMatrix);
 
       // Camera position
-      if (shaderProgram->hasUniform("uCameraPos")) {
-         GLint uCameraPos = shaderProgram->getUniform("uCameraPos");
-         glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraPosition));
-      }
+      shaderProgram->setUniformValue("uCameraPos", cameraPosition, true);
 
       // Shadows
-      if (shaderProgram->hasUniform("uShadowProj")) {
-         GLint uShadowProj = shaderProgram->getUniform("uShadowProj");
-         glUniformMatrix4fv(uShadowProj, 1, GL_FALSE, glm::value_ptr(shadowProj));
-      }
-      if (shaderProgram->hasUniform("uShadowView")) {
-         GLint uShadowView = shaderProgram->getUniform("uShadowView");
-         glUniformMatrix4fv(uShadowView, 1, GL_FALSE, glm::value_ptr(shadowView));
-      }
+      shaderProgram->setUniformValue("uShadowProj", shadowProj, true);
+      shaderProgram->setUniformValue("uShadowView", shadowView, true);
       if (shaderProgram->hasUniform("uShadowMap")) {
-         GLint uShadowMap = shaderProgram->getUniform("uShadowMap");
-         glUniform1i(uShadowMap, shadowTextureUnit);
+         shaderProgram->setUniformValue("uShadowMap", shadowTextureUnit);
          glActiveTexture(GL_TEXTURE0 + shadowTextureUnit);
          glBindTexture(GL_TEXTURE_2D, shadowMap->getTextureID());
       }
 
       // Lights
       if (shaderProgram->hasUniform("uNumLights")) {
-         glUniform1i(shaderProgram->getUniform("uNumLights"), lights.size());
+         shaderProgram->setUniformValue("uNumLights", (int)lights.size());
+
          unsigned int lightIndex = 0;
          for (SPtr<GameObject> light : lights) {
             light->getLightComponent().draw(*shaderProgram, lightIndex++);

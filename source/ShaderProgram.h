@@ -2,24 +2,101 @@
 #define SHADER_PROGRAM_H
 
 #include "GLIncludes.h"
+#include "LogHelper.h"
 #include "Types.h"
+
+#include <glm/glm.hpp>
 
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+class Context;
 class Shader;
 
 namespace ShaderAttributes {
-   enum Attributes : GLint {
-      POSITION = 0,
-      NORMAL = 1,
-      TEX_COORD = 2,
-      COLOR = 3,
-   };
+
+enum Attributes : GLint {
+   POSITION = 0,
+   NORMAL = 1,
+   TEX_COORD = 2,
+   COLOR = 3,
+};
+
 } // namespace ShaderAttributes
 
-typedef std::unordered_map<std::string, GLint> UniformMap;
+union UniformData {
+   bool boolVal;
+   int intVal;
+   float floatVal;
+   glm::vec2 vec2Val;
+   glm::vec3 vec3Val;
+   glm::vec4 vec4Val;
+   glm::mat4 mat4Val;
+
+   UniformData() {
+      memset(this, 0, sizeof(UniformData));
+   }
+
+   ~UniformData() {
+   }
+};
+
+class Uniform {
+protected:
+   const GLint location;
+   const GLenum type;
+   const std::string name;
+   UniformData activeData;
+   UniformData pendingData;
+   bool dirty;
+
+public:
+   Uniform(const GLint location, const GLenum type, const std::string &name);
+
+   virtual ~Uniform();
+
+   void commit();
+
+   GLenum getType() const {
+      return type;
+   }
+
+   const std::string& getName() const {
+      return name;
+   }
+
+   const UniformData& getActiveData() const {
+      return activeData;
+   }
+
+   UniformData& getPendingData() {
+      dirty = true;
+      return pendingData;
+   }
+
+   const UniformData& getPendingData() const {
+      return pendingData;
+   }
+
+   void setValue(bool value);
+
+   void setValue(int value);
+
+   void setValue(GLenum value);
+
+   void setValue(float value);
+
+   void setValue(const glm::vec2 &value);
+
+   void setValue(const glm::vec3 &value);
+
+   void setValue(const glm::vec4 &value);
+
+   void setValue(const glm::mat4 &value);
+};
+
+typedef std::unordered_map<std::string, SPtr<Uniform>> UniformMap;
 
 class ShaderProgram {
 protected:
@@ -33,10 +110,14 @@ protected:
     */
    std::vector<SPtr<Shader>> shaders;
 
+   UniformMap uniforms;
+
+   Context &context;
+
    /**
-    * A map of uniform names to their location
+    * Sets the program as the active program
     */
-   UniformMap uniformMap;
+   void use() const;
 
 public:
    ShaderProgram();
@@ -61,29 +142,27 @@ public:
    bool link();
 
    /**
-    * Sets the program as the active program
-    */
-   void use() const;
-
-   /**
-    * Disables the program
-    */
-   void disable() const;
-
-   /**
-    * Adds the uniform with the given name to the uniform map
-    */
-   GLint addUniform(const std::string &name);
-
-   /**
-    * Gets the location of the uniform with the given name from the uniform map
-    */
-   GLint getUniform(const std::string &name) const;
-
-   /**
     * Returns whether the program has a uniform with the given name
     */
    bool hasUniform(const std::string &name) const;
+
+   SPtr<Uniform> getUniform(const std::string &name) const;
+
+   void commit();
+
+   template<typename T>
+   void setUniformValue(const std::string &name, const T &value, bool ignoreFailure = false) {
+      UniformMap::iterator itr = uniforms.find(name);
+      if (itr == uniforms.end()) {
+         if (!ignoreFailure) {
+            LOG_WARNING("Uniform with given name doesn't exist: " << name);
+         }
+
+         return;
+      }
+
+      itr->second->setValue(value);
+   }
 };
 
 #endif

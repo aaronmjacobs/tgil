@@ -27,19 +27,17 @@ void GeometricGraphicsComponent::draw(const RenderData &renderData) {
 
    SPtr<ShaderProgram> overrideProgram = renderData.getOverrideProgram();
    SPtr<ShaderProgram> shaderProgram = overrideProgram ? overrideProgram : model->getShaderProgram();
-   shaderProgram->use();
 
    if (shaderProgram->hasUniform("uModelMatrix")) {
       const glm::mat4 &transMatrix = glm::translate(gameObject.getPosition());
       const glm::mat4 &rotMatrix = glm::toMat4(gameObject.getOrientation());
       const glm::mat4 &scaleMatrix = glm::scale(gameObject.getScale());
       const glm::mat4 &modelMatrix = transMatrix * rotMatrix * scaleMatrix;
-
-      glUniformMatrix4fv(shaderProgram->getUniform("uModelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+      shaderProgram->setUniformValue("uModelMatrix", modelMatrix);
 
       if (shaderProgram->hasUniform("uNormalMatrix")) {
          const glm::mat4 &normalMatrix = glm::transpose(glm::inverse(modelMatrix));
-         glUniformMatrix4fv(shaderProgram->getUniform("uNormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+         shaderProgram->setUniformValue("uNormalMatrix", normalMatrix);
       }
    }
 

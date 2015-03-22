@@ -28,45 +28,6 @@ const float COOLDOWN = 3.0f;
 const float FORCE = 75.0f;
 const float LIFE_TIME = 0.25f;
 
-// TODO Handle in asset manager somehow
-const int MAX_LIGHTS = 10;
-
-void addLightUniforms(ShaderProgram &shaderProgram) {
-   for (int i = 0; i < MAX_LIGHTS; ++i) {
-      std::stringstream ss;
-      ss << "uLights[" << i << "].";
-      std::string lightName = ss.str();
-
-      shaderProgram.addUniform(lightName + "type");
-      shaderProgram.addUniform(lightName + "color");
-      shaderProgram.addUniform(lightName + "position");
-      shaderProgram.addUniform(lightName + "direction");
-      shaderProgram.addUniform(lightName + "linearFalloff");
-      shaderProgram.addUniform(lightName + "squareFalloff");
-      shaderProgram.addUniform(lightName + "beamAngle");
-      shaderProgram.addUniform(lightName + "cutoffAngle");
-   }
-}
-
-SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/phong");
-
-   shaderProgram->addUniform("uProjMatrix");
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uModelMatrix");
-   shaderProgram->addUniform("uNormalMatrix");
-   shaderProgram->addUniform("uNumLights");
-   shaderProgram->addUniform("uMaterial.ambient");
-   shaderProgram->addUniform("uMaterial.diffuse");
-   shaderProgram->addUniform("uMaterial.emission");
-   shaderProgram->addUniform("uMaterial.shininess");
-   shaderProgram->addUniform("uMaterial.specular");
-   shaderProgram->addUniform("uCameraPos");
-   addLightUniforms(*shaderProgram);
-      
-   return shaderProgram;
-}
-
 } // namespace
 
 ShoveAbility::ShoveAbility(GameObject &gameObject)
@@ -100,8 +61,8 @@ void ShoveAbility::use() {
    if (playerLogic) {
       color = playerLogic->getColor();
    }
-   SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
-   SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 0.8f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   SPtr<ShaderProgram> shaderProgram(assetManager.loadShaderProgram("shaders/phong"));
+   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 0.8f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, mesh));
    model->attachMaterial(material);
    shove->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*shove));
