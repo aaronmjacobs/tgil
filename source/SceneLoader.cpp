@@ -7,6 +7,7 @@
 #include "GhostPhysicsComponent.h"
 #include "InputComponent.h"
 #include "InputHandler.h"
+#include "LightComponent.h"
 #include "LogHelper.h"
 #include "MeshPhysicsComponent.h"
 #include "Model.h"
@@ -15,7 +16,6 @@
 #include "PlayerGraphicsComponent.h"
 #include "PlayerLogicComponent.h"
 #include "PlayerPhysicsComponent.h"
-#include "PointLightComponent.h"
 #include "Scene.h"
 #include "SceneLoader.h"
 #include "Shader.h"
@@ -35,115 +35,8 @@
 
 namespace {
 
-const int MAX_LIGHTS = 10;
-
-void addLightUniforms(ShaderProgram &shaderProgram) {
-   for (int i = 0; i < MAX_LIGHTS; ++i) {
-      std::stringstream ss;
-      ss << "uLights[" << i << "].";
-      std::string lightName = ss.str();
-
-      shaderProgram.addUniform(lightName + "position");
-      shaderProgram.addUniform(lightName + "color");
-      shaderProgram.addUniform(lightName + "constFalloff");
-      shaderProgram.addUniform(lightName + "linearFalloff");
-      shaderProgram.addUniform(lightName + "squareFalloff");
-   }
-}
-
-SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/phong");
-
-   shaderProgram->addUniform("uProjMatrix");
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uModelMatrix");
-   shaderProgram->addUniform("uNormalMatrix");
-   shaderProgram->addUniform("uNumLights");
-   shaderProgram->addUniform("uMaterial.ambient");
-   shaderProgram->addUniform("uMaterial.diffuse");
-   shaderProgram->addUniform("uMaterial.emission");
-   shaderProgram->addUniform("uMaterial.shininess");
-   shaderProgram->addUniform("uMaterial.specular");
-   shaderProgram->addUniform("uCameraPos");
-   addLightUniforms(*shaderProgram);
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aNormal");
-
-   return shaderProgram;
-}
-
-SPtr<ShaderProgram> loadPhongTextureShaderProgram(AssetManager &assetManager) {
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/phong_textured");
-
-   shaderProgram->addUniform("uProjMatrix");
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uModelMatrix");
-   shaderProgram->addUniform("uNormalMatrix");
-   shaderProgram->addUniform("uNumLights");
-   shaderProgram->addUniform("uMaterial.ambient");
-   shaderProgram->addUniform("uMaterial.diffuse");
-   shaderProgram->addUniform("uMaterial.emission");
-   shaderProgram->addUniform("uMaterial.shininess");
-   shaderProgram->addUniform("uMaterial.specular");
-   shaderProgram->addUniform("uCameraPos");
-   addLightUniforms(*shaderProgram);
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aNormal");
-
-   shaderProgram->addUniform("uTexture");
-   shaderProgram->addAttribute("aTexCoord");
-
-   return shaderProgram;
-}
-
-SPtr<ShaderProgram> loadTilingTextureShaderProgram(AssetManager &assetManager) {
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/tiling_texture");
-
-   shaderProgram->addUniform("uProjMatrix");
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uModelMatrix");
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aNormal");
-
-   shaderProgram->addUniform("uTexture");
-
-   return shaderProgram;
-}
-
-SPtr<ShaderProgram> loadLavaShaderProgram(AssetManager &assetManager) {
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/lava");
-
-   shaderProgram->addUniform("uProjMatrix");
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uModelMatrix");
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aTexCoord");
-
-   shaderProgram->addUniform("uTexture");
-   shaderProgram->addUniform("uNoiseTexture");
-   shaderProgram->addUniform("uTime");
-
-   return shaderProgram;
-}
-
-SPtr<ShaderProgram> loadSkyboxShaderProgram(AssetManager &assetManager) {
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/skybox");
-
-   shaderProgram->addUniform("uProjMatrix");
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uSkybox");
-
-   shaderProgram->addAttribute("aPosition");
-
-   return shaderProgram;
-}
-
-SPtr<PhongMaterial> createPhongMaterial(ShaderProgram &shaderProgram, glm::vec3 color, float specular, float shininess) {
-   return std::make_shared<PhongMaterial>(shaderProgram, color * 0.2f, color * 0.6f, glm::vec3(specular), glm::vec3(0.0f), shininess);
+SPtr<PhongMaterial> createPhongMaterial(glm::vec3 color, float specular, float shininess) {
+   return std::make_shared<PhongMaterial>(color * 0.2f, color * 0.6f, glm::vec3(specular), glm::vec3(0.0f), shininess);
 }
 
 SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position, const glm::vec3 &scale, float friction, float restitution) {
@@ -196,7 +89,7 @@ SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3
 
    // Graphics
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, mesh));
-   model->attachMaterial(createPhongMaterial(*shaderProgram, color, 0.2f, 50.0f));
+   model->attachMaterial(createPhongMaterial(color, 0.2f, 50.0f));
    player->setGraphicsComponent(std::make_shared<PlayerGraphicsComponent>(*player));
    player->getGraphicsComponent().setModel(model);
 
@@ -225,19 +118,41 @@ SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3
    return player;
 }
 
-SPtr<GameObject> createLight(const glm::vec3 &position, const glm::vec3 &color, float constFalloff, float linearFalloff, float squareFalloff) {
+SPtr<GameObject> createPointLight(const glm::vec3 &position, const glm::vec3 &color, float linearFalloff, float squareFalloff) {
    SPtr<GameObject> light(std::make_shared<GameObject>());
 
    // Transform
    light->setPosition(position);
 
    // Light
-   SPtr<PointLightComponent> pointLightComponent(std::make_shared<PointLightComponent>(*light));
+   SPtr<LightComponent> pointLightComponent(std::make_shared<LightComponent>(*light, LightComponent::Point, color, glm::vec3(0.0f), linearFalloff, squareFalloff));
    light->setLightComponent(pointLightComponent);
-   pointLightComponent->setColor(color);
-   pointLightComponent->setConstFalloff(constFalloff);
-   pointLightComponent->setLinearFalloff(linearFalloff);
-   pointLightComponent->setSquareFalloff(squareFalloff);
+
+   return light;
+}
+
+SPtr<GameObject> createDirectionalLight(const glm::vec3 &position, const glm::vec3 &color, const glm::vec3 &direction) {
+   SPtr<GameObject> light(std::make_shared<GameObject>());
+
+   // Transform
+   light->setPosition(position);
+
+   // Light
+   SPtr<LightComponent> directionalLightComponent(std::make_shared<LightComponent>(*light, LightComponent::Directional, color, direction));
+   light->setLightComponent(directionalLightComponent);
+
+   return light;
+}
+
+SPtr<GameObject> createSpotLight(const glm::vec3 &position, const glm::vec3 &color, const glm::vec3 &direction, float linearFalloff, float squareFalloff, float beamAngle, float cutoffAngle) {
+   SPtr<GameObject> light(std::make_shared<GameObject>());
+
+   // Transform
+   light->setPosition(position);
+
+   // Light
+   SPtr<LightComponent> pointLightComponent(std::make_shared<LightComponent>(*light, LightComponent::Spot, color, direction, linearFalloff, squareFalloff, beamAngle, cutoffAngle));
+   light->setLightComponent(pointLightComponent);
 
    return light;
 }
@@ -387,11 +302,11 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    SPtr<Scene> scene(std::make_shared<Scene>());
    AssetManager &assetManager = context.getAssetManager();
 
-   SPtr<ShaderProgram> phongShaderProgram = loadPhongShaderProgram(assetManager);
-   SPtr<ShaderProgram> phongTextureShaderProgram = loadPhongTextureShaderProgram(assetManager);
-   SPtr<ShaderProgram> tilingTextureShaderProgram = loadTilingTextureShaderProgram(assetManager);
-   SPtr<ShaderProgram> lavaShaderProgram = loadLavaShaderProgram(assetManager);
-   SPtr<ShaderProgram> skyboxShaderProgram = loadSkyboxShaderProgram(assetManager);
+   SPtr<ShaderProgram> phongShaderProgram(assetManager.loadShaderProgram("shaders/phong"));
+   SPtr<ShaderProgram> phongTextureShaderProgram(assetManager.loadShaderProgram("shaders/phong_textured"));
+   SPtr<ShaderProgram> tilingTextureShaderProgram(assetManager.loadShaderProgram("shaders/tiling_texture"));
+   SPtr<ShaderProgram> lavaShaderProgram(assetManager.loadShaderProgram("shaders/lava"));
+   SPtr<ShaderProgram> skyboxShaderProgram(assetManager.loadShaderProgram("shaders/skybox"));
 
    //GLuint lavaTextureID = assetManager.loadTexture("textures/lava.png", TextureWrap::Repeat);
    GLuint rockTextureID = assetManager.loadTexture("textures/soil.jpg", TextureWrap::Repeat);
@@ -400,14 +315,14 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    GLuint lavatileTextureID = assetManager.loadTexture("textures/lavatile2.jpg", TextureWrap::Repeat);
    GLuint noiseID = assetManager.loadTexture("textures/cloud.png", TextureWrap::Repeat);
 
-   SPtr<PhongMaterial> boxMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(1.0f), 0.2f, 50.0f);
+   SPtr<PhongMaterial> boxMaterial = createPhongMaterial(glm::vec3(1.0f), 0.2f, 50.0f);
    //SPtr<PhongMaterial> planeMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.4f), 0.2f, 50.0f);
-   SPtr<TextureMaterial> rockMaterial(std::make_shared<TextureMaterial>(*phongTextureShaderProgram, rockTextureID, "uTexture"));
+   SPtr<TextureMaterial> rockMaterial(std::make_shared<TextureMaterial>(rockTextureID, "uTexture"));
    //SPtr<TextureMaterial> lavaMaterial(std::make_shared<TextureMaterial>(*tilingTextureShaderProgram, lavaTextureID, "uTexture"));
-   SPtr<TextureMaterial> skyboxMaterial(std::make_shared<TextureMaterial>(*skyboxShaderProgram, skyboxID, "uSkybox", GL_TEXTURE_CUBE_MAP));
-   SPtr<TextureMaterial> lavatileMaterial(std::make_shared<TextureMaterial>(*lavaShaderProgram, lavatileTextureID, "uTexture"));
-   SPtr<TextureMaterial> noiseMaterial(std::make_shared<TextureMaterial>(*lavaShaderProgram, noiseID, "uNoiseTexture"));
-   SPtr<TimeMaterial> timeMaterial(std::make_shared<TimeMaterial>(*lavaShaderProgram));
+   SPtr<TextureMaterial> skyboxMaterial(std::make_shared<TextureMaterial>(skyboxID, "uSkybox", GL_TEXTURE_CUBE_MAP));
+   SPtr<TextureMaterial> lavatileMaterial(std::make_shared<TextureMaterial>(lavatileTextureID, "uTexture"));
+   SPtr<TextureMaterial> noiseMaterial(std::make_shared<TextureMaterial>(noiseID, "uNoiseTexture"));
+   SPtr<TimeMaterial> timeMaterial(std::make_shared<TimeMaterial>());
 
    SPtr<Mesh> skyboxMesh = assetManager.loadMesh("meshes/skybox.obj");
    SPtr<Mesh> boxMesh = assetManager.loadMesh("meshes/cube.obj");
@@ -433,16 +348,18 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
 
    // Light
    float sunDistance = 300.0f;
-   glm::vec3 sunPos = glm::vec3(-1.0f, 3.0f, 0.5f) * sunDistance;
-   float sunIntensity = 2.0f;
+   glm::vec3 sunPos = glm::vec3(-1.0f, 1.0f, 0.5f) * sunDistance;
+   float sunIntensity = 1.25f;
    glm::vec3 sunColor = glm::normalize(glm::vec3(1.0f, 0.95f, 0.75f)) * sunIntensity;
-   scene->addLight(createLight(sunPos, sunColor, 0.0f, 0.0f, 0.0f));
+   scene->addLight(createDirectionalLight(sunPos, sunColor, glm::vec3(1.0f, -3.0f, -0.5f)));
 
-   glm::vec3 lavaLightColor = glm::vec3(0.9f, 0.4f, 0.1f) * 0.5f;
-   scene->addLight(createLight(glm::vec3(-80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
-   scene->addLight(createLight(glm::vec3(80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
-   scene->addLight(createLight(glm::vec3(-80.0f, -50.0f, 80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
-   scene->addLight(createLight(glm::vec3(80.0f, -50.0f, 80.0f), lavaLightColor, 0.0f, 0.0f, 0.0f));
+   //scene->addLight(createSpotLight(glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, 0.0f, 0.4f, 0.5f));
+
+   glm::vec3 lavaLightColor = glm::vec3(0.9f, 0.4f, 0.1f) * 0.0f;
+   //scene->addLight(createPointLight(glm::vec3(-12.0f, 23.0f, 0.0f), lavaLightColor, 0.0f, 0.0f));
+   //scene->addLight(createPointLight(glm::vec3(12.0f, 23.0f, 0.0f), lavaLightColor, 0.0f, 0.0f));
+   //scene->addLight(createPointLight(glm::vec3(0.0f, 23.0f, -12.0f), lavaLightColor, 0.0f, 0.0f));
+   //scene->addLight(createPointLight(glm::vec3(0.0f, 23.0f, 12.0f), lavaLightColor, 0.0f, 0.0f));
 
    // Lava
    float lavaSize = 100.0f;
@@ -481,10 +398,10 @@ SPtr<Scene> loadTowerScene(const Context &context) {
    SPtr<Scene> scene(std::make_shared<Scene>());
    AssetManager &assetManager = context.getAssetManager();
 
-   SPtr<ShaderProgram> phongShaderProgram = loadPhongShaderProgram(assetManager);
+   SPtr<ShaderProgram> phongShaderProgram(assetManager.loadShaderProgram("shaders/phong"));
 
-   SPtr<PhongMaterial> boxMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.1f, 0.3f, 0.8f), 0.2f, 50.0f);
-   SPtr<PhongMaterial> planeMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.4f), 0.2f, 50.0f);
+   SPtr<PhongMaterial> boxMaterial = createPhongMaterial(glm::vec3(0.1f, 0.3f, 0.8f), 0.2f, 50.0f);
+   SPtr<PhongMaterial> planeMaterial = createPhongMaterial(glm::vec3(0.4f), 0.2f, 50.0f);
 
    SPtr<Mesh> boxMesh = assetManager.loadMesh("meshes/cube.obj");
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
@@ -496,7 +413,7 @@ SPtr<Scene> loadTowerScene(const Context &context) {
    planeModel->attachMaterial(planeMaterial);
 
    // Light
-   scene->addLight(createLight(glm::vec3(0.0f, 50.0f, 0.0f), glm::vec3(0.7f), 0.001f, 0.0005f, 0.0001f));
+   scene->addLight(createPointLight(glm::vec3(0.0f, 50.0f, 0.0f), glm::vec3(0.7f), 0.0005f, 0.0001f));
 
    // Ground plane
    scene->addObject(createStaticObject(planeModel, glm::vec3(0.0f), glm::vec3(100.0f), 1.0f, 0.3f));
@@ -535,6 +452,11 @@ SPtr<Scene> loadCenterPlatformScene(const Context &context) {
    return loadBasicScene(context, spawnLocations, [](Scene &scene, SPtr<Model> boxModel) {
       // Single platform
       scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f), glm::vec3(30.0f, 20.0f, 30.0f), 1.0f, 0.3f));
+
+      SPtr<GameObject> spotLight(std::make_shared<GameObject>());
+      spotLight->setPosition(glm::vec3(4.0f, 20.0f, 5.0f));
+      spotLight->setLightComponent(std::make_shared<LightComponent>(*spotLight, LightComponent::Spot, glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(-0.4f, -0.9f, -0.7f), 0.0f, 0.02f, 0.5f, 0.6f));
+      scene.addLight(spotLight);
    });
 }
 

@@ -16,7 +16,7 @@ TextureUnitManager::~TextureUnitManager() {
 }
 
 void TextureUnitManager::init() {
-   glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+   glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
    ASSERT(maxTextureUnits > 0, "Max texture units is less than 1");
 
    reset();
@@ -24,6 +24,8 @@ void TextureUnitManager::init() {
 
 void TextureUnitManager::reset() {
    textureUnits.assign(maxTextureUnits, AVAILABLE);
+   textureUnits[getReservedShadowUnit()] = IN_USE; // Reserved for shadows
+   textureUnits[getReservedCubeShadowUnit()] = IN_USE; // Reserved for cube shadows
 }
 
 GLenum TextureUnitManager::get() {
@@ -49,4 +51,14 @@ void TextureUnitManager::release(GLenum textureUnit) {
 
    ASSERT(!textureUnits[textureUnit], "Trying to release already released texture unit");
    textureUnits[textureUnit] = AVAILABLE;
+}
+
+GLenum TextureUnitManager::getReservedShadowUnit() const {
+   ASSERT(textureUnits.size() > 0, "Not enough texture units to reserve for shadows");
+   return textureUnits.size() - 1;
+}
+
+GLenum TextureUnitManager::getReservedCubeShadowUnit() const {
+   ASSERT(textureUnits.size() > 1, "Not enough texture units to reserve for cube shadows");
+   return textureUnits.size() - 2;
 }

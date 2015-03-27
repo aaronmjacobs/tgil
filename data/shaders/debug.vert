@@ -3,8 +3,8 @@
 uniform mat4 uViewMatrix;
 uniform mat4 uProjMatrix;
 
-in vec3 aPosition;
-in vec3 aColor;
+layout(location = 0) in vec3 aPosition;
+layout(location = 3) in vec3 aColor;
 
 out vec3 vColor;
 

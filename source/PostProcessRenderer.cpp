@@ -3,33 +3,29 @@
 #include "Material.h"
 #include "Model.h"
 #include "PostProcessRenderer.h"
+#include "RenderData.h"
 #include "ShaderProgram.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
 class TintMaterial : public Material {
 protected:
-   GLint uOpacity;
-   GLint uTint;
    float opacity;
    glm::vec3 tint;
 
 public:
-   TintMaterial(const ShaderProgram &shaderProgram);
+   TintMaterial();
 
    virtual ~TintMaterial();
 
-   virtual void apply(const Mesh &mesh);
+   virtual void apply(ShaderProgram &shaderProgram);
 
    virtual void disable();
 
    void setValues(float opacity, const glm::vec3 &tint);
 };
 
-TintMaterial::TintMaterial(const ShaderProgram &shaderProgram) {
-   uOpacity = shaderProgram.getUniform("uOpacity");
-   uTint = shaderProgram.getUniform("uTint");
-
+TintMaterial::TintMaterial() {
    opacity = 1.0f;
    tint = glm::vec3(0.0f);
 }
@@ -37,9 +33,9 @@ TintMaterial::TintMaterial(const ShaderProgram &shaderProgram) {
 TintMaterial::~TintMaterial() {
 }
 
-void TintMaterial::apply(const Mesh &mesh) {
-   glUniform1f(uOpacity, opacity);
-   glUniform3fv(uTint, 1, glm::value_ptr(tint));
+void TintMaterial::apply(ShaderProgram &shaderProgram) {
+   shaderProgram.setUniformValue("uOpacity", opacity);
+   shaderProgram.setUniformValue("uTint", tint);
 }
 
 void TintMaterial::disable() {
@@ -59,11 +55,8 @@ PostProcessRenderer::~PostProcessRenderer() {
 void PostProcessRenderer::loadPlane() {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
    SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/tint");
-   shaderProgram->addUniform("uOpacity");
-   shaderProgram->addUniform("uTint");
-   shaderProgram->addAttribute("aPosition");
 
-   material = std::make_shared<TintMaterial>(*shaderProgram);
+   material = std::make_shared<TintMaterial>();
 
    // TODO Hardcode the mesh
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xy_plane.obj");
@@ -78,9 +71,8 @@ void PostProcessRenderer::init() {
 void PostProcessRenderer::render(float opacity, const glm::vec3 &tint) {
    material->setValues(opacity, tint);
 
-   xyPlane->getShaderProgram()->use();
+   material->apply(*xyPlane->getShaderProgram());
 
-   material->apply(xyPlane->getMesh());
-
-   xyPlane->draw();
+   RenderData renderData;
+   xyPlane->draw(renderData);
 }

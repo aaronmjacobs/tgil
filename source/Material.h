@@ -3,7 +3,7 @@
 
 #include "Types.h"
 
-class Mesh;
+class ShaderProgram;
 
 class Material {
 public:
@@ -12,9 +12,9 @@ public:
    virtual ~Material() {}
 
    /**
-    * Applies the material properties to the given shader program with the given mesh
+    * Applies the material properties to the given shader program
     */
-   virtual void apply(const Mesh &mesh) = 0;
+   virtual void apply(ShaderProgram &shaderProgram) = 0;
 
    /**
     * Disables any changed states that were set in apply

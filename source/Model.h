@@ -8,6 +8,7 @@
 
 class Material;
 class Mesh;
+class RenderData;
 class ShaderProgram;
 
 class Model {
@@ -24,7 +25,7 @@ public:
 
    virtual ~Model();
 
-   virtual void draw();
+   virtual void draw(const RenderData &renderData);
 
    void attachMaterial(SPtr<Material> material);
 

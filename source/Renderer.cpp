@@ -13,9 +13,11 @@
 #include "Model.h"
 #include "PhysicsManager.h"
 #include "PlayerLogicComponent.h"
+#include "RenderData.h"
 #include "Renderer.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
+#include "ShadowMap.h"
 #include "TextureMaterial.h"
 #include "TextureUnitManager.h"
 
@@ -127,6 +129,8 @@ void Renderer::init(float fov, int width, int height) {
 
    this->fov = fov;
 
+   shadowMapManager = std::move(UPtr<ShadowMapManager>(new ShadowMapManager(ShadowMap::MAX_SHADOWS, ShadowMap::MAX_CUBE_SHADOWS)));
+
    onFramebufferSizeChange(width, height);
 
    hudRenderer.init();
@@ -157,6 +161,10 @@ void Renderer::render(Scene &scene) {
    // Free all texture units
    Context::getInstance().getTextureUnitManager().reset();
 
+   renderShadowMaps(scene);
+
+   prepareLights(scene);
+
    const std::vector<SPtr<GameObject>> &cameras = scene.getCameras();
    if (cameras.empty()) {
       LOG_WARNING("Scene must have camera to render");
@@ -176,44 +184,128 @@ void Renderer::render(Scene &scene) {
    }
 }
 
+void Renderer::renderShadowMaps(Scene &scene) {
+   const std::vector<SPtr<GameObject>> &lights = scene.getLights();
+   for (SPtr<GameObject> light : lights) {
+      renderShadowMap(scene, light);
+   }
+}
+
+void Renderer::prepareLights(Scene &scene) {
+   const std::set<SPtr<ShaderProgram>> &shaderPrograms = scene.getShaderPrograms();
+   const std::vector<SPtr<GameObject>> &lights = scene.getLights();
+   GLenum shadowTextureUnit = Context::getInstance().getTextureUnitManager().getReservedShadowUnit();
+   GLenum cubeShadowTextureUnit = Context::getInstance().getTextureUnitManager().getReservedCubeShadowUnit();
+
+   for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
+      // Reset shadows to default textures
+      if (shaderProgram->hasUniform("uShadows[0].shadowMap")) {
+         for (int i = 0; i < ShadowMap::MAX_SHADOWS; ++i) {
+            std::stringstream ss;
+            ss << "uShadows[" << i << "].shadowMap";
+            shaderProgram->setUniformValue(ss.str(), shadowTextureUnit);
+         }
+         for (int i = 0; i < ShadowMap::MAX_CUBE_SHADOWS; ++i) {
+            std::stringstream ss;
+            ss << "uCubeShadows[" << i << "].shadowMap";
+            shaderProgram->setUniformValue(ss.str(), cubeShadowTextureUnit);
+         }
+      }
+
+      // Render light / shadow info
+      if (shaderProgram->hasUniform("uNumLights")) {
+         int numLights = glm::min((int)lights.size(), LightComponent::MAX_LIGHTS);
+         shaderProgram->setUniformValue("uNumLights", numLights);
+
+         unsigned int lightIndex = 0;
+         int shadowIndex = 0;
+         int cubeShadowIndex = 0;
+         for (int i = 0; i < numLights; ++i) {
+            lights[i]->getLightComponent().draw(*shaderProgram, lightIndex++, shadowIndex, cubeShadowIndex);
+         }
+      }
+   }
+}
+
+void Renderer::renderShadowMap(Scene &scene, SPtr<GameObject> light) {
+   LightComponent &lightComponent = light->getLightComponent();
+
+   SPtr<ShadowMap> shadowMap = lightComponent.getShadowMap();
+   if (!shadowMap) {
+      if (lightComponent.getLightType() == LightComponent::Point) {
+         shadowMap = shadowMapManager->getFreeCubeMap();
+      } else {
+         shadowMap = shadowMapManager->getFreeStandardMap();
+      }
+
+      if (!shadowMap) {
+         return;
+      }
+
+      lightComponent.setShadowMap(shadowMap);
+   }
+
+   shadowMap->enable();
+
+   if (shadowMap->isCube()) {
+      for (int i = 0; i < 6; ++i) {
+         shadowMap->setActiveFace(i);
+         renderShadowMapFace(scene, light, shadowMap->getShadowProgram(), i);
+      }
+   } else {
+      renderShadowMapFace(scene, light, shadowMap->getShadowProgram());
+   }
+
+   shadowMap->disable();
+}
+
+void Renderer::renderShadowMapFace(Scene &scene, SPtr<GameObject> light, SPtr<ShaderProgram> shadowProgram, int face) {
+   glClear(GL_DEPTH_BUFFER_BIT);
+   LightComponent &lightComponent = light->getLightComponent();
+
+   // Projection matrix
+   shadowProgram->setUniformValue("uProjMatrix", lightComponent.getProjectionMatrix());
+
+   // View matrix
+   shadowProgram->setUniformValue("uViewMatrix", lightComponent.getViewMatrix(face));
+
+   RenderData renderData;
+   renderData.setOverrideProgram(shadowProgram);
+
+   // Objects
+   const std::vector<SPtr<GameObject>> &gameObjects = scene.getObjects();
+   for (SPtr<GameObject> gameObject : gameObjects) {
+      if (gameObject == light) {
+         continue;
+      }
+
+      gameObject->getGraphicsComponent().draw(renderData);
+   }
+}
+
 void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
+   RenderData renderData;
+
    // Set up shaders
    const CameraComponent &cameraComponent = camera.getCameraComponent();
    const glm::mat4 &viewMatrix = cameraComponent.getViewMatrix();
    const glm::vec3 &cameraPosition = cameraComponent.getCameraPosition();
-   const std::vector<SPtr<GameObject>> &lights = scene.getLights();
    const std::set<SPtr<ShaderProgram>> &shaderPrograms = scene.getShaderPrograms();
    for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
-      shaderProgram->use();
-
       // Projection matrix
-      GLint uProjMatrix = shaderProgram->getUniform("uProjMatrix");
-      glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+      shaderProgram->setUniformValue("uProjMatrix", projectionMatrix);
 
       // View matrix
-      GLint uViewMatrix = shaderProgram->getUniform("uViewMatrix");
-      glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+      shaderProgram->setUniformValue("uViewMatrix", viewMatrix);
 
       // Camera position
-      if (shaderProgram->hasUniform("uCameraPos")) {
-         GLint uCameraPos = shaderProgram->getUniform("uCameraPos");
-         glUniform3fv(uCameraPos, 1, glm::value_ptr(cameraPosition));
-      }
-
-      // Lights
-      if (shaderProgram->hasUniform("uNumLights")) {
-         glUniform1i(shaderProgram->getUniform("uNumLights"), lights.size());
-         unsigned int lightIndex = 0;
-         for (SPtr<GameObject> light : lights) {
-            light->getLightComponent().draw(*shaderProgram, lightIndex++);
-         }
-      }
+      shaderProgram->setUniformValue("uCameraPos", cameraPosition, true);
    }
 
    // Skybox
    SPtr<GameObject> skybox = scene.getSkybox();
    if (skybox) {
-      skybox->getGraphicsComponent().draw();
+      skybox->getGraphicsComponent().draw(renderData);
    }
 
    // Objects
@@ -224,7 +316,7 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
          continue;
       }
 
-      gameObject->getGraphicsComponent().draw();
+      gameObject->getGraphicsComponent().draw(renderData);
    }
 
    if (renderDebug) {

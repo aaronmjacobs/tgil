@@ -7,10 +7,12 @@
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
 #include "GhostPhysicsComponent.h"
+#include "LightComponent.h"
 #include "Mesh.h"
 #include "MeshPhysicsComponent.h"
 #include "Model.h"
 #include "PhongMaterial.h"
+#include "PlayerLogicComponent.h"
 #include "ProjectileLogicComponent.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
@@ -25,47 +27,9 @@ namespace {
 
 const float COOLDOWN = 0.5f;
 const float EXPLOSION_FORCE = 65.0f;
+const float LIFE_TIME = 0.1f;
 
-// TODO Handle in asset manager somehow
-const int MAX_LIGHTS = 10;
-
-void addLightUniforms(ShaderProgram &shaderProgram) {
-   for (int i = 0; i < MAX_LIGHTS; ++i) {
-      std::stringstream ss;
-      ss << "uLights[" << i << "].";
-      std::string lightName = ss.str();
-
-      shaderProgram.addUniform(lightName + "position");
-      shaderProgram.addUniform(lightName + "color");
-      shaderProgram.addUniform(lightName + "constFalloff");
-      shaderProgram.addUniform(lightName + "linearFalloff");
-      shaderProgram.addUniform(lightName + "squareFalloff");
-   }
-}
-
-SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/phong");
-
-   shaderProgram->addUniform("uProjMatrix");
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uModelMatrix");
-   shaderProgram->addUniform("uNormalMatrix");
-   shaderProgram->addUniform("uNumLights");
-   shaderProgram->addUniform("uMaterial.ambient");
-   shaderProgram->addUniform("uMaterial.diffuse");
-   shaderProgram->addUniform("uMaterial.emission");
-   shaderProgram->addUniform("uMaterial.shininess");
-   shaderProgram->addUniform("uMaterial.specular");
-   shaderProgram->addUniform("uCameraPos");
-   addLightUniforms(*shaderProgram);
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aNormal");
-      
-   return shaderProgram;
-}
-
-SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
+SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, const glm::vec3 &color) {
    SPtr<GameObject> explosion(std::make_shared<GameObject>());
 
    explosion->setPosition(position);
@@ -75,13 +39,15 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
 
    // Graphics
    SPtr<Mesh> sphereMesh = assetManager.loadMesh("meshes/sphere.obj");
-   glm::vec3 color(1.0f, 0.35f, 0.15f);
-   SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
-   SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   SPtr<ShaderProgram> shaderProgram(assetManager.loadShaderProgram("shaders/phong"));
+   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 1.0f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, sphereMesh));
    model->attachMaterial(material);
    explosion->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*explosion));
    explosion->getGraphicsComponent().setModel(model);
+
+   // Light
+   explosion->setLightComponent(std::make_shared<LightComponent>(*explosion, LightComponent::Point, color * 2.0f, glm::vec3(0.0f), 0.0f, 0.1f));
 
    // Physics
    explosion->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*explosion, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries | CollisionGroup::Projectiles));
@@ -95,10 +61,11 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale) {
          return;
       }
 
-      if (glfwGetTime() - startTime > 0.1f) {
+      if (glfwGetTime() - startTime > LIFE_TIME) {
          SPtr<GameObject> explosion(wExplosion.lock());
          if (explosion) {
             scene->removeObject(explosion);
+            scene->removeLight(explosion);
          }
       }
 
@@ -170,8 +137,12 @@ void ThrowAbility::use() {
    // Graphics
    SPtr<Model> playerModel = gameObject.getGraphicsComponent().getModel();
    SPtr<Mesh> mesh = Context::getInstance().getAssetManager().loadMesh("meshes/sphere.obj");
-   glm::vec3 color(0.4f);
-   SPtr<Material> material(std::make_shared<PhongMaterial>(*playerModel->getShaderProgram(), color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   glm::vec3 color(1.0f, 0.75f, 0.15f);
+   PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&gameObject.getLogicComponent());
+   if (playerLogic) {
+      color = playerLogic->getColor();
+   }
+   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(playerModel->getShaderProgram(), mesh));
    model->attachMaterial(material);
    projectile->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*projectile));
@@ -188,7 +159,7 @@ void ThrowAbility::use() {
    // Logic
    SPtr<ProjectileLogicComponent> logic(std::make_shared<ProjectileLogicComponent>(*projectile));
    WPtr<GameObject> wProjectile(projectile);
-   logic->setCollisionCallback([wProjectile](GameObject &gameObject, const float lifeTime, const float dt) {
+   logic->setCollisionCallback([wProjectile, color](GameObject &gameObject, const float lifeTime, const float dt) {
       if (lifeTime < 0.25f) {
          //return;
       }
@@ -204,7 +175,10 @@ void ThrowAbility::use() {
       }
 
       scene->removeObject(projectile);
-      scene->addObject(createExplosion(projectile->getPosition(), 1.0f));
+
+      SPtr<GameObject> explosion(createExplosion(projectile->getPosition(), 1.0f, color));
+      scene->addLight(explosion);
+      scene->addObject(explosion);
    });
    projectile->setLogicComponent(logic);
 

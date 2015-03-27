@@ -6,45 +6,60 @@
 #include <glm/glm.hpp>
 
 class ShaderProgram;
+class ShadowMap;
 
 class LightComponent : public Component {
+public:
+   enum LightType {
+      Point = 0,
+      Directional = 1,
+      Spot = 2
+   };
+
 protected:
+   LightType type;
    glm::vec3 color;
+   glm::vec3 direction;
+   float linearFalloff;
+   float squareFalloff;
+   float beamAngle;
+   float cutoffAngle;
+   SPtr<ShadowMap> shadowMap;
 
 public:
-   LightComponent(GameObject &gameObject)
-      : Component(gameObject) {}
+   static const int MAX_LIGHTS = 10;
 
-   virtual ~LightComponent() {}
+   LightComponent(GameObject &gameObject, LightType type = Point, const glm::vec3 &color = glm::vec3(0.0f), const glm::vec3 &direction = glm::vec3(0.0f), float linearFalloff = 0.0f, float squareFalloff = 0.0f, float beamAngle = 0.4f, float cutoffAngle = 0.5f);
 
-   virtual void draw(const ShaderProgram &shaderProgram, const unsigned int index) = 0;
+   virtual ~LightComponent();
 
-   const glm::vec3& getColor() const {
-      return color;
+   virtual void draw(ShaderProgram &shaderProgram, const unsigned int index, int &shadowIndex, int &cubeShadowIndex);
+
+   LightType getLightType() const {
+      return type;
    }
 
-   void setColor(const glm::vec3 &color) {
-      this->color = color;
-   }
-};
+   glm::mat4 getViewMatrix(int face) const;
 
-class NullLightComponent : public LightComponent {
-protected:
-   const glm::vec3 COLOR;
+   glm::mat4 getProjectionMatrix() const;
 
-public:
-   NullLightComponent(GameObject &gameObject)
-      : LightComponent(gameObject) {}
+   glm::mat4 getBiasedProjectionMatrix() const;
 
-   virtual ~NullLightComponent() {}
+   float getNearPlaneDist() const;
 
-   virtual void draw(const ShaderProgram &shaderProgram, const unsigned int index) {}
+   float getFarPlaneDist() const;
 
-   const glm::vec3& getColor() const {
-      return COLOR;
+   void setDirection(const glm::vec3 &direction) {
+      this->direction = direction;
    }
 
-   void setColor(const glm::vec3 &color) {}
+   SPtr<ShadowMap> getShadowMap() const {
+      return shadowMap;
+   }
+
+   void setShadowMap(SPtr<ShadowMap> shadowMap) {
+      this->shadowMap = shadowMap;
+   }
 };
 
 #endif

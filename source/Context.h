@@ -28,6 +28,7 @@ protected:
    SPtr<Scene> scene;
    float runningTime;
    float timeSinceWinner;
+   unsigned int activeShaderProgramID;
 
    void handleSpecialInputs(const InputValues &inputValues) const;
 
@@ -56,6 +57,14 @@ public:
 
    float getRunningTime() const {
       return runningTime;
+   }
+
+   unsigned int getActiveShaderProgramID() const {
+      return activeShaderProgramID;
+   }
+
+   void setActiveShaderProgramID(unsigned int programID) {
+      activeShaderProgramID = programID;
    }
 };
 

@@ -65,6 +65,10 @@ public:
      return ibo;
    }
 
+   bool hasTBO() const {
+      return hasTextureBufferObject;
+   }
+
    GLuint getTBO() const;
 
    unsigned int getNumIndices() const {

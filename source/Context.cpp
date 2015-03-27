@@ -36,7 +36,7 @@ Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), timeSinceWinner(-1.0f) {
+   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), timeSinceWinner(-1.0f), activeShaderProgramID(0) {
 }
 
 Context::~Context() {

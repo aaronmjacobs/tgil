@@ -7,10 +7,12 @@
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
 #include "GhostPhysicsComponent.h"
+#include "LightComponent.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "Model.h"
 #include "PhongMaterial.h"
+#include "PlayerLogicComponent.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
 #include "ShoveAbility.h"
@@ -25,45 +27,6 @@ namespace {
 const float COOLDOWN = 3.0f;
 const float FORCE = 75.0f;
 const float LIFE_TIME = 0.25f;
-
-// TODO Handle in asset manager somehow
-const int MAX_LIGHTS = 10;
-
-void addLightUniforms(ShaderProgram &shaderProgram) {
-   for (int i = 0; i < MAX_LIGHTS; ++i) {
-      std::stringstream ss;
-      ss << "uLights[" << i << "].";
-      std::string lightName = ss.str();
-
-      shaderProgram.addUniform(lightName + "position");
-      shaderProgram.addUniform(lightName + "color");
-      shaderProgram.addUniform(lightName + "constFalloff");
-      shaderProgram.addUniform(lightName + "linearFalloff");
-      shaderProgram.addUniform(lightName + "squareFalloff");
-   }
-}
-
-SPtr<ShaderProgram> loadPhongShaderProgram(AssetManager &assetManager) {
-   SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/phong");
-
-   shaderProgram->addUniform("uProjMatrix");
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uModelMatrix");
-   shaderProgram->addUniform("uNormalMatrix");
-   shaderProgram->addUniform("uNumLights");
-   shaderProgram->addUniform("uMaterial.ambient");
-   shaderProgram->addUniform("uMaterial.diffuse");
-   shaderProgram->addUniform("uMaterial.emission");
-   shaderProgram->addUniform("uMaterial.shininess");
-   shaderProgram->addUniform("uMaterial.specular");
-   shaderProgram->addUniform("uCameraPos");
-   addLightUniforms(*shaderProgram);
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aNormal");
-      
-   return shaderProgram;
-}
 
 } // namespace
 
@@ -94,12 +57,19 @@ void ShoveAbility::use() {
    // Graphics
    SPtr<Mesh> mesh = assetManager.loadMesh("meshes/shove.obj");
    glm::vec3 color(1.0f, 0.35f, 0.15f);
-   SPtr<ShaderProgram> shaderProgram(loadPhongShaderProgram(assetManager));
-   SPtr<Material> material(std::make_shared<PhongMaterial>(*shaderProgram, color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&gameObject.getLogicComponent());
+   if (playerLogic) {
+      color = playerLogic->getColor();
+   }
+   SPtr<ShaderProgram> shaderProgram(assetManager.loadShaderProgram("shaders/phong"));
+   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 0.8f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, mesh));
    model->attachMaterial(material);
    shove->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*shove));
    shove->getGraphicsComponent().setModel(model);
+
+   // Light
+   shove->setLightComponent(std::make_shared<LightComponent>(*shove, LightComponent::Spot, color * 2.0f, gameObject.getCameraComponent().getFrontVector(), 0.0f, 0.02f, 0.5f, 0.6f));
 
    // Physics
    shove->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*shove, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries | CollisionGroup::Projectiles));
@@ -118,6 +88,7 @@ void ShoveAbility::use() {
          SPtr<GameObject> shove(wShove.lock());
          if (shove) {
             scene->removeObject(shove);
+            scene->removeLight(shove);
          }
       }
 
@@ -144,6 +115,8 @@ void ShoveAbility::use() {
       btTransform &ghostTrans = ghostObject->getWorldTransform();
       ghostTrans.setOrigin(toBt(gameObject.getPosition()));
       ghostTrans.setRotation(toBt(gameObject.getOrientation()));
+
+      gameObject.getLightComponent().setDirection(front);
 
       glm::vec3 forceDir = rot * glm::vec3(0.0f, 0.0f, -1.0f);
       forceDir.y += 0.5f;
@@ -175,6 +148,7 @@ void ShoveAbility::use() {
    audioComponent->registerSoundEvent(Event::SET_SCENE, SoundGroup::SHOVE);
    shove->setAudioComponent(audioComponent);
 
+   scene->addLight(shove);
    scene->addObject(shove);
 
    resetTimeSinceLastUse();

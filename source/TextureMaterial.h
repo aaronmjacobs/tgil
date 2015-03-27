@@ -8,13 +8,6 @@ class ShaderProgram;
 
 class TextureMaterial : public Material {
 protected:
-   // Location of the texture uniform
-   GLint uTexture;
-
-   // Location of the texture coordinate attribute
-   GLint aTexCoord;
-   bool hasTexCoord;
-
    // The texture ID
    GLuint textureID;
 
@@ -24,12 +17,15 @@ protected:
    // The texture target
    GLenum target;
 
+   // Name of the texture uniform
+   std::string textureUniformName;
+
 public:
-   TextureMaterial(const ShaderProgram &shaderProgram, GLuint textureID, const std::string &textureUniformName, GLenum target = GL_TEXTURE_2D);
+   TextureMaterial(GLuint textureID, const std::string &textureUniformName, GLenum target = GL_TEXTURE_2D);
 
    virtual ~TextureMaterial();
 
-   virtual void apply(const Mesh &mesh);
+   virtual void apply(ShaderProgram &shaderProgram);
 
    virtual void disable();
 

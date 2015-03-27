@@ -9,7 +9,7 @@ public:
 
    virtual ~GeometricGraphicsComponent();
 
-   virtual void draw();
+   virtual void draw(const RenderData &renderData);
 };
 
 #endif

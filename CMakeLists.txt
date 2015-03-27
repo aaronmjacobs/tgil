@@ -50,6 +50,7 @@ set(SOURCES
    ${SRC_DIR}/InputHandler.cpp
    ${SRC_DIR}/IOUtils.cpp
    ${SRC_DIR}/KeyboardInputDevice.cpp
+   ${SRC_DIR}/LightComponent.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/Mesh.cpp
    ${SRC_DIR}/MeshAssetManager.cpp
@@ -63,15 +64,16 @@ set(SOURCES
    ${SRC_DIR}/PlayerGraphicsComponent.cpp
    ${SRC_DIR}/PlayerLogicComponent.cpp
    ${SRC_DIR}/PlayerPhysicsComponent.cpp
-   ${SRC_DIR}/PointLightComponent.cpp
    ${SRC_DIR}/PostProcessRenderer.cpp
    ${SRC_DIR}/ProjectileLogicComponent.cpp
+   ${SRC_DIR}/RenderData.cpp
    ${SRC_DIR}/Renderer.cpp
    ${SRC_DIR}/Scene.cpp
    ${SRC_DIR}/SceneLoader.cpp
    ${SRC_DIR}/Shader.cpp
    ${SRC_DIR}/ShaderAssetManager.cpp
    ${SRC_DIR}/ShaderProgram.cpp
+   ${SRC_DIR}/ShadowMap.cpp
    ${SRC_DIR}/ShoveAbility.cpp
    ${SRC_DIR}/TextureAssetManager.cpp
    ${SRC_DIR}/TextureMaterial.cpp
@@ -127,15 +129,16 @@ set(HEADERS
    ${SRC_DIR}/PlayerGraphicsComponent.h
    ${SRC_DIR}/PlayerLogicComponent.h
    ${SRC_DIR}/PlayerPhysicsComponent.h
-   ${SRC_DIR}/PointLightComponent.h
    ${SRC_DIR}/PostProcessRenderer.h
    ${SRC_DIR}/ProjectileLogicComponent.h
+   ${SRC_DIR}/RenderData.h
    ${SRC_DIR}/Renderer.h
    ${SRC_DIR}/Scene.h
    ${SRC_DIR}/SceneLoader.h
    ${SRC_DIR}/Shader.h
    ${SRC_DIR}/ShaderAssetManager.h
    ${SRC_DIR}/ShaderProgram.h
+   ${SRC_DIR}/ShadowMap.h
    ${SRC_DIR}/ShoveAbility.h
    ${SRC_DIR}/Subject.h
    ${SRC_DIR}/TextureAssetManager.h

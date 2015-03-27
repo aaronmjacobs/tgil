@@ -35,25 +35,17 @@ void DebugRenderer::init() {
    const Context &context = Context::getInstance();
    shaderProgram = context.getAssetManager().loadShaderProgram("shaders/debug");
 
-   shaderProgram->addUniform("uViewMatrix");
-   shaderProgram->addUniform("uProjMatrix");
-
-   shaderProgram->addAttribute("aPosition");
-   shaderProgram->addAttribute("aColor");
-
    glBindVertexArray(vao);
 
    // Prepare the vertex buffer object
    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-   GLint aPosition = shaderProgram->getAttribute("aPosition");
-   glEnableVertexAttribArray(aPosition);
-   glVertexAttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+   glEnableVertexAttribArray(ShaderAttributes::POSITION);
+   glVertexAttribPointer(ShaderAttributes::POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
    // Prepare the color buffer object
    glBindBuffer(GL_ARRAY_BUFFER, cbo);
-   GLint aColor = shaderProgram->getAttribute("aColor");
-   glEnableVertexAttribArray(aColor);
-   glVertexAttribPointer(aColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+   glEnableVertexAttribArray(ShaderAttributes::COLOR);
+   glVertexAttribPointer(ShaderAttributes::COLOR, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
    // Prepare the index buffer object
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -62,15 +54,13 @@ void DebugRenderer::init() {
 }
 
 void DebugRenderer::render(const DebugDrawer &drawer, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix) {
-   shaderProgram->use();
-
    // View matrix
-   GLint uViewMatrix = shaderProgram->getUniform("uViewMatrix");
-   glUniformMatrix4fv(uViewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+   shaderProgram->setUniformValue("uViewMatrix", viewMatrix);
 
    // Projection matrix
-   GLint uProjMatrix = shaderProgram->getUniform("uProjMatrix");
-   glUniformMatrix4fv(uProjMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+   shaderProgram->setUniformValue("uProjMatrix", projectionMatrix);
+
+   shaderProgram->commit();
 
    const std::vector<Line> &lines = drawer.getLines();
    const std::vector<LineColor> &colors = drawer.getColors();
@@ -101,6 +91,4 @@ void DebugRenderer::render(const DebugDrawer &drawer, const glm::mat4 &viewMatri
 
    // Unbind
    glBindVertexArray(0);
-
-   shaderProgram->disable();
 }

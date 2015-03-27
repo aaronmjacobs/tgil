@@ -1,7 +1,7 @@
 #version 330 core
 
-uniform float uOpacity = 0.5;
-uniform vec3 uTint = vec3(1.0);
+uniform float uOpacity;
+uniform vec3 uTint;
 
 out vec4 color;
 
