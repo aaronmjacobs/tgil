@@ -3,8 +3,11 @@
 #include "FancyAssert.h"
 #include "ShaderProgram.h"
 #include "ShadowMap.h"
+#include "TextureUnitManager.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+
+// ShadowMap
 
 ShadowMap::ShadowMap()
    : cube(false) {
@@ -75,11 +78,22 @@ void ShadowMap::initCube(int size) {
 
    glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
 
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X, textureID, 0);
+
    // Disable writes and reads to / from the color buffer
    glDrawBuffer(GL_NONE);
    glReadBuffer(GL_NONE);
 
+   ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer incomplete");
+
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void ShadowMap::setActiveFace(int face) {
+   ASSERT(cube, "Trying to set active face of non-cube shadow map");
+   ASSERT(face >= 0 && face < 6, "Invalid face index");
+
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, textureID, 0);
 }
 
 void ShadowMap::enable() {
@@ -91,31 +105,58 @@ void ShadowMap::disable() {
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-glm::mat4 ShadowMap::getProjectionMatrix() const {
-   const float width = 30.0f;
-   const float depth = 100.0f;
+GLenum ShadowMap::bindTexture() {
+   GLenum textureUnit = Context::getInstance().getTextureUnitManager().get();
 
-   return glm::ortho<float>(-width, width, -width, width, -width, depth);
-}
+   glActiveTexture(GL_TEXTURE0 + textureUnit);
+   if (isCube()) {
+      glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+   } else {
+      glBindTexture(GL_TEXTURE_2D, textureID);
+   }
 
-glm::mat4 ShadowMap::getBiasedProjectionMatrix() const {
-   const glm::mat4 bias = {
-      0.5f, 0.0f, 0.0f, 0.0f,
-      0.0f, 0.5f, 0.0f, 0.0f,
-      0.0f, 0.0f, 0.5f, 0.0f,
-      0.5f, 0.5f, 0.5f, 1.0f };
-
-   return bias * getProjectionMatrix();
-}
-
-glm::mat4 ShadowMap::getViewMatrix() const {
-   const float sunDistance = 50.0f;
-   const glm::vec3 sunDir(1.0f, -1.0f, -0.5f);
-   const glm::vec3 pos = glm::normalize(-sunDir) * sunDistance;
-
-   return glm::lookAt(pos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+   return textureUnit;
 }
 
 SPtr<ShaderProgram> ShadowMap::getShadowProgram() const {
    return shadowProgram;
+}
+
+// ShadowMapManager
+
+ShadowMapManager::ShadowMapManager(int numStandard, int numCube, int standardSize, int cubeSize) {
+   ASSERT(numStandard >= 0 && numCube >= 0 && standardSize > 0 && cubeSize > 0, "Invalid ShadowMapManager initialization values");
+
+   for (unsigned int i = 0; i < numStandard; ++i) {
+      SPtr<ShadowMap> shadowMap(std::make_shared<ShadowMap>());
+      shadowMap->init(standardSize);
+      standardShadowMaps.push_back(shadowMap);
+   }
+
+   for (unsigned int i = 0; i < numCube; ++i) {
+      SPtr<ShadowMap> shadowMap(std::make_shared<ShadowMap>());
+      shadowMap->initCube(cubeSize);
+      cubeShadowMaps.push_back(shadowMap);
+   }
+}
+
+ShadowMapManager::~ShadowMapManager() {
+}
+
+SPtr<ShadowMap> ShadowMapManager::getShadowMap(const std::vector<SPtr<ShadowMap>> &maps) {
+   for (const SPtr<ShadowMap> &shadowMap : maps) {
+      if (shadowMap.use_count() == 1) {
+         return shadowMap;
+      }
+   }
+
+   return nullptr;
+}
+
+SPtr<ShadowMap> ShadowMapManager::getFreeStandardMap() {
+   return getShadowMap(standardShadowMaps);
+}
+
+SPtr<ShadowMap> ShadowMapManager::getFreeCubeMap() {
+   return getShadowMap(cubeShadowMaps);
 }

@@ -129,8 +129,7 @@ void Renderer::init(float fov, int width, int height) {
 
    this->fov = fov;
 
-   shadowMap = std::make_shared<ShadowMap>();
-   shadowMap->init(1024);
+   shadowMapManager = std::move(UPtr<ShadowMapManager>(new ShadowMapManager(ShadowMap::MAX_SHADOWS, ShadowMap::MAX_CUBE_SHADOWS)));
 
    onFramebufferSizeChange(width, height);
 
@@ -162,7 +161,9 @@ void Renderer::render(Scene &scene) {
    // Free all texture units
    Context::getInstance().getTextureUnitManager().reset();
 
-   renderShadowMap(scene);
+   renderShadowMaps(scene);
+
+   prepareLights(scene);
 
    const std::vector<SPtr<GameObject>> &cameras = scene.getCameras();
    if (cameras.empty()) {
@@ -183,18 +184,90 @@ void Renderer::render(Scene &scene) {
    }
 }
 
-void Renderer::renderShadowMap(Scene &scene) {
+void Renderer::renderShadowMaps(Scene &scene) {
+   const std::vector<SPtr<GameObject>> &lights = scene.getLights();
+   for (SPtr<GameObject> light : lights) {
+      renderShadowMap(scene, light);
+   }
+}
+
+void Renderer::prepareLights(Scene &scene) {
+   const std::set<SPtr<ShaderProgram>> &shaderPrograms = scene.getShaderPrograms();
+   const std::vector<SPtr<GameObject>> &lights = scene.getLights();
+   GLenum shadowTextureUnit = Context::getInstance().getTextureUnitManager().getReservedShadowUnit();
+   GLenum cubeShadowTextureUnit = Context::getInstance().getTextureUnitManager().getReservedCubeShadowUnit();
+
+   for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
+      // Reset shadows to default textures
+      if (shaderProgram->hasUniform("uShadows[0].shadowMap")) {
+         for (int i = 0; i < ShadowMap::MAX_SHADOWS; ++i) {
+            std::stringstream ss;
+            ss << "uShadows[" << i << "].shadowMap";
+            shaderProgram->setUniformValue(ss.str(), shadowTextureUnit);
+         }
+         for (int i = 0; i < ShadowMap::MAX_CUBE_SHADOWS; ++i) {
+            std::stringstream ss;
+            ss << "uCubeShadows[" << i << "].shadowMap";
+            shaderProgram->setUniformValue(ss.str(), cubeShadowTextureUnit);
+         }
+      }
+
+      // Render light / shadow info
+      if (shaderProgram->hasUniform("uNumLights")) {
+         int numLights = glm::min((int)lights.size(), LightComponent::MAX_LIGHTS);
+         shaderProgram->setUniformValue("uNumLights", numLights);
+
+         unsigned int lightIndex = 0;
+         int shadowIndex = 0;
+         int cubeShadowIndex = 0;
+         for (int i = 0; i < numLights; ++i) {
+            lights[i]->getLightComponent().draw(*shaderProgram, lightIndex++, shadowIndex, cubeShadowIndex);
+         }
+      }
+   }
+}
+
+void Renderer::renderShadowMap(Scene &scene, SPtr<GameObject> light) {
+   LightComponent &lightComponent = light->getLightComponent();
+
+   SPtr<ShadowMap> shadowMap = lightComponent.getShadowMap();
+   if (!shadowMap) {
+      if (lightComponent.getLightType() == LightComponent::Point) {
+         shadowMap = shadowMapManager->getFreeCubeMap();
+      } else {
+         shadowMap = shadowMapManager->getFreeStandardMap();
+      }
+
+      if (!shadowMap) {
+         return;
+      }
+
+      lightComponent.setShadowMap(shadowMap);
+   }
+
    shadowMap->enable();
 
-   glClear(GL_DEPTH_BUFFER_BIT);
+   if (shadowMap->isCube()) {
+      for (int i = 0; i < 6; ++i) {
+         shadowMap->setActiveFace(i);
+         renderShadowMapFace(scene, light, shadowMap->getShadowProgram(), i);
+      }
+   } else {
+      renderShadowMapFace(scene, light, shadowMap->getShadowProgram());
+   }
 
-   SPtr<ShaderProgram> shadowProgram = shadowMap->getShadowProgram();
+   shadowMap->disable();
+}
+
+void Renderer::renderShadowMapFace(Scene &scene, SPtr<GameObject> light, SPtr<ShaderProgram> shadowProgram, int face) {
+   glClear(GL_DEPTH_BUFFER_BIT);
+   LightComponent &lightComponent = light->getLightComponent();
 
    // Projection matrix
-   shadowProgram->setUniformValue("uProjMatrix", shadowMap->getProjectionMatrix());
+   shadowProgram->setUniformValue("uProjMatrix", lightComponent.getProjectionMatrix());
 
    // View matrix
-   shadowProgram->setUniformValue("uViewMatrix", shadowMap->getViewMatrix());
+   shadowProgram->setUniformValue("uViewMatrix", lightComponent.getViewMatrix(face));
 
    RenderData renderData;
    renderData.setOverrideProgram(shadowProgram);
@@ -202,10 +275,12 @@ void Renderer::renderShadowMap(Scene &scene) {
    // Objects
    const std::vector<SPtr<GameObject>> &gameObjects = scene.getObjects();
    for (SPtr<GameObject> gameObject : gameObjects) {
+      if (gameObject == light) {
+         continue;
+      }
+
       gameObject->getGraphicsComponent().draw(renderData);
    }
-
-   shadowMap->disable();
 }
 
 void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
@@ -215,10 +290,6 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    const CameraComponent &cameraComponent = camera.getCameraComponent();
    const glm::mat4 &viewMatrix = cameraComponent.getViewMatrix();
    const glm::vec3 &cameraPosition = cameraComponent.getCameraPosition();
-   const glm::mat4 &shadowProj = shadowMap->getBiasedProjectionMatrix();
-   const glm::mat4 &shadowView = shadowMap->getViewMatrix();
-   const std::vector<SPtr<GameObject>> &lights = scene.getLights();
-   GLenum shadowTextureUnit = Context::getInstance().getTextureUnitManager().get();
    const std::set<SPtr<ShaderProgram>> &shaderPrograms = scene.getShaderPrograms();
    for (SPtr<ShaderProgram> shaderProgram : shaderPrograms) {
       // Projection matrix
@@ -229,25 +300,6 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
 
       // Camera position
       shaderProgram->setUniformValue("uCameraPos", cameraPosition, true);
-
-      // Shadows
-      shaderProgram->setUniformValue("uShadowProj", shadowProj, true);
-      shaderProgram->setUniformValue("uShadowView", shadowView, true);
-      if (shaderProgram->hasUniform("uShadowMap")) {
-         shaderProgram->setUniformValue("uShadowMap", shadowTextureUnit);
-         glActiveTexture(GL_TEXTURE0 + shadowTextureUnit);
-         glBindTexture(GL_TEXTURE_2D, shadowMap->getTextureID());
-      }
-
-      // Lights
-      if (shaderProgram->hasUniform("uNumLights")) {
-         shaderProgram->setUniformValue("uNumLights", (int)lights.size());
-
-         unsigned int lightIndex = 0;
-         for (SPtr<GameObject> light : lights) {
-            light->getLightComponent().draw(*shaderProgram, lightIndex++);
-         }
-      }
    }
 
    // Skybox
@@ -266,8 +318,6 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
 
       gameObject->getGraphicsComponent().draw(renderData);
    }
-
-   Context::getInstance().getTextureUnitManager().release(shadowTextureUnit);
 
    if (renderDebug) {
       renderDebugInfo(scene, viewMatrix);

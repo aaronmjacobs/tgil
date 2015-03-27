@@ -27,6 +27,7 @@ namespace {
 
 const float COOLDOWN = 0.5f;
 const float EXPLOSION_FORCE = 65.0f;
+const float LIFE_TIME = 0.1f;
 
 SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, const glm::vec3 &color) {
    SPtr<GameObject> explosion(std::make_shared<GameObject>());
@@ -60,7 +61,7 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, c
          return;
       }
 
-      if (glfwGetTime() - startTime > 0.1f) {
+      if (glfwGetTime() - startTime > LIFE_TIME) {
          SPtr<GameObject> explosion(wExplosion.lock());
          if (explosion) {
             scene->removeObject(explosion);

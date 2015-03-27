@@ -16,6 +16,9 @@ protected:
    SPtr<ShaderProgram> shadowProgram;
 
 public:
+   static const int MAX_SHADOWS = 5;
+   static const int MAX_CUBE_SHADOWS = 4;
+
    ShadowMap();
 
    virtual ~ShadowMap();
@@ -24,9 +27,13 @@ public:
 
    void initCube(int size);
 
+   void setActiveFace(int face);
+
    void enable();
 
    void disable();
+
+   GLenum bindTexture();
 
    bool isCube() const {
       return cube;
@@ -36,13 +43,24 @@ public:
       return textureID;
    }
 
-   glm::mat4 getProjectionMatrix() const;
-
-   glm::mat4 getBiasedProjectionMatrix() const;
-
-   glm::mat4 getViewMatrix() const;
-
    SPtr<ShaderProgram> getShadowProgram() const;
+};
+
+class ShadowMapManager {
+protected:
+   std::vector<SPtr<ShadowMap>> standardShadowMaps;
+   std::vector<SPtr<ShadowMap>> cubeShadowMaps;
+
+   SPtr<ShadowMap> getShadowMap(const std::vector<SPtr<ShadowMap>> &maps);
+
+public:
+   ShadowMapManager(int numStandard, int numCube, int standardSize = 2048, int cubeSize = 512);
+
+   virtual ~ShadowMapManager();
+
+   SPtr<ShadowMap> getFreeStandardMap();
+
+   SPtr<ShadowMap> getFreeCubeMap();
 };
 
 #endif

@@ -355,11 +355,11 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
 
    //scene->addLight(createSpotLight(glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, 0.0f, 0.4f, 0.5f));
 
-   glm::vec3 lavaLightColor = glm::vec3(0.9f, 0.4f, 0.1f) * 0.5f;
-   scene->addLight(createPointLight(glm::vec3(-80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f));
-   scene->addLight(createPointLight(glm::vec3(80.0f, -50.0f, -80.0f), lavaLightColor, 0.0f, 0.0f));
-   scene->addLight(createPointLight(glm::vec3(-80.0f, -50.0f, 80.0f), lavaLightColor, 0.0f, 0.0f));
-   scene->addLight(createPointLight(glm::vec3(80.0f, -50.0f, 80.0f), lavaLightColor, 0.0f, 0.0f));
+   glm::vec3 lavaLightColor = glm::vec3(0.9f, 0.4f, 0.1f) * 0.0f;
+   //scene->addLight(createPointLight(glm::vec3(-12.0f, 23.0f, 0.0f), lavaLightColor, 0.0f, 0.0f));
+   //scene->addLight(createPointLight(glm::vec3(12.0f, 23.0f, 0.0f), lavaLightColor, 0.0f, 0.0f));
+   //scene->addLight(createPointLight(glm::vec3(0.0f, 23.0f, -12.0f), lavaLightColor, 0.0f, 0.0f));
+   //scene->addLight(createPointLight(glm::vec3(0.0f, 23.0f, 12.0f), lavaLightColor, 0.0f, 0.0f));
 
    // Lava
    float lavaSize = 100.0f;
@@ -452,6 +452,11 @@ SPtr<Scene> loadCenterPlatformScene(const Context &context) {
    return loadBasicScene(context, spawnLocations, [](Scene &scene, SPtr<Model> boxModel) {
       // Single platform
       scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f), glm::vec3(30.0f, 20.0f, 30.0f), 1.0f, 0.3f));
+
+      SPtr<GameObject> spotLight(std::make_shared<GameObject>());
+      spotLight->setPosition(glm::vec3(4.0f, 20.0f, 5.0f));
+      spotLight->setLightComponent(std::make_shared<LightComponent>(*spotLight, LightComponent::Spot, glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(-0.4f, -0.9f, -0.7f), 0.0f, 0.02f, 0.5f, 0.6f));
+      scene.addLight(spotLight);
    });
 }
 

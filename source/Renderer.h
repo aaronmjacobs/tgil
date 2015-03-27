@@ -9,6 +9,7 @@
 
 class GameObject;
 class ShadowMap;
+class ShadowMapManager;
 
 class Renderer {
 protected:
@@ -52,14 +53,20 @@ protected:
     */
    glm::mat4 projectionMatrix;
 
-   SPtr<ShadowMap> shadowMap;
+   UPtr<ShadowMapManager> shadowMapManager;
 
    /**
     * If debug rendering is enabled
     */
    bool renderDebug;
 
-   void renderShadowMap(Scene &scene);
+   void renderShadowMaps(Scene &scene);
+
+   void prepareLights(Scene &scene);
+
+   void renderShadowMap(Scene &scene, SPtr<GameObject> light);
+
+   void renderShadowMapFace(Scene &scene, SPtr<GameObject> light, SPtr<ShaderProgram> shadowProgram, int face = -1);
 
    /**
     * Renders the scene from the given camera's perspective

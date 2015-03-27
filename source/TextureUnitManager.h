@@ -34,6 +34,10 @@ public:
     * Releases the given texture unit, making it available
     */
    void release(GLenum textureUnit);
+
+   GLenum getReservedShadowUnit() const;
+
+   GLenum getReservedCubeShadowUnit() const;
 };
 
 #endif

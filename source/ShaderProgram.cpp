@@ -60,10 +60,8 @@ void Uniform::commit() {
 
 void Uniform::setValue(bool value) {
    ASSERT(type == GL_BOOL);
-   if (pendingData.boolVal != value) {
-      dirty = true;
-      pendingData.boolVal = value;
-   }
+   dirty = activeData.boolVal != value;
+   pendingData.boolVal = value;
 }
 
 void Uniform::setValue(int value) {
@@ -75,10 +73,8 @@ void Uniform::setValue(int value) {
           type == GL_SAMPLER_1D_SHADOW ||
           type == GL_SAMPLER_2D_SHADOW ||
           type == GL_SAMPLER_CUBE_SHADOW);
-   if (pendingData.intVal != value) {
-      dirty = true;
-      pendingData.intVal = value;
-   }
+   dirty = activeData.intVal != value;
+   pendingData.intVal = value;
 }
 
 void Uniform::setValue(GLenum value) {
@@ -87,42 +83,32 @@ void Uniform::setValue(GLenum value) {
 
 void Uniform::setValue(float value) {
    ASSERT(type == GL_FLOAT);
-   if (pendingData.floatVal != value) {
-      dirty = true;
-      pendingData.floatVal = value;
-   }
+   dirty = activeData.floatVal != value;
+   pendingData.floatVal = value;
 }
 
 void Uniform::setValue(const glm::vec2 &value) {
    ASSERT(type == GL_FLOAT_VEC2);
-   if (pendingData.vec2Val != value) {
-      dirty = true;
-      pendingData.vec2Val = value;
-   }
+   dirty = activeData.vec2Val != value;
+   pendingData.vec2Val = value;
 }
 
 void Uniform::setValue(const glm::vec3 &value) {
    ASSERT(type == GL_FLOAT_VEC3);
-   if (pendingData.vec3Val != value) {
-      dirty = true;
-      pendingData.vec3Val = value;
-   }
+   dirty = activeData.vec3Val != value;
+   pendingData.vec3Val = value;
 }
 
 void Uniform::setValue(const glm::vec4 &value) {
    ASSERT(type == GL_FLOAT_VEC4);
-   if (pendingData.vec4Val != value) {
-      dirty = true;
-      pendingData.vec4Val = value;
-   }
+   dirty = activeData.vec4Val != value;
+   pendingData.vec4Val = value;
 }
 
 void Uniform::setValue(const glm::mat4 &value) {
    ASSERT(type == GL_FLOAT_MAT4);
-   if (pendingData.mat4Val != value) {
-      dirty = true;
-      pendingData.mat4Val = value;
-   }
+   dirty = activeData.mat4Val != value;
+   pendingData.mat4Val = value;
 }
 
 // ShaderProgram
