@@ -27,7 +27,7 @@ layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoord;
 
 out vec3 vWorldPosition;
-out vec3 vNormal;
+flat out vec3 vNormal;
 #ifdef SHADOWS
 out vec4 vShadowCoords[MAX_SHADOWS];
 #endif

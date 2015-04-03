@@ -57,7 +57,7 @@ uniform CubeShadow uCubeShadows[MAX_CUBE_SHADOWS];
 #endif
 
 in vec3 vWorldPosition;
-in vec3 vNormal;
+flat in vec3 vNormal;
 in vec2 vTexCoord;
 #ifdef SHADOWS
 in vec4 vShadowCoords[MAX_SHADOWS];

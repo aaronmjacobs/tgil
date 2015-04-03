@@ -1,6 +1,7 @@
 #include "AssetManager.h"
 #include "AudioComponent.h"
 #include "AudioManager.h"
+#include "BvhMeshPhysicsComponent.h"
 #include "Context.h"
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
@@ -26,6 +27,7 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -35,15 +37,16 @@
 
 namespace {
 
-SPtr<PhongMaterial> createPhongMaterial(glm::vec3 color, float specular, float shininess) {
-   return std::make_shared<PhongMaterial>(color * 0.2f, color * 0.6f, glm::vec3(specular), glm::vec3(0.0f), shininess);
+SPtr<PhongMaterial> createPhongMaterial(glm::vec3 color, float specular, float shininess, float emission = 0.0f) {
+   return std::make_shared<PhongMaterial>(color * 0.3f, color * 0.7f, glm::vec3(specular), color * emission, shininess);
 }
 
-SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position, const glm::vec3 &scale, float friction, float restitution) {
+SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position, const glm::vec3 &scale, float friction, float restitution, const glm::quat &orientation = glm::quat()) {
    SPtr<GameObject> staticObject(std::make_shared<GameObject>());
 
    // Transform
    staticObject->setPosition(position);
+   staticObject->setOrientation(orientation);
    staticObject->setScale(scale);
 
    // Graphics
@@ -56,6 +59,27 @@ SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position
    gameObjectRigidBody->setFriction(friction);
    gameObjectRigidBody->setRollingFriction(friction);
    gameObjectRigidBody->setRestitution(restitution);
+
+   return staticObject;
+}
+
+SPtr<GameObject> createBvhObject(SPtr<Model> model, const glm::vec3 &position, const glm::vec3 &scale, float friction, float restitution) {
+   SPtr<GameObject> staticObject(std::make_shared<GameObject>());
+
+   // Transform
+   staticObject->setPosition(position);
+   staticObject->setScale(scale);
+
+   // Graphics
+   staticObject->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*staticObject));
+   staticObject->getGraphicsComponent().setModel(model);
+
+   // Physics
+   staticObject->setPhysicsComponent(std::make_shared<BvhMeshPhysicsComponent>(*staticObject, CollisionGroup::StaticBodies, CollisionGroup::Everything ^ CollisionGroup::StaticBodies));
+   btCollisionObject *collisionObject = staticObject->getPhysicsComponent().getCollisionObject();
+   collisionObject->setFriction(friction);
+   collisionObject->setRollingFriction(friction);
+   collisionObject->setRestitution(restitution);
 
    return staticObject;
 }
@@ -316,6 +340,7 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    GLuint noiseID = assetManager.loadTexture("textures/cloud.png", TextureWrap::Repeat);
 
    SPtr<PhongMaterial> boxMaterial = createPhongMaterial(glm::vec3(1.0f), 0.2f, 50.0f);
+   SPtr<PhongMaterial> lavaPhongMaterial = createPhongMaterial(glm::vec3(0.97f, 0.21f, 0.08f), 0.2f, 5.0f, 0.2f);
    //SPtr<PhongMaterial> planeMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.4f), 0.2f, 50.0f);
    SPtr<TextureMaterial> rockMaterial(std::make_shared<TextureMaterial>(rockTextureID, "uTexture"));
    //SPtr<TextureMaterial> lavaMaterial(std::make_shared<TextureMaterial>(*tilingTextureShaderProgram, lavaTextureID, "uTexture"));
@@ -328,6 +353,7 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    SPtr<Mesh> boxMesh = assetManager.loadMesh("meshes/cube.obj");
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
    SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
+   SPtr<Mesh> lavaMesh = assetManager.loadMesh("meshes/lava.obj");
 
    SPtr<Model> skyboxModel(std::make_shared<Model>(skyboxShaderProgram, skyboxMesh));
    skyboxModel->attachMaterial(skyboxMaterial);
@@ -335,10 +361,11 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    boxModel->attachMaterial(rockMaterial);
    boxModel->attachMaterial(boxMaterial);
    //SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMaterial, planeMesh));
-   SPtr<Model> lavaModel(std::make_shared<Model>(lavaShaderProgram, planeMesh));
-   lavaModel->attachMaterial(lavatileMaterial);
-   lavaModel->attachMaterial(noiseMaterial);
-   lavaModel->attachMaterial(timeMaterial);
+   SPtr<Model> lavaModel(std::make_shared<Model>(phongShaderProgram, lavaMesh));
+   lavaModel->attachMaterial(lavaPhongMaterial);
+   //lavaModel->attachMaterial(lavatileMaterial);
+   //lavaModel->attachMaterial(noiseMaterial);
+   //lavaModel->attachMaterial(timeMaterial);
    //SPtr<Model> lavalModel(std::make_shared<Model>(tilingTextureShaderProgram, lavaMaterial, planeMesh));
 
    SPtr<GameObject> skybox(std::make_shared<GameObject>());
@@ -348,14 +375,15 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
 
    // Light
    float sunDistance = 300.0f;
-   glm::vec3 sunPos = glm::vec3(-1.0f, 1.0f, 0.5f) * sunDistance;
+   glm::vec3 sunDir(1.0f, -1.0f, -0.5f);
+   glm::vec3 sunPos = -sunDir * sunDistance;
    float sunIntensity = 1.25f;
    glm::vec3 sunColor = glm::normalize(glm::vec3(1.0f, 0.95f, 0.75f)) * sunIntensity;
-   scene->addLight(createDirectionalLight(sunPos, sunColor, glm::vec3(1.0f, -3.0f, -0.5f)));
+   scene->addLight(createDirectionalLight(sunPos, sunColor, sunDir));
 
    //scene->addLight(createSpotLight(glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, 0.0f, 0.4f, 0.5f));
 
-   glm::vec3 lavaLightColor = glm::vec3(0.9f, 0.4f, 0.1f) * 0.0f;
+   //glm::vec3 lavaLightColor = glm::vec3(0.9f, 0.4f, 0.1f) * 0.0f;
    //scene->addLight(createPointLight(glm::vec3(-12.0f, 23.0f, 0.0f), lavaLightColor, 0.0f, 0.0f));
    //scene->addLight(createPointLight(glm::vec3(12.0f, 23.0f, 0.0f), lavaLightColor, 0.0f, 0.0f));
    //scene->addLight(createPointLight(glm::vec3(0.0f, 23.0f, -12.0f), lavaLightColor, 0.0f, 0.0f));
@@ -363,7 +391,7 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
 
    // Lava
    float lavaSize = 100.0f;
-   scene->addObject(createStaticObject(lavaModel, glm::vec3(0.0f), glm::vec3(lavaSize), 1.0f, 0.3f));
+   scene->addObject(createBvhObject(lavaModel, glm::vec3(0.0f), glm::vec3(1.0f), 1.0f, 0.3f));
    buildDeathVolume(scene, glm::vec3(0.0f), glm::vec3(lavaSize, 3.0f, lavaSize));
 
    callback(*scene, boxModel);
@@ -449,7 +477,7 @@ SPtr<Scene> loadCenterPlatformScene(const Context &context) {
       glm::vec3(0.0f, 20.0f, -10.0f)
    };
 
-   return loadBasicScene(context, spawnLocations, [](Scene &scene, SPtr<Model> boxModel) {
+   return loadBasicScene(context, spawnLocations, [&context](Scene &scene, SPtr<Model> boxModel) {
       // Single platform
       scene.addObject(createStaticObject(boxModel, glm::vec3(0.0f), glm::vec3(30.0f, 20.0f, 30.0f), 1.0f, 0.3f));
 
@@ -601,11 +629,97 @@ SPtr<Scene> loadFourTowersScene(const Context &context) {
    });
 }
 
+
+std::default_random_engine generator;
+std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+glm::quat randomOrientation() {
+   return glm::normalize(glm::angleAxis(1.5f, glm::vec3(distribution(generator), distribution(generator), distribution(generator))));
+}
+
+float randomScale(float min, float max) {
+   return min + distribution(generator) * max;
+}
+
+SPtr<Scene> loadTestScene(const Context &context) {
+   glm::vec3 spawnLocations[] = {
+      glm::vec3(-10.0f, 20.0f, 0.0f),
+      glm::vec3(0.0f, 20.0f, 10.0f),
+      glm::vec3(10.0f, 20.0f, 0.0f),
+      glm::vec3(0.0f, 20.0f, -10.0f)
+   };
+
+   return loadBasicScene(context, spawnLocations, [&context](Scene &scene, SPtr<Model> boxModel) {
+      AssetManager &assetManager = context.getAssetManager();
+      SPtr<ShaderProgram> phongShaderProgram(assetManager.loadShaderProgram("shaders/phong"));
+
+      SPtr<PhongMaterial> floorMaterial = createPhongMaterial(glm::vec3(0.78f, 0.60f, 0.34f) * 1.5f, 0.2f, 5.0f);
+      SPtr<Mesh> floorMesh = assetManager.loadMesh("meshes/test.obj");
+      SPtr<Model> floorModel(std::make_shared<Model>(phongShaderProgram, floorMesh));
+      floorModel->attachMaterial(floorMaterial);
+      scene.addObject(createBvhObject(floorModel, glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(1.0f), 1.0f, 0.3f));
+
+      SPtr<PhongMaterial> trunkMaterial = createPhongMaterial(glm::vec3(0.36f, 0.27f, 0.11f), 0.2f, 5.0f);
+      SPtr<Mesh> trunkMesh = assetManager.loadMesh("meshes/trunk_lg.obj");
+      SPtr<Model> trunkModel(std::make_shared<Model>(phongShaderProgram, trunkMesh));
+      trunkModel->attachMaterial(trunkMaterial);
+
+      SPtr<PhongMaterial> leavesMaterial = createPhongMaterial(glm::vec3(0.86f, 0.26f, 0.0f) * 1.5f, 0.2f, 5.0f);
+      SPtr<Mesh> leavesMesh = assetManager.loadMesh("meshes/leaves_lg.obj");
+      SPtr<Model> leavesModel(std::make_shared<Model>(phongShaderProgram, leavesMesh));
+      leavesModel->attachMaterial(leavesMaterial);
+
+      SPtr<PhongMaterial> rockMaterial = createPhongMaterial(glm::vec3(0.4f, 0.4f, 0.4f) * 1.5f, 0.2f, 5.0f);
+      SPtr<Mesh> rockMesh = assetManager.loadMesh("meshes/rock_lg.obj");
+      SPtr<Model> rockModel(std::make_shared<Model>(phongShaderProgram, rockMesh));
+      rockModel->attachMaterial(rockMaterial);
+
+      // Trees
+
+      glm::vec3 loc(22.0f, 17.6f, 31.0f);
+      scene.addObject(createStaticObject(trunkModel, loc, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      glm::vec3 loc2(-37.8f, 15.0f, -12.8f);
+      scene.addObject(createStaticObject(trunkModel, loc2, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc2, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      glm::vec3 loc3(-31.9f, 6.1f, 15.4f);
+      scene.addObject(createStaticObject(trunkModel, loc3, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc3, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      glm::vec3 loc4(1.0f, 1.8f, -6.8f);
+      scene.addObject(createStaticObject(trunkModel, loc4, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc4, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      glm::vec3 loc5(40.3f, 1.9f, -32.1f);
+      scene.addObject(createStaticObject(trunkModel, loc5, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc5, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      // Rocks
+
+      glm::vec3 loc6(13.0f, 7.6f, 10.0f);
+      scene.addObject(createStaticObject(rockModel, loc6, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+
+      glm::vec3 loc7(-10.0f, 3.0f, 6.0f);
+      scene.addObject(createStaticObject(rockModel, loc7, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+
+      glm::vec3 loc8(30.0f, 2.5f, -9.0f);
+      scene.addObject(createStaticObject(rockModel, loc8, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+
+      glm::vec3 loc9(-33.7f, 15.0f, -13.3f);
+      scene.addObject(createStaticObject(rockModel, loc9, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+
+      glm::vec3 loc10(-8.0f, 4.6f, 33.0f);
+      scene.addObject(createStaticObject(rockModel, loc10, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+   });
+}
+
 SPtr<Scene> loadNextScene(const Context &context) {
    static std::vector<std::function<SPtr<Scene> (const Context &context)>> loadFunctions;
    static int index = 0;
 
    if (loadFunctions.empty()) {
+      loadFunctions.push_back(loadTestScene);
       loadFunctions.push_back(loadCenterPlatformScene);
       loadFunctions.push_back(loadMiniTowersScene);
       loadFunctions.push_back(loadSparsePlatformScene);
