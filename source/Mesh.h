@@ -43,6 +43,8 @@ protected:
     */
    UPtr<float[]> vertices;
 
+   UPtr<unsigned int[]> indices;
+
    /**
     * Number of vertices
     */
@@ -73,6 +75,10 @@ public:
 
    unsigned int getNumIndices() const {
      return numIndices;
+   }
+
+   unsigned int* getIndices() const {
+      return indices.get();
    }
 
    float* getVertices() const {

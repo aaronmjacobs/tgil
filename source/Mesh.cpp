@@ -8,18 +8,18 @@ Mesh::Mesh(const aiMesh* aiMesh) {
 
    // Copy the vertices
    numVertices = aiMesh->mNumVertices;
-   vertices = UPtr<float[]>(new float[sizeof(float) * 3 * numVertices]);
+   vertices = UPtr<float[]>(new float[3 * numVertices]);
    memcpy(vertices.get(), aiMesh->mVertices, sizeof(float) * 3 * numVertices);
 
    // Parse the faces
    numIndices = aiMesh->mNumFaces * 3;
-   UPtr<unsigned int[]> faceArray(new unsigned int[numIndices]);
+   indices = UPtr<unsigned int[]>(new unsigned int[numIndices]);
    unsigned int faceIndex = 0;
 
    for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
       const aiFace* face = &aiMesh->mFaces[t];
 
-      memcpy(&faceArray[faceIndex], face->mIndices, 3 * sizeof(unsigned int));
+      memcpy(&indices[faceIndex], face->mIndices, 3 * sizeof(unsigned int));
       faceIndex += 3;
    }
 
@@ -36,7 +36,7 @@ Mesh::Mesh(const aiMesh* aiMesh) {
    // Prepare the index buffer object
    glGenBuffers(1, &ibo);
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, faceArray.get(), GL_STATIC_DRAW);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, indices.get(), GL_STATIC_DRAW);
 
    // Buffer for vertex texture coordinates
    if (aiMesh->HasTextureCoords(0)) {

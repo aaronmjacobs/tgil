@@ -110,6 +110,9 @@ protected:
     */
    std::vector<SPtr<Shader>> shaders;
 
+   /**
+    * All uniforms in the shader program
+    */
    UniformMap uniforms;
 
    Context &context;
@@ -146,10 +149,19 @@ public:
     */
    bool hasUniform(const std::string &name) const;
 
+   /**
+    * Gets the uniform with the given name
+    */
    SPtr<Uniform> getUniform(const std::string &name) const;
 
+   /**
+    * Commits the values of all uniforms in the shader program
+    */
    void commit();
 
+   /**
+    * Sets the value of the uniform with the given name
+    */
    template<typename T>
    void setUniformValue(const std::string &name, const T &value, bool ignoreFailure = false) {
       UniformMap::iterator itr = uniforms.find(name);
