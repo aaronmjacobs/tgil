@@ -4,14 +4,15 @@
 #include "FancyAssert.h"
 #include "GameObject.h"
 #include "InputComponent.h"
+#include "PhysicsComponent.h"
+#include "PhysicsManager.h"
 #include "PlayerLogicComponent.h"
-#include "PlayerPhysicsComponent.h"
 #include "Scene.h"
 #include "ShoveAbility.h"
 #include "ThrowAbility.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
-#include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+#include <bullet/BulletCollision/CollisionShapes/btCollisionMargin.h>
 
 // For some reason, min and max are defined on Windows, which conflicts with glm::min / glm::max
 #ifdef _WIN32
@@ -36,12 +37,13 @@ const float STEP_DISTANCE = 1.3f;
 // Ground / friction constants
 const float FRICTION_CONSTANT = 30.0f;
 const float DEFAULT_GROUND_FRICTION = 1.0f;
-const float GROUND_HEIGHT_ADJUST = 0.1f;
 
 // Spring constants
 const float SPRING_FORCE_MULTIPLIER = 100.0f;
-const float SPRING_STIFFNESS = 2.0f;
+const float SPRING_STIFFNESS = 4.0f;
 const float SPRING_DAMPING = 0.3f;
+const float SPRING_HEIGHT = 0.5f;
+const float SPRING_RAYCAST_MARGIN = 0.5f;
 
 /**
  * Calculates how related the two given vectors are (in terms of direction), from 0 (same direction) to 1 (opposite directions)
@@ -89,15 +91,9 @@ PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, const glm::ve
 PlayerLogicComponent::~PlayerLogicComponent() {
 }
 
-folly::Optional<Ground> PlayerLogicComponent::getGround() const {
-   PlayerPhysicsComponent *playerPhysicsComponent = dynamic_cast<PlayerPhysicsComponent*>(&gameObject.getPhysicsComponent());
-   ASSERT(playerPhysicsComponent, "Player should have PlayerPhysicsComponent");
-   if (!playerPhysicsComponent) {
-      return folly::none;
-   }
-
-   btCollisionObject *playerCollisionObject = playerPhysicsComponent->getCollisionObject();
-   btGhostObject &ghost = playerPhysicsComponent->getGhostObject();
+folly::Optional<Ground> PlayerLogicComponent::getGround(SPtr<PhysicsManager> physicsManager) const {
+   PhysicsComponent &physicsComponent = gameObject.getPhysicsComponent();
+   btCollisionObject *playerCollisionObject = physicsComponent.getCollisionObject();
 
    // Get the player's AABB
    btCollisionShape *playerShape = playerCollisionObject->getCollisionShape();
@@ -105,38 +101,19 @@ folly::Optional<Ground> PlayerLogicComponent::getGround() const {
    btVector3 playerMin, playerMax;
    playerShape->getAabb(playerCollisionObject->getWorldTransform(), playerMin, playerMax);
 
-   // Try to find the best ground
-   bool found = false;
-   Ground ground(0.0f, 0.0f);
-   for (int i = 0; i < ghost.getNumOverlappingObjects(); ++i) {
-      btCollisionObject *object = ghost.getOverlappingObject(i);
-      // Ignore the player
-      if (object == playerCollisionObject) {
-         continue;
-      }
+   // Fire a ray downwards to see if the player is standing on something
+   btVector3 from(playerMin + btVector3(0.0f, 0.5f, 0.0f));
+   btVector3 to(toBt(toGlm(playerMin) - glm::vec3(0.0f, SPRING_HEIGHT + SPRING_RAYCAST_MARGIN, 0.0f)));
+   btCollisionWorld::ClosestRayResultCallback callback(from, to);
+   callback.m_collisionFilterMask = CollisionGroup::Default | CollisionGroup::StaticBodies;
+   physicsManager->getDynamicsWorld().rayTest(from, to, callback);
 
-      btCollisionShape *shape = object->getCollisionShape();
-      if (!shape) {
-         continue;
-      }
-
-      // Get the object's AABB
-      btVector3 min, max;
-      shape->getAabb(object->getWorldTransform(), min, max);
-
-      // Check if the object is below us, and if it is the highest 'ground'
-      if (max.y() < playerMin.y() + GROUND_HEIGHT_ADJUST && (!found || max.y() > ground.maxY)) {
-         found = true;
-         ground.maxY = max.y();
-         ground.friction = object->getFriction();
-      }
-   }
-
-   if (!found) {
+   if (!callback.hasHit()) {
       return folly::none;
    }
 
-   return ground;
+   return Ground(callback.m_hitPointWorld.y() + CONVEX_DISTANCE_MARGIN, // y position of ground
+                 callback.m_collisionObject->getFriction());            // friction of ground
 }
 
 folly::Optional<glm::vec3> PlayerLogicComponent::calcSpringForce(const Ground &ground, const btRigidBody *rigidBody) const {
@@ -150,16 +127,18 @@ folly::Optional<glm::vec3> PlayerLogicComponent::calcSpringForce(const Ground &g
    playerShape->getAabb(rigidBody->getWorldTransform(), playerMin, playerMax);
 
    // Distance to ground and player velocity
-   float desiredDist = PLAYER_GHOST_TOTAL_HEIGHT;
-   float actualDist = playerMin.y() - ground.maxY;
+   float desiredDist = SPRING_HEIGHT;
+   float actualDist = playerMin.y() - ground.y;
    float yVel = rigidBody->getLinearVelocity().y();
 
    // Calculate the spring force
    float springForce = -SPRING_STIFFNESS * (glm::abs(actualDist) - desiredDist) - SPRING_DAMPING * yVel;
    float yForce = springForce * SPRING_FORCE_MULTIPLIER * (1.0f  / rigidBody->getInvMass());
 
-   // Only apply the spring force if it is pushing upwards
-   if (yForce <= 0.0f) {
+   float currentYVel = rigidBody->getLinearVelocity().y();
+
+   // Don't apply the force if the player is moving upwards and we are trying to pull them downwards
+   if (yForce < 0.0f && currentYVel > 0.0f) {
       return folly::none;
    }
 
@@ -195,15 +174,16 @@ glm::vec3 PlayerLogicComponent::calcJumpImpulse(const InputValues &inputValues, 
 
    if (inputValues.jump && !wasJumpingLastFrame && (onGround || canDoubleJump)) {
       wasJumpingLastFrame = true;
+
+      // Cancel out any negative Y movement
+      float cancelNegativeY = glm::max(0.0f, -velocity.y);
+      jumpImpulse += glm::vec3(0.0f, cancelNegativeY, 0.0f);
+
+      // Add in the jump impulse
       jumpImpulse += glm::vec3(0.0f, JUMP_IMPULSE, 0.0f);
-      gameObject.notify(gameObject, Event::JUMP);
 
       if (!onGround && canDoubleJump) {
          canDoubleJump = false;
-
-         // Cancel out any negative Y movement
-         float cancelNegativeY = glm::max(0.0f, -velocity.y);
-         jumpImpulse += glm::vec3(0.0f, cancelNegativeY, 0.0f);
 
          glm::vec3 horizontalVelocity = velocity;
          horizontalVelocity.y = 0.0f;
@@ -214,6 +194,8 @@ glm::vec3 PlayerLogicComponent::calcJumpImpulse(const InputValues &inputValues, 
          float horizontalImpulseMultiplier = relation * glm::sqrt(glm::length(horizontalVelocity));
          jumpImpulse += horizontalMoveIntention * horizontalImpulseMultiplier;
       }
+
+      gameObject.notify(gameObject, Event::JUMP);
    }
 
    if (!inputValues.jump) {
@@ -255,8 +237,8 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
    btVector3 netForce(0.0f, 0.0f, 0.0f);
    btVector3 velocity = rigidBody->getLinearVelocity();
 
-   // Check to see if the ghost is colliding with some sort of ground
-   folly::Optional<Ground> ground = getGround();
+   // Check to see if the spring is colliding with some sort of ground
+   folly::Optional<Ground> ground = getGround(scene->getPhysicsManager());
    if (ground) {
       folly::Optional<glm::vec3> springForce = calcSpringForce(*ground, rigidBody);
 

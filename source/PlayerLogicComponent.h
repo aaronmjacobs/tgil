@@ -8,13 +8,14 @@
 
 class Ability;
 class btRigidBody;
+class PhysicsManager;
 
 struct Ground {
-   float maxY;
-   float friction;
+   const float y;
+   const float friction;
 
-   Ground(float maxY, float friction)
-      : maxY(maxY), friction(friction) {
+   Ground(float y, float friction)
+      : y(y), friction(friction) {
    }
 };
 
@@ -29,7 +30,7 @@ protected:
    SPtr<Ability> primaryAbility;
    SPtr<Ability> secondaryAbility;
 
-   folly::Optional<Ground> getGround() const;
+   folly::Optional<Ground> getGround(SPtr<PhysicsManager> physicsManager) const;
 
    folly::Optional<glm::vec3> calcSpringForce(const Ground &ground, const btRigidBody *rigidBody) const;
 
