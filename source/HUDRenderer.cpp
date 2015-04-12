@@ -66,8 +66,7 @@ void HUDRenderer::loadPlane() {
 
    textureMaterial = std::make_shared<TextureMaterial>(0, "uTexture");
 
-   // TODO Hardcode the mesh
-   SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xy_plane.obj");
+   SPtr<Mesh> planeMesh = assetManager.getMeshForShape(MeshShape::XYPlane);
    xyPlane = UPtr<Model>(new Model(shaderProgram, planeMesh));
    xyPlane->attachMaterial(textureMaterial);
 }

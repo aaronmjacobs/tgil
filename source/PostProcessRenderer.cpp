@@ -58,8 +58,7 @@ void PostProcessRenderer::loadPlane() {
 
    material = std::make_shared<TintMaterial>();
 
-   // TODO Hardcode the mesh
-   SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xy_plane.obj");
+   SPtr<Mesh> planeMesh = assetManager.getMeshForShape(MeshShape::XYPlane);
    xyPlane = UPtr<Model>(new Model(shaderProgram, planeMesh));
    xyPlane->attachMaterial(material);
 }

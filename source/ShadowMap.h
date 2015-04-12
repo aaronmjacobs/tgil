@@ -54,7 +54,7 @@ protected:
    SPtr<ShadowMap> getShadowMap(const std::vector<SPtr<ShadowMap>> &maps);
 
 public:
-   ShadowMapManager(int numStandard, int numCube, int standardSize = 2048, int cubeSize = 512);
+   ShadowMapManager(int numStandard, int numCube, int standardSize = 4096, int cubeSize = 512);
 
    virtual ~ShadowMapManager();
 

@@ -40,11 +40,13 @@ void main() {
 
 #ifdef SHADOWS
    // Shadow coordinates
-   vShadowCoords[0] = uShadows[0].shadowProj * uShadows[0].shadowView * lPosition;
-   vShadowCoords[1] = uShadows[1].shadowProj * uShadows[1].shadowView * lPosition;
-   vShadowCoords[2] = uShadows[2].shadowProj * uShadows[2].shadowView * lPosition;
-   vShadowCoords[3] = uShadows[3].shadowProj * uShadows[3].shadowView * lPosition;
-   vShadowCoords[4] = uShadows[4].shadowProj * uShadows[4].shadowView * lPosition;
+   const float offsetAmount = 0.1;
+   vec4 offsetPosition = lPosition + vec4(normalize(aNormal) * offsetAmount, 0.0);
+   vShadowCoords[0] = uShadows[0].shadowProj * uShadows[0].shadowView * offsetPosition;
+   vShadowCoords[1] = uShadows[1].shadowProj * uShadows[1].shadowView * offsetPosition;
+   vShadowCoords[2] = uShadows[2].shadowProj * uShadows[2].shadowView * offsetPosition;
+   vShadowCoords[3] = uShadows[3].shadowProj * uShadows[3].shadowView * offsetPosition;
+   vShadowCoords[4] = uShadows[4].shadowProj * uShadows[4].shadowView * offsetPosition;
 #endif
 
    // Calculate the relative normal

@@ -4,12 +4,24 @@
 #include "DebugRenderer.h"
 #include "HUDRenderer.h"
 #include "PostProcessRenderer.h"
+#include "SkyRenderer.h"
 
 #include <glm/glm.hpp>
 
 class GameObject;
 class ShadowMap;
 class ShadowMapManager;
+
+struct Viewport {
+   int x;
+   int y;
+   int width;
+   int height;
+
+   Viewport(int x, int y, int width, int height)
+   : x(x), y(y), width(width), height(height) {
+   }
+};
 
 class Renderer {
 protected:
@@ -22,6 +34,11 @@ protected:
     * Renderer used to draw post-processing effects
     */
    PostProcessRenderer postProcessRenderer;
+
+   /**
+    * Renderer used to draw the sky
+    */
+   SkyRenderer skyRenderer;
 
    /**
     * Renderer used to draw debug physics information
@@ -71,7 +88,7 @@ protected:
    /**
     * Renders the scene from the given camera's perspective
     */
-   void renderFromCamera(Scene &scene, const GameObject &camera);
+   void renderFromCamera(Scene &scene, const GameObject &camera, const Viewport &viewport);
 
    /**
     * Renders the debug physics information for the scene

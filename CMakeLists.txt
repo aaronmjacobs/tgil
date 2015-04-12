@@ -76,6 +76,8 @@ set(SOURCES
    ${SRC_DIR}/ShaderProgram.cpp
    ${SRC_DIR}/ShadowMap.cpp
    ${SRC_DIR}/ShoveAbility.cpp
+   ${SRC_DIR}/SkyRenderer.cpp
+   ${SRC_DIR}/SunLogicComponent.cpp
    ${SRC_DIR}/TextureAssetManager.cpp
    ${SRC_DIR}/TextureMaterial.cpp
    ${SRC_DIR}/TextureUnitManager.cpp
@@ -142,7 +144,9 @@ set(HEADERS
    ${SRC_DIR}/ShaderProgram.h
    ${SRC_DIR}/ShadowMap.h
    ${SRC_DIR}/ShoveAbility.h
+   ${SRC_DIR}/SkyRenderer.h
    ${SRC_DIR}/Subject.h
+   ${SRC_DIR}/SunLogicComponent.h
    ${SRC_DIR}/TextureAssetManager.h
    ${SRC_DIR}/TextureMaterial.h
    ${SRC_DIR}/TextureUnitManager.h

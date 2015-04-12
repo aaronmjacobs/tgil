@@ -32,17 +32,6 @@
 
 namespace {
 
-struct Viewport {
-   int x;
-   int y;
-   int width;
-   int height;
-
-   Viewport(int x, int y, int width, int height)
-      : x(x), y(y), width(width), height(height) {
-   }
-};
-
 std::string getErrorName(GLenum error) {
    switch (error) {
       case GL_NO_ERROR:
@@ -137,6 +126,8 @@ void Renderer::init(float fov, int width, int height) {
 
    postProcessRenderer.init();
 
+   skyRenderer.init();
+
    debugRenderer.init();
 }
 
@@ -180,15 +171,19 @@ void Renderer::render(Scene &scene) {
       Viewport viewport(getViewport(i, numCameras, width, height));
       glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 
-      renderFromCamera(scene, *cameras[i]);
+      renderFromCamera(scene, *cameras[i], viewport);
    }
 }
 
 void Renderer::renderShadowMaps(Scene &scene) {
+   glDisable(GL_CULL_FACE);
+
    const std::vector<SPtr<GameObject>> &lights = scene.getLights();
    for (SPtr<GameObject> light : lights) {
       renderShadowMap(scene, light);
    }
+
+   glEnable(GL_CULL_FACE);
 }
 
 void Renderer::prepareLights(Scene &scene) {
@@ -269,6 +264,8 @@ void Renderer::renderShadowMapFace(Scene &scene, SPtr<GameObject> light, SPtr<Sh
    // View matrix
    shadowProgram->setUniformValue("uViewMatrix", lightComponent.getViewMatrix(face));
 
+   shadowProgram->setUniformValue("uLightDir", glm::normalize(lightComponent.getDirection()));
+
    RenderData renderData;
    renderData.setOverrideProgram(shadowProgram);
 
@@ -283,7 +280,7 @@ void Renderer::renderShadowMapFace(Scene &scene, SPtr<GameObject> light, SPtr<Sh
    }
 }
 
-void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
+void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Viewport &viewport) {
    RenderData renderData;
 
    // Set up shaders
@@ -302,10 +299,14 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
       shaderProgram->setUniformValue("uCameraPos", cameraPosition, true);
    }
 
-   // Skybox
-   SPtr<GameObject> skybox = scene.getSkybox();
-   if (skybox) {
-      skybox->getGraphicsComponent().draw(renderData);
+   // Sky
+   SPtr<GameObject> sun = scene.getSun();
+   if (sun) {
+      glDisable(GL_DEPTH_TEST);
+      skyRenderer.render(viewMatrix, projectionMatrix, viewport, glm::vec2((float)width, (float)height), sun);
+      glEnable(GL_DEPTH_TEST);
+   } else {
+      glClear(GL_COLOR_BUFFER_BIT);
    }
 
    // Objects
@@ -326,7 +327,6 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera) {
    glDisable(GL_DEPTH_TEST);
 
    PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&camera.getLogicComponent());
-
    if (playerLogic) {
       hudRenderer.render(*playerLogic, width, height);
 

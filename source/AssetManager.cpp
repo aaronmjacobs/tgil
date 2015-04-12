@@ -22,6 +22,10 @@ SPtr<Mesh> AssetManager::loadMesh(const std::string &fileName) {
    return meshAssetManager.loadMesh(fileName);
 }
 
+SPtr<Mesh> AssetManager::getMeshForShape(MeshShape shape) {
+   return meshAssetManager.getMeshForShape(shape);
+}
+
 GLuint AssetManager::loadTexture(const std::string &fileName, TextureWrap::Type wrap) {
    return textureAssetManager.loadTexture(fileName, wrap);
 }

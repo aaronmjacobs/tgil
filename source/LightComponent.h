@@ -45,6 +45,10 @@ public:
 
    glm::mat4 getBiasedProjectionMatrix() const;
 
+   const glm::vec3& getDirection() const {
+      return direction;
+   }
+
    float getNearPlaneDist() const;
 
    float getFarPlaneDist() const;

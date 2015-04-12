@@ -21,6 +21,7 @@
 #include "SceneLoader.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
+#include "SunLogicComponent.h"
 #include "TextureMaterial.h"
 #include "TimeMaterial.h"
 
@@ -330,11 +331,9 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    SPtr<ShaderProgram> phongTextureShaderProgram(assetManager.loadShaderProgram("shaders/phong_textured"));
    SPtr<ShaderProgram> tilingTextureShaderProgram(assetManager.loadShaderProgram("shaders/tiling_texture"));
    SPtr<ShaderProgram> lavaShaderProgram(assetManager.loadShaderProgram("shaders/lava"));
-   SPtr<ShaderProgram> skyboxShaderProgram(assetManager.loadShaderProgram("shaders/skybox"));
 
    //GLuint lavaTextureID = assetManager.loadTexture("textures/lava.png", TextureWrap::Repeat);
    GLuint rockTextureID = assetManager.loadTexture("textures/soil.jpg", TextureWrap::Repeat);
-   GLuint skyboxID = assetManager.loadCubemap("textures/desert", "jpg");
 
    GLuint lavatileTextureID = assetManager.loadTexture("textures/lavatile2.jpg", TextureWrap::Repeat);
    GLuint noiseID = assetManager.loadTexture("textures/cloud.png", TextureWrap::Repeat);
@@ -344,19 +343,15 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    //SPtr<PhongMaterial> planeMaterial = createPhongMaterial(*phongShaderProgram, glm::vec3(0.4f), 0.2f, 50.0f);
    SPtr<TextureMaterial> rockMaterial(std::make_shared<TextureMaterial>(rockTextureID, "uTexture"));
    //SPtr<TextureMaterial> lavaMaterial(std::make_shared<TextureMaterial>(*tilingTextureShaderProgram, lavaTextureID, "uTexture"));
-   SPtr<TextureMaterial> skyboxMaterial(std::make_shared<TextureMaterial>(skyboxID, "uSkybox", GL_TEXTURE_CUBE_MAP));
    SPtr<TextureMaterial> lavatileMaterial(std::make_shared<TextureMaterial>(lavatileTextureID, "uTexture"));
    SPtr<TextureMaterial> noiseMaterial(std::make_shared<TextureMaterial>(noiseID, "uNoiseTexture"));
    SPtr<TimeMaterial> timeMaterial(std::make_shared<TimeMaterial>());
 
-   SPtr<Mesh> skyboxMesh = assetManager.loadMesh("meshes/skybox.obj");
    SPtr<Mesh> boxMesh = assetManager.loadMesh("meshes/cube.obj");
    SPtr<Mesh> planeMesh = assetManager.loadMesh("meshes/xz_plane.obj");
    SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
    SPtr<Mesh> lavaMesh = assetManager.loadMesh("meshes/lava.obj");
 
-   SPtr<Model> skyboxModel(std::make_shared<Model>(skyboxShaderProgram, skyboxMesh));
-   skyboxModel->attachMaterial(skyboxMaterial);
    SPtr<Model> boxModel(std::make_shared<Model>(phongTextureShaderProgram, boxMesh));
    boxModel->attachMaterial(rockMaterial);
    boxModel->attachMaterial(boxMaterial);
@@ -368,18 +363,14 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    //lavaModel->attachMaterial(timeMaterial);
    //SPtr<Model> lavalModel(std::make_shared<Model>(tilingTextureShaderProgram, lavaMaterial, planeMesh));
 
-   SPtr<GameObject> skybox(std::make_shared<GameObject>());
-   skybox->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*skybox));
-   skybox->getGraphicsComponent().setModel(skyboxModel);
-   scene->setSkybox(skybox);
-
    // Light
-   float sunDistance = 300.0f;
-   glm::vec3 sunDir(1.0f, -1.0f, -0.5f);
-   glm::vec3 sunPos = -sunDir * sunDistance;
    float sunIntensity = 1.25f;
    glm::vec3 sunColor = glm::normalize(glm::vec3(1.0f, 0.95f, 0.75f)) * sunIntensity;
-   scene->addLight(createDirectionalLight(sunPos, sunColor, sunDir));
+   SPtr<GameObject> sun(createDirectionalLight(glm::vec3(0.0f), sunColor, glm::vec3(0.0f)));
+   sun->setLogicComponent(std::make_shared<SunLogicComponent>(*sun));
+   scene->addObject(sun);
+   scene->addLight(sun);
+   scene->setSun(sun);
 
    //scene->addLight(createSpotLight(glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, 0.0f, 0.4f, 0.5f));
 

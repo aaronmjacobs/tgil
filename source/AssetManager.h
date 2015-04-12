@@ -38,6 +38,11 @@ public:
    SPtr<Mesh> loadMesh(const std::string &fileName);
 
    /**
+    * Gets a mesh with the given shape
+    */
+   SPtr<Mesh> getMeshForShape(MeshShape shape);
+
+   /**
     * Loads the texture with the given file name, using a cached version if possible
     */
    GLuint loadTexture(const std::string &fileName, TextureWrap::Type wrap = TextureWrap::Edge);

@@ -14,6 +14,10 @@ class Importer;
 
 typedef std::unordered_map<std::string, SPtr<Mesh>> MeshMap;
 
+enum class MeshShape {
+   Cube, XYPlane
+};
+
 class MeshAssetManager {
 protected:
    const UPtr<Assimp::Importer> assimpImporter;
@@ -28,6 +32,11 @@ public:
     * Loads the mesh with the given file name, using a cached version if possible
     */
    SPtr<Mesh> loadMesh(const std::string &fileName);
+
+   /**
+    * Gets a mesh with the given shape
+    */
+   SPtr<Mesh> getMeshForShape(MeshShape shape);
 };
 
 #endif

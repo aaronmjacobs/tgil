@@ -76,7 +76,7 @@ float vectorToDepthValue(in vec3 vec, in float near, in float far) {
 
 float calcVisibility(in Light light, in float nDotL) {
    const float baseBias = 0.001;
-   const float maxBias = 0.01;
+   const float maxBias = 0.003;
    float bias = baseBias * tan(acos(nDotL));
    bias = clamp(bias, 0.0, maxBias);
 

@@ -80,9 +80,10 @@ int main(int argc, char *argv[]) {
    glfwSetWindowFocusCallback(window, focusCallback);
 
    // Timing values
-   double lastTime = glfwGetTime();
    const double dt = 1.0 / 60.0;
-   double accumulator = 0.0;
+   double lastTime = glfwGetTime();
+   // Make sure we tick at least once before rendering, to allow things to be set up
+   double accumulator = dt;
 
    while (!glfwWindowShouldClose(window)) {
       // Calculate the frame time

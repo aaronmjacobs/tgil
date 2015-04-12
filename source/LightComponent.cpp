@@ -131,7 +131,7 @@ glm::mat4 LightComponent::getViewMatrix(int face) const {
 
 glm::mat4 LightComponent::getProjectionMatrix() const {
    // TODO Determine by scene geometry?
-   const float directionWidth = 70.0f;
+   const float directionWidth = 100.0f;
 
    float near = getNearPlaneDist();
    float far = getFarPlaneDist();

@@ -155,15 +155,6 @@ void Scene::tick(const float dt) {
    ticking = false;
 }
 
-void Scene::setSkybox(SPtr<GameObject> skybox) {
-   this->skybox = skybox;
-
-   SPtr<Model> model = skybox->getGraphicsComponent().getModel();
-   if (model) {
-      shaderPrograms.insert(model->getShaderProgram());
-   }
-}
-
 void Scene::addPlayer(SPtr<GameObject> player) {
    addToVectors(players, player);
 }
