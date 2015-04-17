@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 
+#include <cstring>
 #include <string>
 #include <unordered_map>
 #include <vector>

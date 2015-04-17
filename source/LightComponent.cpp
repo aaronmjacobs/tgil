@@ -10,6 +10,12 @@
 #include <sstream>
 #include <string>
 
+// Yup, defined in windows.h for whatever reason
+#ifdef _WIN32
+#undef near
+#undef far
+#endif // _WIN32
+
 LightComponent::LightComponent(GameObject &gameObject, LightType type, const glm::vec3 &color, const glm::vec3 &direction, float linearFalloff, float squareFalloff, float beamAngle, float cutoffAngle)
    : Component(gameObject), type(type), color(color), direction(direction), linearFalloff(linearFalloff), squareFalloff(squareFalloff), beamAngle(beamAngle), cutoffAngle(cutoffAngle) {
 }

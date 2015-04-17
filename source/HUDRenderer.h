@@ -6,6 +6,8 @@
 #include "Types.h"
 
 #include <glm/glm.hpp>
+
+#include <functional>
 #include <vector>
 
 class Model;
