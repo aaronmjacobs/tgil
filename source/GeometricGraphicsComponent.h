@@ -4,12 +4,17 @@
 #include "GraphicsComponent.h"
 
 class GeometricGraphicsComponent : public GraphicsComponent {
+protected:
+   bool castShadows;
+
 public:
    GeometricGraphicsComponent(GameObject &gameObject);
 
    virtual ~GeometricGraphicsComponent();
 
    virtual void draw(const RenderData &renderData);
+
+   void enableCastingShadows(bool enabled);
 };
 
 #endif

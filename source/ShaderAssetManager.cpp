@@ -216,7 +216,6 @@ SPtr<Shader> ShaderAssetManager::loadShader(const std::string &fileName, const G
    return shader;
 }
 
-// TODO Handle adding of uniforms / attributes
 SPtr<ShaderProgram> ShaderAssetManager::loadShaderProgram(const std::string &fileName) {
    if (shaderProgramMap.count(fileName) > 0) {
       return shaderProgramMap[fileName];
@@ -279,7 +278,5 @@ void ShaderAssetManager::reloadShaders() {
       if (!shaderProgram->link()) {
          LOG_WARNING("Unable to link '" << fileName << "' shader program. Error message: \"" << getShaderLinkError(shaderProgram) << "\"");
       }
-
-      // TODO Clear and re-add all uniforms / attributes
    }
 }

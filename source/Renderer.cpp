@@ -266,7 +266,7 @@ void Renderer::renderShadowMapFace(Scene &scene, SPtr<GameObject> light, SPtr<Sh
 
    shadowProgram->setUniformValue("uLightDir", glm::normalize(lightComponent.getDirection()));
 
-   RenderData renderData;
+   RenderData renderData(RenderState::Shadow);
    renderData.setOverrideProgram(shadowProgram);
 
    // Objects
