@@ -66,6 +66,8 @@ bool getFormat(const ImageInfo &info, GLint *format) {
 } // namespace
 
 TextureAssetManager::TextureAssetManager() {
+   // Load images bottom-to-top (since that is how OpenGL expects textures)
+   stbi_set_flip_vertically_on_load(true);
 }
 
 TextureAssetManager::~TextureAssetManager() {
