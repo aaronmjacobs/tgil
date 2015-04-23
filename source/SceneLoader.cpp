@@ -335,7 +335,7 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    //GLuint lavaTextureID = assetManager.loadTexture("textures/lava.png", TextureWrap::Repeat);
    GLuint rockTextureID = assetManager.loadTexture("textures/soil.jpg", TextureWrap::Repeat);
 
-   GLuint lavatileTextureID = assetManager.loadTexture("textures/lavatile2.jpg", TextureWrap::Repeat);
+   GLuint lavatileTextureID = assetManager.loadTexture("textures/lava.jpg", TextureWrap::Repeat);
    GLuint noiseID = assetManager.loadTexture("textures/cloud.png", TextureWrap::Repeat);
 
    SPtr<PhongMaterial> boxMaterial = createPhongMaterial(glm::vec3(1.0f), 0.2f, 50.0f);
@@ -356,11 +356,11 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    boxModel->attachMaterial(rockMaterial);
    boxModel->attachMaterial(boxMaterial);
    //SPtr<Model> planeModel(std::make_shared<Model>(phongShaderProgram, planeMaterial, planeMesh));
-   SPtr<Model> lavaModel(std::make_shared<Model>(phongShaderProgram, lavaMesh));
-   lavaModel->attachMaterial(lavaPhongMaterial);
-   //lavaModel->attachMaterial(lavatileMaterial);
-   //lavaModel->attachMaterial(noiseMaterial);
-   //lavaModel->attachMaterial(timeMaterial);
+   SPtr<Model> lavaModel(std::make_shared<Model>(lavaShaderProgram, lavaMesh));
+   //lavaModel->attachMaterial(lavaPhongMaterial);
+   lavaModel->attachMaterial(lavatileMaterial);
+   lavaModel->attachMaterial(noiseMaterial);
+   lavaModel->attachMaterial(timeMaterial);
    //SPtr<Model> lavalModel(std::make_shared<Model>(tilingTextureShaderProgram, lavaMaterial, planeMesh));
 
    // Light

@@ -4,7 +4,7 @@ uniform float uTime;
 uniform sampler2D uTexture;
 uniform sampler2D uNoiseTexture;
 
-in vec2 vTexCoord;
+flat in vec2 vTexCoord;
 
 out vec4 color;
 
@@ -12,7 +12,7 @@ void main() {
    vec4 noise = texture(uNoiseTexture, vTexCoord);
 
    vec2 noiseOffset = vec2(1.5, -1.5) * uTime * 0.01;
-   vec2 textureOffset = vec2(-0.5, 2.0) * uTime * 0.005;
+   vec2 textureOffset = vec2(-0.5, 2.0) * uTime * 0.001;
 
    vec2 noiseCoord = vTexCoord + noiseOffset + noise.xy * 2.0;
    vec2 textureCoord = vTexCoord + textureOffset;
