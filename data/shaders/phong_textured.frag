@@ -177,7 +177,9 @@ void main() {
       finalColor += calcLighting(lNormal, surfaceColor, uLights[i]);
    }
 
-   finalColor += uMaterial.ambient * surfaceColor;
+   float ambientAmount = (dot(lNormal, vec3(0.0, 1.0, 0.0)) + 1.0) / 2.0;
+   ambientAmount = ambientAmount / 2.0 + 0.5;
+   finalColor += uMaterial.ambient * surfaceColor * ambientAmount;
    finalColor += uMaterial.emission;
 
    color = vec4(finalColor, 1.0);
