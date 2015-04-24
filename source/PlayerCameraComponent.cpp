@@ -6,12 +6,12 @@
 namespace {
 
 // TODO Calculate from physics object
-const float HEAD_OFFSET = 0.7f;
+const float HEAD_HEIGHT = 0.7f;
 
 } // namespace
 
 PlayerCameraComponent::PlayerCameraComponent(GameObject &gameObject)
-   : CameraComponent(gameObject) {
+   : CameraComponent(gameObject), headOffset(0.0f) {
 }
 
 PlayerCameraComponent::~PlayerCameraComponent() {
@@ -37,5 +37,5 @@ glm::mat4 PlayerCameraComponent::getViewMatrix() const {
 }
 
 glm::vec3 PlayerCameraComponent::getCameraPosition() const {
-   return gameObject.getPosition() + glm::vec3(0.0f, HEAD_OFFSET, 0.0f);
+   return gameObject.getPosition() + glm::vec3(0.0f, HEAD_HEIGHT + headOffset, 0.0f);
 }

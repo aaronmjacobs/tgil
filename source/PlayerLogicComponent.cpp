@@ -6,6 +6,7 @@
 #include "InputComponent.h"
 #include "PhysicsComponent.h"
 #include "PhysicsManager.h"
+#include "PlayerCameraComponent.h"
 #include "PlayerLogicComponent.h"
 #include "Scene.h"
 #include "ShoveAbility.h"
@@ -25,14 +26,15 @@ namespace {
 // Look constants
 const float LOOK_SPEED = 5.0f;
 const float Y_LOOK_BOUND = 0.99f;
+const float BOB_AMOUNT = 1.0f / 30.0f;
 
 // Movement constants
-const float MAX_MOVE_FORCE = 150.0f;
-const float NORMAL_MOVE_FORCE = 150.0f;
+const float MAX_MOVE_FORCE = 225.0f;
+const float NORMAL_MOVE_FORCE = 225.0f;
 const float AIR_MOVE_MULTIPLIER = 0.2f;
 const float MAX_AIR_MOVE_SPEED = 7.0f;
 const float JUMP_IMPULSE = 7.0f;
-const float STEP_DISTANCE = 1.3f;
+const float STEP_DISTANCE = 2.0f;
 
 // Ground / friction constants
 const float FRICTION_CONSTANT = 30.0f;
@@ -268,6 +270,12 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
       if (distanceSinceStep >= STEP_DISTANCE) {
          distanceSinceStep = 0.0f;
          gameObject.notify(gameObject, Event::STEP);
+      }
+
+      PlayerCameraComponent *cameraComponent = dynamic_cast<PlayerCameraComponent*>(&gameObject.getCameraComponent());
+      if (cameraComponent) {
+         float offset = (distanceSinceStep / STEP_DISTANCE) * (2.0f * glm::pi<float>()) - glm::half_pi<float>();
+         cameraComponent->setHeadOffset(sin(offset) * BOB_AMOUNT);
       }
    }
 

@@ -4,6 +4,9 @@
 #include "CameraComponent.h"
 
 class PlayerCameraComponent : public CameraComponent {
+protected:
+   float headOffset;
+
 public:
    PlayerCameraComponent(GameObject &gameObject);
 
@@ -18,6 +21,10 @@ public:
    virtual glm::mat4 getViewMatrix() const;
 
    virtual glm::vec3 getCameraPosition() const;
+
+   void setHeadOffset(float offset) {
+      headOffset = offset;
+   }
 };
 
 
