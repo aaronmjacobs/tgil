@@ -13,7 +13,8 @@ namespace {
 
 const int MAX_CHANNELS = 64;
 const float MAX_DISTANCE = 10000.0f;
-const float MUSIC_VOLUME = 0.8f;
+const float MUSIC_VOLUME = 0.35f;
+const float EFFECTS_VOLUME = 0.7f;
 
 std::default_random_engine generator;
 
@@ -95,13 +96,14 @@ const std::string& SoundGroup::getSoundFile() const {
 }
 
 // Music
-const SoundGroup SoundGroup::OH_YEAH({"music/ohyeah.ogg"}, true, false, 0.0f);
+const SoundGroup SoundGroup::STRIFE({"music/strife.ogg"}, true, false, 0.0f);
 
 // Sound effects
-const SoundGroup SoundGroup::JUMP({"sounds/jump/jump1.ogg", "sounds/jump/jump2.ogg", "sounds/jump/jump3.ogg"}, false, true, 3.0f);
-const SoundGroup SoundGroup::STEP({"sounds/step/step1.ogg", "sounds/step/step2.ogg", "sounds/step/step3.ogg"}, false, true, 1.0f);
-const SoundGroup SoundGroup::EXPLOSION({"sounds/explosion.ogg"}, false, true, 5.0f);
-const SoundGroup SoundGroup::SHOVE({"sounds/shove.ogg"}, false, true, 5.0f);
+const SoundGroup SoundGroup::JUMP({"sounds/jump.ogg"}, false, true, 3.0f);
+const SoundGroup SoundGroup::STEP({"sounds/step.ogg"}, false, true, 1.0f);
+const SoundGroup SoundGroup::DIE({"sounds/die.ogg"}, false, true, 10.0f);
+const SoundGroup SoundGroup::EXPLOSION({"sounds/explosion.ogg"}, false, true, 8.0f);
+const SoundGroup SoundGroup::SHOVE({"sounds/shove.ogg"}, false, true, 8.0f);
 const SoundGroup SoundGroup::THROW({"sounds/throw.ogg"}, false, true, 5.0f);
 
 // AudioManager
@@ -186,15 +188,17 @@ void AudioManager::init() {
    check(system->createChannelGroup("effects", &effectsGroup));
 
    check(musicGroup->setVolume(MUSIC_VOLUME));
+   check(effectsGroup->setVolume(EFFECTS_VOLUME));
 
-   load(SoundGroup::OH_YEAH);
+   load(SoundGroup::STRIFE);
    load(SoundGroup::JUMP);
    load(SoundGroup::STEP);
+   load(SoundGroup::DIE);
    load(SoundGroup::EXPLOSION);
    load(SoundGroup::SHOVE);
    load(SoundGroup::THROW);
 
-   play(SoundGroup::OH_YEAH);
+   play(SoundGroup::STRIFE);
 }
 
 void AudioManager::update(ListenerAttributes *listeners, int numListeners) {

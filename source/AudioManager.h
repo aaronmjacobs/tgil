@@ -35,11 +35,12 @@ protected:
 
 public:
    // Music
-   static const SoundGroup OH_YEAH;
+   static const SoundGroup STRIFE;
 
    // Sound effects
    static const SoundGroup JUMP;
    static const SoundGroup STEP;
+   static const SoundGroup DIE;
    static const SoundGroup EXPLOSION;
    static const SoundGroup SHOVE;
    static const SoundGroup THROW;
