@@ -15,6 +15,7 @@ class ShaderProgram;
 namespace {
 
 const int NO_WINNER = -1;
+const float TIME_TO_NEXT_LEVEL = 4.0f;
 
 }
 
@@ -63,6 +64,10 @@ protected:
    GameObjectVectors objects;
 
    bool ticking;
+
+   float timeSinceStart;
+
+   float timeSinceEnd;
 
    bool addToVectors(GameObjectVectors &vectors, SPtr<GameObject> object);
 
@@ -142,6 +147,14 @@ public:
    SPtr<GameObject> getPlayerByNumber(int playerNum) const;
 
    std::vector<SPtr<GameObject>> getLivingPlayers() const;
+
+   float getTimeSinceStart() const {
+      return timeSinceStart;
+   }
+
+   float getTimeSinceEnd() const {
+      return timeSinceEnd;
+   }
 };
 
 #endif

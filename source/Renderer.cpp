@@ -32,6 +32,9 @@
 
 namespace {
 
+const float FADE_TIME = 1.0f;
+const float FADE_OUT_DELAY = TIME_TO_NEXT_LEVEL / 2.0f;
+
 std::string getErrorName(GLenum error) {
    switch (error) {
       case GL_NO_ERROR:
@@ -173,6 +176,8 @@ void Renderer::render(Scene &scene) {
 
       renderFromCamera(scene, *cameras[i], viewport);
    }
+
+   renderFullscreenPost(scene);
 }
 
 void Renderer::renderShadowMaps(Scene &scene) {
@@ -333,17 +338,44 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
       int playerNum = camera.getInputComponent().getPlayerNum();
       if (scene.getGameState().hasWinner() && scene.getGameState().getWinner() == playerNum) {
          float runningTime = Context::getInstance().getRunningTime() * 5.0f;
+         float timeSinceEnd = scene.getTimeSinceEnd();
          float offset = glm::pi<float>() * 2.0f / 3.0f;
          float red = (glm::sin(runningTime) + 1.0f) / 2.0f;
          float green = (glm::sin(runningTime + offset) + 1.0f) / 2.0f;
          float blue = (glm::sin(runningTime + offset * 2.0f) + 1.0f) / 2.0f;
-         postProcessRenderer.render(0.5f, glm::vec3(red, green, blue));
+         float opacity = 0.5f * glm::smoothstep(0.0f, 0.5f, timeSinceEnd);
+         postProcessRenderer.render(opacity, glm::vec3(red, green, blue));
       }
 
       if (!playerLogic->isAlive()) {
-         float opacity = 0.75f * glm::min(1.0f, playerLogic->timeSinceDeath());
+         float opacity = 0.75f * glm::smoothstep(0.0f, 1.0f, playerLogic->timeSinceDeath());
          postProcessRenderer.render(opacity, glm::vec3(0.0f));
       }
+   }
+
+   glEnable(GL_DEPTH_TEST);
+}
+
+void Renderer::renderFullscreenPost(Scene &scene) {
+   glViewport(0, 0, width, height);
+   glDisable(GL_DEPTH_TEST);
+
+   float opacity = 0.0f;
+
+   // Fade in
+   float timeSinceStart = scene.getTimeSinceStart();
+   if (timeSinceStart < 1.0f) {
+      opacity = 1.0f - glm::smoothstep(0.0f, FADE_TIME, timeSinceStart);
+   }
+
+   // Fade out
+   float timeSinceEnd = scene.getTimeSinceEnd();
+   if (timeSinceEnd - FADE_OUT_DELAY > 0.0f) {
+      opacity = glm::smoothstep(0.0f, FADE_TIME, timeSinceEnd - FADE_OUT_DELAY);
+   }
+
+   if (opacity != 0.0f) {
+      postProcessRenderer.render(opacity, glm::vec3(0.0f));
    }
 
    glEnable(GL_DEPTH_TEST);

@@ -10,12 +10,6 @@
 
 #include <boxer/boxer.h>
 
-namespace {
-
-const float TIME_TO_NEXT_LEVEL = 3.0f;
-
-} // namespace
-
 // Static members
 
 UPtr<Context> Context::instance;
@@ -36,7 +30,7 @@ Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), timeSinceWinner(-1.0f), activeShaderProgramID(0) {
+   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0) {
 }
 
 Context::~Context() {
@@ -73,12 +67,7 @@ void Context::handleSpecialInputs(const InputValues &inputValues) const {
 }
 
 void Context::checkForWinner() {
-   if (timeSinceWinner < 0.0f && scene->getGameState().hasWinner()) {
-      timeSinceWinner = runningTime;
-   }
-
-   if (timeSinceWinner >= 0.0f && runningTime - timeSinceWinner > TIME_TO_NEXT_LEVEL) {
-      timeSinceWinner = -1.0f;
+   if (scene->getTimeSinceEnd() > TIME_TO_NEXT_LEVEL) {
       scene = SceneLoader::loadNextScene(*this);
    }
 }

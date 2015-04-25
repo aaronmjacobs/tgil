@@ -27,7 +27,6 @@ protected:
    const UPtr<TextureUnitManager> textureUnitManager;
    SPtr<Scene> scene;
    float runningTime;
-   float timeSinceWinner;
    unsigned int activeShaderProgramID;
 
    void handleSpecialInputs(const InputValues &inputValues) const;

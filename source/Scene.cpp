@@ -18,7 +18,7 @@
 #include <algorithm>
 
 Scene::Scene()
-   : physicsManager(std::make_shared<PhysicsManager>()), debugDrawer(new DebugDrawer), ticking(false) {
+   : physicsManager(std::make_shared<PhysicsManager>()), debugDrawer(new DebugDrawer), ticking(false), timeSinceStart(0.0f), timeSinceEnd(0.0f) {
    physicsManager->setDebugDrawer(debugDrawer.get());
 }
 
@@ -151,6 +151,11 @@ void Scene::tick(const float dt) {
    }
 
    updateWinState();
+
+   timeSinceStart += dt;
+   if (gameState.hasWinner()) {
+      timeSinceEnd += dt;
+   }
 
    ticking = false;
 }
