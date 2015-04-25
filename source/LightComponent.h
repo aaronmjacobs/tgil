@@ -53,6 +53,14 @@ public:
 
    float getFarPlaneDist() const;
 
+   float getSquareFalloff() const {
+      return squareFalloff;
+   }
+
+   void setSquareFalloff(float falloff) {
+      squareFalloff = falloff;
+   }
+
    void setDirection(const glm::vec3 &direction) {
       this->direction = direction;
    }
