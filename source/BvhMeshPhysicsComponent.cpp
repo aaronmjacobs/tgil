@@ -28,6 +28,7 @@ BvhMeshPhysicsComponent::BvhMeshPhysicsComponent(GameObject &gameObject, const C
    btTransform transform;
    transform.setIdentity();
    transform.setOrigin(toBt(gameObject.getPosition()));
+   transform.setRotation(toBt(gameObject.getOrientation()));
    collisionObject->setWorldTransform(transform);
    collisionObject->setCollisionShape(collisionShape.get());
 }

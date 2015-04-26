@@ -20,14 +20,17 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+#include <glm/gtx/compatibility.hpp>
 
 #include <sstream>
 
 namespace {
 
 const float COOLDOWN = 0.5f;
-const float EXPLOSION_FORCE = 65.0f;
+const float EXPLOSION_FORCE = 18.0f;
 const float LIFE_TIME = 0.1f;
+const float PROJECTILE_SCALE = 0.3f;
+const float EXPLOSION_SCALE = 2.5f;
 
 SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, const glm::vec3 &color) {
    SPtr<GameObject> explosion(std::make_shared<GameObject>());
@@ -53,7 +56,7 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, c
    explosion->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*explosion, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries | CollisionGroup::Projectiles));
 
    // Logic
-   const float startTime = glfwGetTime();
+   const float startTime = Context::getInstance().getRunningTime();
    WPtr<GameObject> wExplosion(explosion);
    explosion->setTickCallback([startTime, wExplosion](GameObject &gameObject, const float dt) {
       SPtr<Scene> scene = gameObject.getScene().lock();
@@ -61,12 +64,21 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, c
          return;
       }
 
-      if (glfwGetTime() - startTime > LIFE_TIME) {
-         SPtr<GameObject> explosion(wExplosion.lock());
-         if (explosion) {
-            scene->removeObject(explosion);
-            scene->removeLight(explosion);
-         }
+      float time = glm::smoothstep(startTime, startTime + LIFE_TIME, Context::getInstance().getRunningTime());
+      float scale = EXPLOSION_SCALE * time + PROJECTILE_SCALE;
+
+      SPtr<GameObject> explosion(wExplosion.lock());
+      if (!explosion) {
+         return;
+      }
+
+      float falloff = 0.1f - 0.09f * time;
+      explosion->getLightComponent().setSquareFalloff(falloff);
+      explosion->setScale(glm::vec3(scale));
+
+      if (time >= 1.0f) {
+         scene->removeObject(explosion);
+         scene->removeLight(explosion);
       }
 
       btCollisionObject *collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
@@ -132,7 +144,7 @@ void ThrowAbility::use() {
 
    SPtr<GameObject> projectile(std::make_shared<GameObject>());
    projectile->setPosition(position + front + right * 0.25f);
-   projectile->setScale(glm::vec3(0.2f));
+   projectile->setScale(glm::vec3(PROJECTILE_SCALE));
 
    // Graphics
    SPtr<Model> playerModel = gameObject.getGraphicsComponent().getModel();

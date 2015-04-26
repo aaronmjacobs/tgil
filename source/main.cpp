@@ -77,6 +77,7 @@ int main(int argc, char *argv[]) {
    renderer.init(FOV, framebufferWidth, framebufferHeight);
 
    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+   glfwPollEvents(); // Ignore the first window focus callback
    glfwSetWindowFocusCallback(window, focusCallback);
 
    // Timing values

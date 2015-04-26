@@ -6,7 +6,8 @@ enum class Event {
    SET_SCENE,
    SCALE,
    STEP,
-   JUMP
+   JUMP,
+   DIE
 };
 
 /**

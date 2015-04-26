@@ -3,7 +3,8 @@
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
-uniform vec2 uUvScale = vec2(0.1);
+uniform vec2 uUvScale = vec2(0.2);
+uniform float uScale = 200.0;
 uniform float uTime;
 
 layout(location = 0) in vec3 aPosition;
@@ -12,7 +13,7 @@ layout(location = 2) in vec2 aTexCoord;
 flat out vec2 vTexCoord;
 
 void main() {
-   vTexCoord = uUvScale * aPosition.xz / 100.0;
+   vTexCoord = uUvScale * aPosition.xz / uScale;
 
    float largeWave1 = sin((1.3 * aPosition.x + 2.0 * aPosition.z + uTime * 10.0) / 20.0) * 1.5;
    float largeWave2 = sin((-2.6 * aPosition.x + 0.8 * aPosition.z + uTime * 10.0) / 20.0) * 1.5;

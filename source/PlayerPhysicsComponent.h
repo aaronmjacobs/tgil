@@ -9,7 +9,7 @@ class btMotionState;
 
 namespace {
 
-const float PLAYER_RADIUS = 0.25f;
+const float PLAYER_RADIUS = 0.5f;
 const float PLAYER_MIDDLE_HEIGHT = 0.75f;
 const float PLAYER_TOTAL_HEIGHT = PLAYER_MIDDLE_HEIGHT + 2.0f * PLAYER_RADIUS;
 

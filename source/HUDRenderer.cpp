@@ -74,10 +74,10 @@ void HUDRenderer::loadPlane() {
 void HUDRenderer::loadElements() {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
-   GLuint crosshairID = assetManager.loadTexture("textures/crosshair.png");
-   GLuint throwID = assetManager.loadTexture("textures/hud_throw.png");
-   GLuint shoveID = assetManager.loadTexture("textures/hud_shove.png");
-   GLuint fillID = assetManager.loadTexture("textures/hud_fill.png");
+   GLuint crosshairID = assetManager.loadTexture("textures/hud/crosshair.png");
+   GLuint throwID = assetManager.loadTexture("textures/hud/throw.png");
+   GLuint shoveID = assetManager.loadTexture("textures/hud/shove.png");
+   GLuint fillID = assetManager.loadTexture("textures/hud/fill.png");
 
    HUDElement crosshairElement(crosshairID, glm::vec2(50.0f), glm::vec2(CROSSHAIR_SCALE));
    HUDElement throwElement(throwID, glm::vec2(89.0f, 90.0f), glm::vec2(COOLDOWN_SCALE));

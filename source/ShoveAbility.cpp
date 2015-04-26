@@ -25,8 +25,9 @@
 namespace {
 
 const float COOLDOWN = 3.0f;
-const float FORCE = 75.0f;
+const float FORCE = 110.0f;
 const float LIFE_TIME = 0.25f;
+const float SCALE = 2.7f;
 
 } // namespace
 
@@ -49,8 +50,8 @@ void ShoveAbility::use() {
 
    SPtr<GameObject> shove(std::make_shared<GameObject>());
 
-   shove->setPosition(gameObject.getPosition());
-   shove->setScale(glm::vec3(1.0f));
+   shove->setPosition(gameObject.getPosition() + gameObject.getCameraComponent().getFrontVector() / 3.0f);
+   shove->setScale(glm::vec3(SCALE));
 
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
@@ -75,7 +76,7 @@ void ShoveAbility::use() {
    shove->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*shove, false, CollisionGroup::Default | CollisionGroup::Characters | CollisionGroup::Debries | CollisionGroup::Projectiles));
 
    // Logic
-   const float startTime = glfwGetTime();
+   const float startTime = Context::getInstance().getRunningTime();
    WPtr<GameObject> wShove(shove);
    GameObject &player = gameObject; // TODO Dangerous - if the "shove" lives longer than the player, this reference will be invalid!
    shove->setTickCallback([&player, startTime, wShove](GameObject &gameObject, const float dt) {
@@ -84,7 +85,7 @@ void ShoveAbility::use() {
          return;
       }
 
-      if (glfwGetTime() - startTime > LIFE_TIME) {
+      if (Context::getInstance().getRunningTime() - startTime > LIFE_TIME) {
          SPtr<GameObject> shove(wShove.lock());
          if (shove) {
             scene->removeObject(shove);

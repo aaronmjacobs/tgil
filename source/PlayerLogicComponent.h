@@ -24,6 +24,7 @@ protected:
    bool alive;
    bool wasJumpingLastFrame;
    bool canDoubleJump;
+   float jumpTimer;
    float distanceSinceStep;
    float deathTime;
    glm::vec3 color;

@@ -8,7 +8,8 @@
 
 namespace {
 
-const btVector3 DEFAULT_GRAVITY(0.0f, -9.8f, 0.0f);
+const float GRAVITY_SCALE = 1.5f;
+const btVector3 DEFAULT_GRAVITY(0.0f, -9.8f * GRAVITY_SCALE, 0.0f);
 
 } // namespace
 
