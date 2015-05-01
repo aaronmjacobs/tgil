@@ -114,12 +114,12 @@ void Scene::updateWinState() {
 void Scene::updateAudio() {
    AudioManager &audioManager = Context::getInstance().getAudioManager();
 
-   int numPlayers = players.objects.size();
-   UPtr<ListenerAttributes[]> attributes(new ListenerAttributes[numPlayers]);
+   int numCameras = cameras.objects.size();
+   UPtr<ListenerAttributes[]> attributes(new ListenerAttributes[numCameras]);
 
-   for (int i = 0; i < numPlayers; ++i) {
-      CameraComponent &cameraComponent = players.objects[i]->getCameraComponent();
-      PlayerPhysicsComponent *physicsComponent = dynamic_cast<PlayerPhysicsComponent*>(&players.objects[i]->getPhysicsComponent());
+   for (int i = 0; i < numCameras; ++i) {
+      CameraComponent &cameraComponent = cameras.objects[i]->getCameraComponent();
+      PlayerPhysicsComponent *physicsComponent = dynamic_cast<PlayerPhysicsComponent*>(&cameras.objects[i]->getPhysicsComponent());
 
       glm::vec3 velocity(0.0f);
       if (physicsComponent) {
@@ -129,7 +129,7 @@ void Scene::updateAudio() {
       attributes[i] = { cameraComponent.getCameraPosition(), velocity, cameraComponent.getFrontVector(), cameraComponent.getUpVector() };
    }
 
-   audioManager.update(attributes.get(), players.objects.size());
+   audioManager.update(attributes.get(), numCameras);
 }
 
 void Scene::setWinner(int player) {
@@ -236,4 +236,12 @@ std::vector<SPtr<GameObject>> Scene::getLivingPlayers() const {
    }
 
    return livingPlayers;
+}
+
+void Scene::addClickableObject(ClickableObject clickableObject) {
+   clickableObjects.push_back(clickableObject);
+}
+
+const std::vector<ClickableObject>& Scene::getClickableObjecst() const {
+   return clickableObjects;
 }

@@ -8,6 +8,7 @@
 
 class DebugDrawer;
 class GameObject;
+class MenuCameraLogicComponent;
 class PhysicsManager;
 class PlayerLogicComponent;
 class ShaderProgram;
@@ -16,7 +17,7 @@ namespace {
 
 const int NO_WINNER = -1;
 
-}
+} // namespace
 
 class GameState {
 protected:
@@ -47,6 +48,24 @@ struct GameObjectVectors {
    std::vector<SPtr<GameObject>> toRemove;
 };
 
+enum class MouseEvent {
+   None,
+   Enter,
+   Exit,
+   Click
+};
+
+typedef std::function<void(MenuCameraLogicComponent &menuLogic, MouseEvent event)> ClickFunction;
+
+struct ClickableObject {
+   WPtr<GameObject> gameObject;
+   ClickFunction clickFunction;
+
+   ClickableObject(WPtr<GameObject> gameObject, ClickFunction clickFunction)
+      : gameObject(gameObject), clickFunction(clickFunction) {
+   }
+};
+
 class Scene : public std::enable_shared_from_this<Scene> {
 protected:
    GameState gameState;
@@ -61,6 +80,8 @@ protected:
    GameObjectVectors cameras;
    GameObjectVectors lights;
    GameObjectVectors objects;
+
+   std::vector<ClickableObject> clickableObjects;
 
    bool ticking;
 
@@ -142,6 +163,10 @@ public:
    SPtr<GameObject> getPlayerByNumber(int playerNum) const;
 
    std::vector<SPtr<GameObject>> getLivingPlayers() const;
+
+   void addClickableObject(ClickableObject clickableObject);
+
+   const std::vector<ClickableObject>& getClickableObjecst() const;
 };
 
 #endif
