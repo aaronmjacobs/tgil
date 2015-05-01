@@ -29,6 +29,8 @@ protected:
    float runningTime;
    float timeSinceWinner;
    unsigned int activeShaderProgramID;
+   int windowWidth;
+   int windowHeight;
 
    void handleSpecialInputs(const InputValues &inputValues) const;
 
@@ -42,7 +44,11 @@ public:
 
    void init();
 
+   void quit() const;
+
    void tick(const float dt);
+
+   void onWindowSizeChanged(int width, int height);
 
    void onWindowFocusGained() const;
 
@@ -66,6 +72,10 @@ public:
    void setActiveShaderProgramID(unsigned int programID) {
       activeShaderProgramID = programID;
    }
+
+   int getWindowWidth() const;
+
+   int getWindowHeight() const;
 };
 
 #endif
