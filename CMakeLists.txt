@@ -50,7 +50,7 @@ set(SOURCES
    ${SRC_DIR}/InputComponent.cpp
    ${SRC_DIR}/InputHandler.cpp
    ${SRC_DIR}/IOUtils.cpp
-   ${SRC_DIR}/KeyboardInputDevice.cpp
+   ${SRC_DIR}/KeyMouseInputDevice.cpp
    ${SRC_DIR}/LightComponent.cpp
    ${SRC_DIR}/main.cpp
    ${SRC_DIR}/Mesh.cpp
@@ -115,7 +115,7 @@ set(HEADERS
    ${SRC_DIR}/InputDevice.h
    ${SRC_DIR}/InputHandler.h
    ${SRC_DIR}/IOUtils.h
-   ${SRC_DIR}/KeyboardInputDevice.h
+   ${SRC_DIR}/KeyMouseInputDevice.h
    ${SRC_DIR}/LightComponent.h
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/LogicComponent.h

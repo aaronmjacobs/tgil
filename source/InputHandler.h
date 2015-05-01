@@ -7,12 +7,15 @@
 #include <vector>
 
 class InputComponent;
+class KeyMouseInputDevice;
 
 class InputHandler {
 protected:
    GLFWwindow* const window;
    std::vector<SPtr<InputDevice>> inputDevices;
    std::vector<InputValues> inputValues;
+   SPtr<KeyMouseInputDevice> keyMouseInputDevice;
+   InputValues keyMouseInputValues;
 
 public:
    InputHandler(GLFWwindow* const window);
@@ -23,7 +26,17 @@ public:
 
    const InputValues& getInputValues(int player) const;
 
+   const InputValues& getKeyMouseInputValues() const;
+
    int getNumDevices() const;
+
+   double getMouseX() const;
+
+   double getMouseY() const;
+
+   bool isLeftMouseClicked() const;
+
+   bool isRightMouseClicked() const;
 };
 
 #endif

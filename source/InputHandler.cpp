@@ -4,7 +4,7 @@
 #include "GLIncludes.h"
 #include "InputComponent.h"
 #include "InputHandler.h"
-#include "KeyboardInputDevice.h"
+#include "KeyMouseInputDevice.h"
 
 namespace {
 
@@ -21,13 +21,14 @@ InputHandler::InputHandler(GLFWwindow* const window)
       }
    }
 
+   keyMouseInputDevice = std::make_shared<KeyMouseInputDevice>(window);
    // If there are less controllers than the max number of players, add the keyboard as the first player
-   if (inputDevices.size() < MAX_PLAYERS) {
-      inputDevices.insert(inputDevices.begin(), std::make_shared<KeyboardInputDevice>(window));
+   /*if (inputDevices.size() < MAX_PLAYERS) {
+      inputDevices.insert(inputDevices.begin(), keyMouseInputDevice);
 
       // Hide / lock the mouse
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-   }
+   }*/
 }
 
 InputHandler::~InputHandler() {
@@ -41,6 +42,8 @@ void InputHandler::pollInput() {
    for (SPtr<InputDevice> inputDevice : inputDevices) {
       inputValues.push_back(inputDevice->getInputValues());
    }
+
+   keyMouseInputValues = keyMouseInputDevice->getInputValues();
 }
 
 const InputValues& InputHandler::getInputValues(int player) const {
@@ -52,6 +55,26 @@ const InputValues& InputHandler::getInputValues(int player) const {
    return inputValues.at(player);
 }
 
+const InputValues& InputHandler::getKeyMouseInputValues() const {
+   return keyMouseInputValues;
+}
+
 int InputHandler::getNumDevices() const {
    return inputDevices.size();
+}
+
+double InputHandler::getMouseX() const {
+   return keyMouseInputDevice->getMouseX();
+}
+
+double InputHandler::getMouseY() const {
+   return keyMouseInputDevice->getMouseY();
+}
+
+bool InputHandler::isLeftMouseClicked() const {
+   return keyMouseInputDevice->isLeftMouseClicked();
+}
+
+bool InputHandler::isRightMouseClicked() const {
+   return keyMouseInputDevice->isRightMouseClicked();
 }

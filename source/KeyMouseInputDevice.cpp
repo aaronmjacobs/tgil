@@ -1,6 +1,6 @@
 #include "FancyAssert.h"
 #include "GLIncludes.h"
-#include "KeyboardInputDevice.h"
+#include "KeyMouseInputDevice.h"
 
 namespace {
 
@@ -9,15 +9,15 @@ const KeyMouseMap DEFAULT_KEY_MOUSE_MAP { false, false, 1.0f, GLFW_KEY_W, GLFW_K
 
 } // namespace
 
-KeyboardInputDevice::KeyboardInputDevice(GLFWwindow* const window)
+KeyMouseInputDevice::KeyMouseInputDevice(GLFWwindow* const window)
    : InputDevice(window), map(DEFAULT_KEY_MOUSE_MAP), mouseInit(false) {
    glfwGetCursorPos(window, &lastMouseX, &lastMouseY);
 }
 
-KeyboardInputDevice::~KeyboardInputDevice() {
+KeyMouseInputDevice::~KeyMouseInputDevice() {
 }
 
-InputValues KeyboardInputDevice::getInputValues() {
+InputValues KeyMouseInputDevice::getInputValues() {
    InputValues inputValues = { 0 };
 
    inputValues.moveForward = glfwGetKey(window, map.moveForwardKey) == GLFW_PRESS ? 1.0f : 0.0f;
@@ -39,6 +39,8 @@ InputValues KeyboardInputDevice::getInputValues() {
 
    lastMouseX = mouseX;
    lastMouseY = mouseY;
+   leftMouseButton = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+   rightMouseButton = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 
    inputValues.action = glfwGetKey(window, map.actionKey) == GLFW_PRESS;
    inputValues.jump = glfwGetKey(window, map.jumpKey) == GLFW_PRESS;
@@ -51,6 +53,6 @@ InputValues KeyboardInputDevice::getInputValues() {
    return inputValues;
 }
 
-void KeyboardInputDevice::setKeyMouseMap(const KeyMouseMap &map) {
+void KeyMouseInputDevice::setKeyMouseMap(const KeyMouseMap &map) {
    this->map = map;
 }
