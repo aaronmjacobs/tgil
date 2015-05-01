@@ -50,9 +50,10 @@ set(SOURCES
    ${SRC_DIR}/InputComponent.cpp
    ${SRC_DIR}/InputHandler.cpp
    ${SRC_DIR}/IOUtils.cpp
-   ${SRC_DIR}/KeyboardInputDevice.cpp
+   ${SRC_DIR}/KeyMouseInputDevice.cpp
    ${SRC_DIR}/LightComponent.cpp
    ${SRC_DIR}/main.cpp
+   ${SRC_DIR}/MenuCameraLogicComponent.cpp
    ${SRC_DIR}/Mesh.cpp
    ${SRC_DIR}/MeshAssetManager.cpp
    ${SRC_DIR}/MeshPhysicsComponent.cpp
@@ -83,6 +84,7 @@ set(SOURCES
    ${SRC_DIR}/TextureUnitManager.cpp
    ${SRC_DIR}/ThrowAbility.cpp
    ${SRC_DIR}/TimeMaterial.cpp
+   ${SRC_DIR}/TintMaterial.cpp
 )
 
 set(HEADERS
@@ -115,11 +117,12 @@ set(HEADERS
    ${SRC_DIR}/InputDevice.h
    ${SRC_DIR}/InputHandler.h
    ${SRC_DIR}/IOUtils.h
-   ${SRC_DIR}/KeyboardInputDevice.h
+   ${SRC_DIR}/KeyMouseInputDevice.h
    ${SRC_DIR}/LightComponent.h
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/LogicComponent.h
    ${SRC_DIR}/Material.h
+   ${SRC_DIR}/MenuCameraLogicComponent.h
    ${SRC_DIR}/Mesh.h
    ${SRC_DIR}/MeshPhysicsComponent.h
    ${SRC_DIR}/Model.h
@@ -152,6 +155,7 @@ set(HEADERS
    ${SRC_DIR}/TextureUnitManager.h
    ${SRC_DIR}/ThrowAbility.h
    ${SRC_DIR}/TimeMaterial.h
+   ${SRC_DIR}/TintMaterial.h
    ${SRC_DIR}/Transform.h
    ${SRC_DIR}/Types.h
 )

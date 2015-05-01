@@ -1,5 +1,5 @@
-#ifndef KEYBOARD_INPUT_DEVICE_H
-#define KEYBOARD_INPUT_DEVICE_H
+#ifndef KEYMOUSE_INPUT_DEVICE_H
+#define KEYMOUSE_INPUT_DEVICE_H
 
 #include "InputDevice.h"
 
@@ -21,20 +21,37 @@ struct KeyMouseMap {
    int specialAttackButton;
 };
 
-class KeyboardInputDevice : public InputDevice {
+class KeyMouseInputDevice : public InputDevice {
 protected:
    KeyMouseMap map;
    double lastMouseX, lastMouseY;
+   bool leftMouseButton, rightMouseButton;
    bool mouseInit;
 
 public:
-   KeyboardInputDevice(GLFWwindow* const window);
+   KeyMouseInputDevice(GLFWwindow* const window);
 
-   virtual ~KeyboardInputDevice();
+   virtual ~KeyMouseInputDevice();
 
    virtual InputValues getInputValues();
 
    void setKeyMouseMap(const KeyMouseMap &map);
+
+   double getMouseX() const {
+      return lastMouseX;
+   }
+
+   double getMouseY() const {
+      return lastMouseY;
+   }
+
+   bool isLeftMouseClicked() const {
+      return leftMouseButton;
+   }
+
+   bool isRightMouseClicked() const {
+      return rightMouseButton;
+   }
 };
 
 #endif

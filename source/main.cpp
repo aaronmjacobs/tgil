@@ -30,6 +30,10 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height) {
    Context::getInstance().getRenderer().onFramebufferSizeChange(width, height);
 }
 
+void windowSizeCallback(GLFWwindow *window, int width, int height) {
+   Context::getInstance().onWindowSizeChanged(width, height);
+}
+
 } // namespace
 
 int main(int argc, char *argv[]) {
@@ -76,6 +80,7 @@ int main(int argc, char *argv[]) {
    glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
    renderer.init(FOV, framebufferWidth, framebufferHeight);
 
+   glfwSetWindowSizeCallback(window, windowSizeCallback);
    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
    glfwPollEvents(); // Ignore the first window focus callback
    glfwSetWindowFocusCallback(window, focusCallback);

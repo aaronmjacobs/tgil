@@ -30,27 +30,29 @@ Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0) {
+   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0), windowWidth(0), windowHeight(0) {
 }
 
 Context::~Context() {
 }
 
 void Context::init() {
+   glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
    audioManager->init();
    textureUnitManager->init();
    scene = SceneLoader::loadNextScene(*this);
 }
 
+void Context::quit() const {
+   glfwSetWindowShouldClose(window, true);
+}
+
 void Context::handleSpecialInputs(const InputValues &inputValues) const {
    if (inputValues.quit) {
-      // TODO Prevent cursor from being locked for all message boxes
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       boxer::Selection selection = boxer::show("Do you want to quit?", "Quit", boxer::Style::Question, boxer::Buttons::YesNo);
       if (selection == boxer::Selection::Yes) {
-         glfwSetWindowShouldClose(window, true);
-      } else {
-         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+         quit();
       }
    }
 
@@ -75,12 +77,17 @@ void Context::checkForWinner() {
 void Context::tick(const float dt) {
    inputHandler->pollInput();
 
-   handleSpecialInputs(inputHandler->getInputValues(0));
+   handleSpecialInputs(inputHandler->getKeyMouseInputValues());
 
    scene->tick(dt);
 
    runningTime += dt;
    checkForWinner();
+}
+
+void Context::onWindowSizeChanged(int width, int height) {
+   windowWidth = width;
+   windowHeight = height;
 }
 
 void Context::onWindowFocusGained() const {
@@ -113,4 +120,12 @@ TextureUnitManager& Context::getTextureUnitManager() const {
 
 void Context::setScene(SPtr<Scene> scene) {
    this->scene = scene;
+}
+
+int Context::getWindowWidth() const {
+   return windowWidth;
+}
+
+int Context::getWindowHeight() const {
+   return windowHeight;
 }

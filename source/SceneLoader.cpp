@@ -3,6 +3,8 @@
 #include "AudioManager.h"
 #include "BvhMeshPhysicsComponent.h"
 #include "Context.h"
+#include "FlyCameraComponent.h"
+#include "FlyCameraLogicComponent.h"
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
 #include "GhostPhysicsComponent.h"
@@ -10,6 +12,7 @@
 #include "InputHandler.h"
 #include "LightComponent.h"
 #include "LogHelper.h"
+#include "MenuCameraLogicComponent.h"
 #include "MeshPhysicsComponent.h"
 #include "Model.h"
 #include "PhongMaterial.h"
@@ -24,6 +27,7 @@
 #include "SunLogicComponent.h"
 #include "TextureMaterial.h"
 #include "TimeMaterial.h"
+#include "TintMaterial.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
@@ -42,7 +46,7 @@ SPtr<PhongMaterial> createPhongMaterial(glm::vec3 color, float specular, float s
    return std::make_shared<PhongMaterial>(color * 0.3f, color * 0.7f, glm::vec3(specular), color * emission, shininess);
 }
 
-SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position, const glm::vec3 &scale, float friction, float restitution, const glm::quat &orientation = glm::quat()) {
+SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position, const glm::vec3 &scale, float friction, float restitution, const glm::quat &orientation = glm::quat(), bool enableShadows = true) {
    SPtr<GameObject> staticObject(std::make_shared<GameObject>());
 
    // Transform
@@ -51,7 +55,9 @@ SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position
    staticObject->setScale(scale);
 
    // Graphics
-   staticObject->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*staticObject));
+   SPtr<GeometricGraphicsComponent> graphicsComponent(std::make_shared<GeometricGraphicsComponent>(*staticObject));
+   graphicsComponent->enableCastingShadows(enableShadows);
+   staticObject->setGraphicsComponent(graphicsComponent);
    staticObject->getGraphicsComponent().setModel(model);
 
    // Physics
@@ -186,6 +192,99 @@ SPtr<GameObject> createSpotLight(const glm::vec3 &position, const glm::vec3 &col
    return light;
 }
 
+void addMenuItem(Scene &scene, const std::string &texture, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuCameraLogicComponent &menuLogic)> clickFunction) {
+   AssetManager &assetManager = Context::getInstance().getAssetManager();
+
+   SPtr<ShaderProgram> tintedTextureShaderProgram(assetManager.loadShaderProgram("shaders/tinted_texture"));
+   SPtr<Mesh> planeMesh(assetManager.getMeshForShape(MeshShape::XYPlane));
+   GLuint textureID = assetManager.loadTexture(texture);
+
+   const glm::vec3 menuItemScale(1.0f, 0.25f, 1.0f);
+   const glm::vec3 highlightColor(0.46f, 0.71f, 0.89f);
+
+   SPtr<Model> model(std::make_shared<Model>(tintedTextureShaderProgram, planeMesh));
+   model->attachMaterial(std::make_shared<TextureMaterial>(textureID, "uTexture"));
+   SPtr<TintMaterial> tintMaterial(std::make_shared<TintMaterial>(1.0f, glm::vec3(1.0f)));
+   model->attachMaterial(tintMaterial);
+   WPtr<TintMaterial> wTintMaterial(tintMaterial);
+
+   SPtr<GameObject> gameObject(createStaticObject(model, pos, menuItemScale, 0.0f, 0.0f, orientation, false));
+   scene.addObject(gameObject);
+   scene.addClickableObject(ClickableObject(gameObject, [highlightColor, wTintMaterial, clickFunction](MenuCameraLogicComponent &menuLogic, MouseEvent event) {
+      if (event == MouseEvent::Click) {
+         clickFunction(menuLogic);
+      } else if (event == MouseEvent::Enter) {
+         // TODO sound
+         wTintMaterial.lock()->setValues(1.0f, highlightColor);
+      } else if (event == MouseEvent::Exit) {
+         wTintMaterial.lock()->setValues(1.0f, glm::vec3(1.0f));
+      }
+   }));
+}
+
+void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
+   float height = 20.0f;
+   SPtr<GameObject> tower = createStaticObject(model, glm::vec3(0.0f, height / 2.0f, 0.0f), glm::vec3(3.0f, height, 3.0f), 1.0f, 0.3f);
+   scene->addObject(tower);
+
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 1.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 4.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 6.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 7.5f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 9.0f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 10.5f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 12.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 13.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 15.0f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 16.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 18.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+
+   scene->addObject(createStaticObject(model, glm::vec3(9.5f, -1.25f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(10.0f, -1.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(10.5f, -0.75f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(11.0f, -0.5f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(11.5f, -0.25f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+   scene->addObject(createStaticObject(model, glm::vec3(12.0f, 0.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
+
+   SPtr<GameObject> winTrigger = std::make_shared<GameObject>();
+   float triggerSize = 1.5f;
+   winTrigger->setPosition(tower->getPosition() + glm::vec3(0.0f, height / 2.0f + triggerSize, 0.0f));
+   winTrigger->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*winTrigger, false, CollisionGroup::Characters, glm::vec3(triggerSize)));
+   winTrigger->setTickCallback([](GameObject &gameObject, const float dt) {
+      btCollisionObject *collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
+      if (!collisionObject) {
+         return;
+      }
+      btGhostObject *ghostObject = dynamic_cast<btGhostObject*>(collisionObject);
+      if (!ghostObject) {
+         return;
+      }
+      for (int i = 0; i < ghostObject->getNumOverlappingObjects(); i++) {
+         SPtr<Scene> scene = gameObject.getScene().lock();
+         if (!scene) {
+            return;
+         }
+
+         if (!scene->getGameState().hasWinner()) {
+            GameObject *collidingGameObject = static_cast<GameObject*>(ghostObject->getOverlappingObject(i)->getUserPointer());
+
+            if (collidingGameObject) {
+               int playerNum = collidingGameObject->getInputComponent().getPlayerNum();
+               scene->setWinner(playerNum);
+            }
+         }
+
+         btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(ghostObject->getOverlappingObject(i));
+         if(rigidBody) {
+            rigidBody->applyCentralForce(btVector3(0.0f, 50.0f, 0.0f));
+         }
+      }
+   });
+   scene->addObject(winTrigger);
+}
+
 void buildDeathVolume(SPtr<Scene> scene, glm::vec3 position, glm::vec3 scale) {
    SPtr<GameObject> volume = std::make_shared<GameObject>();
 
@@ -227,7 +326,7 @@ const glm::vec3 colors[] = {
    glm::normalize(glm::vec3(0.2f, 1.0f, 0.2f)) * 1.5f
 };
 
-SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], std::function<void(Scene &scene)> callback) {
+SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], std::function<void(Scene &scene)> callback, bool addPlayers = true) {
    SPtr<Scene> scene(std::make_shared<Scene>());
    AssetManager &assetManager = context.getAssetManager();
 
@@ -273,23 +372,25 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    callback(*scene);
 
    // Players
-   for (int i = 0; i < context.getInputHandler().getNumDevices(); ++i) {
-      int color = i % (sizeof(colors) / sizeof(glm::vec3));
-      SPtr<GameObject> player(createPlayer(phongShaderProgram, colors[color], playerMesh, spawnLocations[color], i));
+   if (addPlayers) {
+      for (int i = 0; i < context.getInputHandler().getNumDevices(); ++i) {
+         int color = i % (sizeof(colors) / sizeof(glm::vec3));
+         SPtr<GameObject> player(createPlayer(phongShaderProgram, colors[color], playerMesh, spawnLocations[color], i));
 
-      // Make the players look at the center of the map
-      glm::vec3 cameraPos = player->getCameraComponent().getCameraPosition();
-      glm::vec3 lookAtPos = cameraPos;
-      lookAtPos.x = 0.0f;
-      lookAtPos.z = 0.0f;
+         // Make the players look at the center of the map
+         glm::vec3 cameraPos = player->getCameraComponent().getCameraPosition();
+         glm::vec3 lookAtPos = cameraPos;
+         lookAtPos.x = 0.0f;
+         lookAtPos.z = 0.0f;
 
-      glm::quat orientation(glm::toQuat(glm::lookAt(cameraPos, lookAtPos, glm::vec3(0.0f, 1.0f, 0.0f))));
-      player->setOrientation(orientation);
+         glm::quat orientation(glm::toQuat(glm::lookAt(cameraPos, lookAtPos, glm::vec3(0.0f, 1.0f, 0.0f))));
+         player->setOrientation(orientation);
 
-      scene->addPlayer(player);
-      scene->addCamera(player);
-      scene->addLight(player);
-      scene->addObject(player);
+         scene->addPlayer(player);
+         scene->addCamera(player);
+         scene->addLight(player);
+         scene->addObject(player);
+      }
    }
 
    return scene;
@@ -308,6 +409,11 @@ glm::quat randomOrientation() {
 float randomScale(float min, float max) {
    return min + distribution(generator) * max;
 }
+
+struct MenuLocation {
+   glm::vec3 cameraPos, itemPos;
+   glm::quat cameraOrientation, itemOrientation;
+};
 
 SPtr<Scene> loadTestScene(const Context &context) {
    glm::vec3 spawnLocations[] = {

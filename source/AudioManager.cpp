@@ -203,7 +203,7 @@ void AudioManager::init() {
 
 void AudioManager::update(ListenerAttributes *listeners, int numListeners) {
    ASSERT(system, "Audio system not initialized");
-   ASSERT(numListeners > 0 && numListeners < 5, "Invalid number of listeners");
+   ASSERT(numListeners >= 0 && numListeners < 5, "Invalid number of listeners");
 
    if (numListeners > 0 && numListeners < 5) {
       if (this->numListeners != numListeners) {

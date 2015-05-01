@@ -14,7 +14,7 @@
 #include <string>
 
 GeometricGraphicsComponent::GeometricGraphicsComponent(GameObject &gameObject)
-   : GraphicsComponent(gameObject) {
+   : GraphicsComponent(gameObject), castShadows(true) {
 }
 
 GeometricGraphicsComponent::~GeometricGraphicsComponent() {
@@ -22,6 +22,10 @@ GeometricGraphicsComponent::~GeometricGraphicsComponent() {
 
 void GeometricGraphicsComponent::draw(const RenderData &renderData) {
    if (!model) {
+      return;
+   }
+
+   if (renderData.getRenderState() == RenderState::Shadow && !castShadows) {
       return;
    }
 
@@ -42,4 +46,8 @@ void GeometricGraphicsComponent::draw(const RenderData &renderData) {
    }
 
    model->draw(renderData);
+}
+
+void GeometricGraphicsComponent::enableCastingShadows(bool enabled) {
+   castShadows = enabled;
 }
