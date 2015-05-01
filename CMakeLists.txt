@@ -84,6 +84,7 @@ set(SOURCES
    ${SRC_DIR}/TextureUnitManager.cpp
    ${SRC_DIR}/ThrowAbility.cpp
    ${SRC_DIR}/TimeMaterial.cpp
+   ${SRC_DIR}/TintMaterial.cpp
 )
 
 set(HEADERS
@@ -154,6 +155,7 @@ set(HEADERS
    ${SRC_DIR}/TextureUnitManager.h
    ${SRC_DIR}/ThrowAbility.h
    ${SRC_DIR}/TimeMaterial.h
+   ${SRC_DIR}/TintMaterial.h
    ${SRC_DIR}/Transform.h
    ${SRC_DIR}/Types.h
 )

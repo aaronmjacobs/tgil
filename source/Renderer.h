@@ -128,6 +128,13 @@ public:
    bool debugRenderingEnabled() const {
       return renderDebug;
    }
+
+   /**
+    * Gets the current projection matrix
+    */
+   const glm::mat4& getProjectionMatrix() const {
+      return projectionMatrix;
+   }
 };
 
 #endif
