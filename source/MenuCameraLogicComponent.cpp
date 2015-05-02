@@ -1,3 +1,4 @@
+#include "AudioManager.h"
 #include "CameraComponent.h"
 #include "Context.h"
 #include "Conversions.h"
@@ -119,10 +120,12 @@ void MenuCameraLogicComponent::handleEvents(const Scene &scene, const btCollisio
 
    if (hitObject && hitObject != lastObject) {
       fireEvent(*this, scene, hitObject, MouseEvent::Enter);
+      Context::getInstance().getAudioManager().play(SoundGroup::ENTER);
    }
 
    if (hitObject && click && !wasClicking) {
       fireEvent(*this, scene, hitObject, MouseEvent::Click);
+      Context::getInstance().getAudioManager().play(SoundGroup::CLICK);
    }
 
    lastObject = hitObject;

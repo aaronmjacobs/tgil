@@ -44,6 +44,8 @@ public:
    static const SoundGroup EXPLOSION;
    static const SoundGroup SHOVE;
    static const SoundGroup THROW;
+   static const SoundGroup ENTER;
+   static const SoundGroup CLICK;
 
    virtual ~SoundGroup();
 

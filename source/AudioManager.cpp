@@ -105,6 +105,8 @@ const SoundGroup SoundGroup::DIE({"sounds/die.ogg"}, false, true, 10.0f);
 const SoundGroup SoundGroup::EXPLOSION({"sounds/explosion.ogg"}, false, true, 8.0f);
 const SoundGroup SoundGroup::SHOVE({"sounds/shove.ogg"}, false, true, 8.0f);
 const SoundGroup SoundGroup::THROW({"sounds/throw.ogg"}, false, true, 5.0f);
+const SoundGroup SoundGroup::ENTER({"sounds/enter.ogg"}, false, false, 5.0f);
+const SoundGroup SoundGroup::CLICK({"sounds/click.ogg"}, false, false, 5.0f);
 
 // AudioManager
 
@@ -197,6 +199,8 @@ void AudioManager::init() {
    load(SoundGroup::EXPLOSION);
    load(SoundGroup::SHOVE);
    load(SoundGroup::THROW);
+   load(SoundGroup::ENTER);
+   load(SoundGroup::CLICK);
 
    play(SoundGroup::STRIFE);
 }
