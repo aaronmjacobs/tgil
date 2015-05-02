@@ -415,6 +415,144 @@ struct MenuLocation {
    glm::quat cameraOrientation, itemOrientation;
 };
 
+SPtr<Scene> loadMenuScene(const Context &context) {
+   glm::vec3 spawnLocations[] = {
+      glm::vec3(33.5f, 9.1f, -30.5f),
+      glm::vec3(18.2f, 24.7f, 30.0f),
+      glm::vec3(-35.2f, 12.6f, 29.6477),
+      glm::vec3(-35.7f, 21.5f, -8.18972)
+   };
+
+   return loadBasicScene(context, spawnLocations, [&context](Scene &scene) {
+      float y = 7.0f;
+
+      AssetManager &assetManager = context.getAssetManager();
+      SPtr<ShaderProgram> phongShaderProgram(assetManager.loadShaderProgram("shaders/phong"));
+
+      SPtr<PhongMaterial> floorMaterial = createPhongMaterial(glm::vec3(0.78f, 0.60f, 0.34f) * 1.5f, 0.2f, 5.0f);
+      SPtr<Mesh> floorMesh = assetManager.loadMesh("meshes/land.obj");
+      SPtr<Model> floorModel(std::make_shared<Model>(phongShaderProgram, floorMesh));
+      floorModel->attachMaterial(floorMaterial);
+      scene.addObject(createBvhObject(floorModel, glm::vec3(0.0f, y, 0.0f), glm::vec3(1.0f), 1.0f, 0.3f));
+
+      SPtr<PhongMaterial> trunkMaterial = createPhongMaterial(glm::vec3(0.36f, 0.27f, 0.11f), 0.2f, 5.0f);
+      SPtr<Mesh> trunkMesh = assetManager.loadMesh("meshes/trunk_lg.obj");
+      SPtr<Model> trunkModel(std::make_shared<Model>(phongShaderProgram, trunkMesh));
+      trunkModel->attachMaterial(trunkMaterial);
+
+      SPtr<PhongMaterial> leavesMaterial = createPhongMaterial(glm::vec3(0.86f, 0.26f, 0.0f) * 1.5f, 0.2f, 5.0f);
+      SPtr<Mesh> leavesMesh = assetManager.loadMesh("meshes/leaves_lg.obj");
+      SPtr<Model> leavesModel(std::make_shared<Model>(phongShaderProgram, leavesMesh));
+      leavesModel->attachMaterial(leavesMaterial);
+
+      SPtr<PhongMaterial> rockMaterial = createPhongMaterial(glm::vec3(0.4f, 0.4f, 0.4f) * 1.5f, 0.2f, 5.0f);
+      SPtr<Mesh> rockMesh = assetManager.loadMesh("meshes/rock_lg.obj");
+      SPtr<Model> rockModel(std::make_shared<Model>(phongShaderProgram, rockMesh));
+      rockModel->attachMaterial(rockMaterial);
+
+      // Trees
+
+      glm::vec3 loc(22.0f, y + 15.6f, 31.0f);
+      scene.addObject(createStaticObject(trunkModel, loc, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      glm::vec3 loc2(-37.8f, y + 13.0f, -12.8f);
+      scene.addObject(createStaticObject(trunkModel, loc2, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc2, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      glm::vec3 loc3(-31.9f, y + 4.1f, 15.4f);
+      scene.addObject(createStaticObject(trunkModel, loc3, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc3, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      glm::vec3 loc4(1.0f, y + -0.2f, -6.8f);
+      scene.addObject(createStaticObject(trunkModel, loc4, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc4, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      glm::vec3 loc5(40.3f, y + -1.1f, -32.1f);
+      scene.addObject(createStaticObject(trunkModel, loc5, glm::vec3(1.0f), 1.0f, 0.3f));
+      scene.addObject(createStaticObject(leavesModel, loc5, glm::vec3(1.0f), 1.0f, 0.3f));
+
+      // Rocks
+
+      glm::vec3 loc6(13.0f, y + 5.6f, 10.0f);
+      scene.addObject(createStaticObject(rockModel, loc6, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+
+      glm::vec3 loc7(-10.0f, y + 1.0f, 6.0f);
+      scene.addObject(createStaticObject(rockModel, loc7, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+
+      glm::vec3 loc8(30.0f, y + 0.5f, -9.0f);
+      scene.addObject(createStaticObject(rockModel, loc8, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+
+      glm::vec3 loc9(-33.7f, y + 13.0f, -13.3f);
+      scene.addObject(createStaticObject(rockModel, loc9, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+
+      glm::vec3 loc10(-8.0f, y + 2.6f, 33.0f);
+      scene.addObject(createStaticObject(rockModel, loc10, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
+
+      // Camera
+      SPtr<GameObject> camera(std::make_shared<GameObject>());
+      camera->setPosition(glm::vec3(0.0f, 3.0f + y, 0.0f));
+      camera->setCameraComponent(std::make_shared<FlyCameraComponent>(*camera));
+      SPtr<MenuLogicComponent> menuCameraLogic(std::make_shared<MenuLogicComponent>(*camera));
+      camera->setLogicComponent(menuCameraLogic);
+      scene.addCamera(camera);
+      scene.addObject(camera);
+
+      // Menu items
+      glm::vec3 offset(0.0f, -0.5f, 0.0f);
+
+      MenuLocation mainLocation, playLocation, settingsLocation;
+
+      mainLocation.cameraPos = glm::vec3(40.0f, 23.0f + y, 28.0f);
+      mainLocation.itemPos = glm::vec3(40.0f, 23.9f + y, 25.0f);
+      mainLocation.cameraOrientation = glm::angleAxis(glm::radians(-40.0f), glm::vec3(-0.2f, 0.8f, 0.1f));
+      mainLocation.itemOrientation = glm::angleAxis(glm::radians(40.0f), glm::vec3(0.0f, 0.8f, 0.0f));
+
+      playLocation.cameraPos = glm::vec3(-40.0f, 17.0f + y, -22.0f);
+      playLocation.itemPos = glm::vec3(-37.5f, 17.6f + y, -21.0f);
+      playLocation.cameraOrientation = glm::angleAxis(glm::radians(150.0f), glm::vec3(-0.2f, 0.8f, 0.1f));
+      playLocation.itemOrientation = glm::angleAxis(glm::radians(-140.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+      settingsLocation.cameraPos = glm::vec3(-52.0f, 6.0f + y, 22.0f);
+      settingsLocation.itemPos = glm::vec3(-50.0f, 7.0f + y, 22.0f);
+      settingsLocation.cameraOrientation = glm::angleAxis(glm::radians(75.0f), glm::vec3(-0.2f, 0.8f, 0.1f));
+      settingsLocation.itemOrientation = glm::angleAxis(glm::radians(-75.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+      menuCameraLogic->setTargetPosition(mainLocation.cameraPos);
+      menuCameraLogic->setTargetOrientation(mainLocation.cameraOrientation);
+
+      addMenuItem(scene, "textures/menu/play.png", mainLocation.itemPos, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+         menuLogic.setTargetPosition(playLocation.cameraPos);
+         menuLogic.setTargetOrientation(playLocation.cameraOrientation);
+      });
+      addMenuItem(scene, "textures/menu/settings.png", mainLocation.itemPos + offset, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+         menuLogic.setTargetPosition(settingsLocation.cameraPos);
+         menuLogic.setTargetOrientation(settingsLocation.cameraOrientation);
+      });
+      addMenuItem(scene, "textures/menu/quit.png", mainLocation.itemPos + offset * 2.0f, mainLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic) {
+         Context::getInstance().quitAfterScene();
+         menuLogic.setTargetPosition(glm::vec3(90.0f, 25.0f + y, 80.0f));
+         menuLogic.setTargetOrientation(glm::angleAxis(glm::radians(-40.0f), glm::vec3(-0.2f, 0.8f, 0.1f)) * glm::angleAxis(glm::radians(-50.0f), glm::vec3(1.0f, -0.8f, 0.0f)));
+         scene.end();
+      });
+
+      addMenuItem(scene, "textures/menu/start.png", playLocation.itemPos, playLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic) {
+         menuLogic.setTargetPosition(glm::vec3(40.0f, 57.0f + y, 32.0f));
+         menuLogic.setTargetOrientation(glm::angleAxis(glm::radians(150.0f), glm::vec3(-0.2f, 0.8f, 0.1f)) * glm::angleAxis(glm::radians(60.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+         scene.end();
+      });
+      addMenuItem(scene, "textures/menu/back.png", playLocation.itemPos + offset, playLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+         menuLogic.setTargetPosition(mainLocation.cameraPos);
+         menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
+      });
+
+      addMenuItem(scene, "textures/menu/back.png", settingsLocation.itemPos, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+         menuLogic.setTargetPosition(mainLocation.cameraPos);
+         menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
+      });
+   }, false);
+}
+
 SPtr<Scene> loadTestScene(const Context &context) {
    glm::vec3 spawnLocations[] = {
       glm::vec3(33.5f, 9.1f, -30.5f),
@@ -900,6 +1038,7 @@ SPtr<Scene> loadNextScene(const Context &context) {
    static int index = 0;
 
    if (loadFunctions.empty()) {
+      loadFunctions.push_back(loadMenuScene);
       loadFunctions.push_back(loadTestScene);
       loadFunctions.push_back(loadCenterIslandScene);
       loadFunctions.push_back(loadFourBridgedIslandsScene);
