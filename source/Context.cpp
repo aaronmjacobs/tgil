@@ -30,7 +30,7 @@ Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0), windowWidth(0), windowHeight(0) {
+   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0), windowWidth(0), windowHeight(0), quitAfterCurrentScene(false) {
 }
 
 Context::~Context() {
@@ -46,6 +46,10 @@ void Context::init() {
 
 void Context::quit() const {
    glfwSetWindowShouldClose(window, true);
+}
+
+void Context::quitAfterScene() {
+   quitAfterCurrentScene = true;
 }
 
 void Context::handleSpecialInputs(const InputValues &inputValues) const {
@@ -68,9 +72,13 @@ void Context::handleSpecialInputs(const InputValues &inputValues) const {
    }
 }
 
-void Context::checkForWinner() {
+void Context::checkForSceneChange() {
    if (scene->getTimeSinceEnd() > TIME_TO_NEXT_LEVEL) {
-      scene = SceneLoader::loadNextScene(*this);
+      if (quitAfterCurrentScene) {
+         quit();
+      } else {
+         scene = SceneLoader::loadNextScene(*this);
+      }
    }
 }
 
@@ -82,7 +90,7 @@ void Context::tick(const float dt) {
    scene->tick(dt);
 
    runningTime += dt;
-   checkForWinner();
+   checkForSceneChange();
 }
 
 void Context::onWindowSizeChanged(int width, int height) {

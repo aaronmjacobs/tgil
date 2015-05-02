@@ -30,10 +30,11 @@ protected:
    unsigned int activeShaderProgramID;
    int windowWidth;
    int windowHeight;
+   bool quitAfterCurrentScene;
 
    void handleSpecialInputs(const InputValues &inputValues) const;
 
-   void checkForWinner();
+   void checkForSceneChange();
 
 public:
    static void load(GLFWwindow* const window);
@@ -44,6 +45,8 @@ public:
    void init();
 
    void quit() const;
+
+   void quitAfterScene();
 
    void tick(const float dt);
 

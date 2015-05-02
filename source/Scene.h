@@ -70,6 +70,7 @@ struct ClickableObject {
 class Scene : public std::enable_shared_from_this<Scene> {
 protected:
    GameState gameState;
+   bool ended;
 
    const SPtr<PhysicsManager> physicsManager;
    const UPtr<DebugDrawer> debugDrawer;
@@ -179,6 +180,14 @@ public:
 
    float getTimeSinceEnd() const {
       return timeSinceEnd;
+   }
+
+   void end() {
+      ended = true;
+   }
+
+   bool hasEnded() const {
+      return ended;
    }
 };
 
