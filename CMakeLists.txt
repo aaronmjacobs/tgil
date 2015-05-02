@@ -53,7 +53,7 @@ set(SOURCES
    ${SRC_DIR}/KeyMouseInputDevice.cpp
    ${SRC_DIR}/LightComponent.cpp
    ${SRC_DIR}/main.cpp
-   ${SRC_DIR}/MenuCameraLogicComponent.cpp
+   ${SRC_DIR}/MenuLogicComponent.cpp
    ${SRC_DIR}/Mesh.cpp
    ${SRC_DIR}/MeshAssetManager.cpp
    ${SRC_DIR}/MeshPhysicsComponent.cpp
@@ -122,7 +122,7 @@ set(HEADERS
    ${SRC_DIR}/LogHelper.h
    ${SRC_DIR}/LogicComponent.h
    ${SRC_DIR}/Material.h
-   ${SRC_DIR}/MenuCameraLogicComponent.h
+   ${SRC_DIR}/MenuLogicComponent.h
    ${SRC_DIR}/Mesh.h
    ${SRC_DIR}/MeshPhysicsComponent.h
    ${SRC_DIR}/Model.h

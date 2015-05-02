@@ -6,7 +6,7 @@
 #include "InputComponent.h"
 #include "InputHandler.h"
 #include "LogHelper.h"
-#include "MenuCameraLogicComponent.h"
+#include "MenuLogicComponent.h"
 #include "PhysicsComponent.h"
 #include "PhysicsManager.h"
 #include "Renderer.h"
@@ -30,7 +30,7 @@ void genNearAndFar(int x, int y, int width, int height, const glm::mat4 &view, c
    far = glm::unProject(window, view, proj, viewport);
 }
 
-void fireEvent(MenuCameraLogicComponent &menuLogic, const Scene &scene, const btCollisionObject *object, MouseEvent event) {
+void fireEvent(MenuLogicComponent &menuLogic, const Scene &scene, const btCollisionObject *object, MouseEvent event) {
    const std::vector<ClickableObject> &clickableObjects = scene.getClickableObjecst();
    for (const ClickableObject &clickableObject : clickableObjects) {
       SPtr<GameObject> gameObject = clickableObject.gameObject.lock();
@@ -46,14 +46,14 @@ void fireEvent(MenuCameraLogicComponent &menuLogic, const Scene &scene, const bt
 
 } // namespace
 
-MenuCameraLogicComponent::MenuCameraLogicComponent(GameObject &gameObject)
+MenuLogicComponent::MenuLogicComponent(GameObject &gameObject)
 : LogicComponent(gameObject), positionInterpTime(0.0f), orientationInterpTime(0.0f), targetPosition(gameObject.getPosition()), lastPosition(targetPosition), targetOrientation(gameObject.getOrientation()), lastOrientation(targetOrientation), lastObject(nullptr), wasClicking(false) {
 }
 
-MenuCameraLogicComponent::~MenuCameraLogicComponent() {
+MenuLogicComponent::~MenuLogicComponent() {
 }
 
-bool MenuCameraLogicComponent::updatePosition(const float dt) {
+bool MenuLogicComponent::updatePosition(const float dt) {
    if (targetPosition == lastPosition) {
       return false;
    }
@@ -74,7 +74,7 @@ bool MenuCameraLogicComponent::updatePosition(const float dt) {
    return true;
 }
 
-bool MenuCameraLogicComponent::updateOrientation(const float dt) {
+bool MenuLogicComponent::updateOrientation(const float dt) {
    if (targetOrientation == lastOrientation) {
       return false;
    }
@@ -95,7 +95,7 @@ bool MenuCameraLogicComponent::updateOrientation(const float dt) {
    return true;
 }
 
-const btCollisionObject* MenuCameraLogicComponent::getHitObject(InputHandler &inputHandler, const Scene &scene) const {
+const btCollisionObject* MenuLogicComponent::getHitObject(InputHandler &inputHandler, const Scene &scene) const {
    const glm::mat4 &view = gameObject.getCameraComponent().getViewMatrix();
    const glm::mat4 &proj = Context::getInstance().getRenderer().getProjectionMatrix();
 
@@ -113,7 +113,7 @@ const btCollisionObject* MenuCameraLogicComponent::getHitObject(InputHandler &in
    return callback.hasHit() ? callback.m_collisionObject : nullptr;
 }
 
-void MenuCameraLogicComponent::handleEvents(const Scene &scene, const btCollisionObject *hitObject, bool click) {
+void MenuLogicComponent::handleEvents(const Scene &scene, const btCollisionObject *hitObject, bool click) {
    if (lastObject && hitObject != lastObject) {
       fireEvent(*this, scene, lastObject, MouseEvent::Exit);
    }
@@ -132,7 +132,7 @@ void MenuCameraLogicComponent::handleEvents(const Scene &scene, const btCollisio
    wasClicking = click;
 }
 
-void MenuCameraLogicComponent::tick(const float dt) {
+void MenuLogicComponent::tick(const float dt) {
    bool moving = updatePosition(dt);
 
    bool turning = updateOrientation(dt);
@@ -153,13 +153,13 @@ void MenuCameraLogicComponent::tick(const float dt) {
    handleEvents(*scene, hitObject, click);
 }
 
-void MenuCameraLogicComponent::setTargetPosition(const glm::vec3 &position) {
+void MenuLogicComponent::setTargetPosition(const glm::vec3 &position) {
    lastPosition = gameObject.getPosition();
    targetPosition = position;
    positionInterpTime = 0.0f;
 }
 
-void MenuCameraLogicComponent::setTargetOrientation(const glm::quat &orientation) {
+void MenuLogicComponent::setTargetOrientation(const glm::quat &orientation) {
    lastOrientation = gameObject.getOrientation();
    targetOrientation = orientation;
    orientationInterpTime = 0.0f;

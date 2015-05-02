@@ -8,7 +8,7 @@
 
 class DebugDrawer;
 class GameObject;
-class MenuCameraLogicComponent;
+class MenuLogicComponent;
 class PhysicsManager;
 class PlayerLogicComponent;
 class ShaderProgram;
@@ -56,7 +56,7 @@ enum class MouseEvent {
    Click
 };
 
-typedef std::function<void(MenuCameraLogicComponent &menuLogic, MouseEvent event)> ClickFunction;
+typedef std::function<void(MenuLogicComponent &menuLogic, MouseEvent event)> ClickFunction;
 
 struct ClickableObject {
    WPtr<GameObject> gameObject;

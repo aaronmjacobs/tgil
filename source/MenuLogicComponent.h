@@ -1,5 +1,5 @@
-#ifndef MENU_CAMERA_LOGIC_COMPONENT_H
-#define MENU_CAMERA_LOGIC_COMPONENT_H
+#ifndef MENU_LOGIC_COMPONENT_H
+#define MENU_LOGIC_COMPONENT_H
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -9,7 +9,7 @@
 
 class btCollisionObject;
 
-class MenuCameraLogicComponent : public LogicComponent {
+class MenuLogicComponent : public LogicComponent {
 protected:
    float positionInterpTime, orientationInterpTime;
    glm::vec3 targetPosition, lastPosition;
@@ -27,9 +27,9 @@ protected:
    void handleEvents(const Scene &scene, const btCollisionObject *hitObject, bool click);
 
 public:
-   MenuCameraLogicComponent(GameObject &gameObject);
+   MenuLogicComponent(GameObject &gameObject);
 
-   virtual ~MenuCameraLogicComponent();
+   virtual ~MenuLogicComponent();
 
    virtual void tick(const float dt);
 

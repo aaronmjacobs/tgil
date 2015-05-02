@@ -12,7 +12,7 @@
 #include "InputHandler.h"
 #include "LightComponent.h"
 #include "LogHelper.h"
-#include "MenuCameraLogicComponent.h"
+#include "MenuLogicComponent.h"
 #include "MeshPhysicsComponent.h"
 #include "Model.h"
 #include "PhongMaterial.h"
@@ -192,7 +192,7 @@ SPtr<GameObject> createSpotLight(const glm::vec3 &position, const glm::vec3 &col
    return light;
 }
 
-void addMenuItem(Scene &scene, const std::string &texture, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuCameraLogicComponent &menuLogic)> clickFunction) {
+void addMenuItem(Scene &scene, const std::string &texture, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic)> clickFunction) {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
    SPtr<ShaderProgram> tintedTextureShaderProgram(assetManager.loadShaderProgram("shaders/tinted_texture"));
@@ -210,7 +210,7 @@ void addMenuItem(Scene &scene, const std::string &texture, const glm::vec3 &pos,
 
    SPtr<GameObject> gameObject(createStaticObject(model, pos, menuItemScale, 0.0f, 0.0f, orientation, false));
    scene.addObject(gameObject);
-   scene.addClickableObject(ClickableObject(gameObject, [highlightColor, wTintMaterial, clickFunction](MenuCameraLogicComponent &menuLogic, MouseEvent event) {
+   scene.addClickableObject(ClickableObject(gameObject, [highlightColor, wTintMaterial, clickFunction](MenuLogicComponent &menuLogic, MouseEvent event) {
       if (event == MouseEvent::Click) {
          clickFunction(menuLogic);
       } else if (event == MouseEvent::Enter) {
