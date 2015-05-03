@@ -14,6 +14,42 @@ const char* CUBE_MESH_SOURCE = "v -0.500000 -0.500000 0.500000\nv 0.500000 -0.50
 
 const char* XY_PLANE_MESH_SOURCE = "v -1.000000 -1.000000 -0.000000\nv 1.000000 -1.000000 -0.000000\nv -1.000000 1.000000 0.000000\nv 1.000000 1.000000 0.000000\nvt 1.000000 0.000000\nvt 1.000000 1.000000\nvt 0.000000 1.000000\nvt 0.000000 0.000000\nvn 0.000000 -0.000000 1.000000\ns off\nf 2/1/1 4/2/1 3/3/1\nf 1/4/1 2/1/1 3/3/1\n";
 
+SPtr<Mesh> meshFromAiMesh(const aiMesh* aiMesh) {
+   ASSERT(aiMesh, "Given null aiMesh");
+
+   // Vertices
+   unsigned int numVertices = aiMesh->mNumVertices;
+   UPtr<float[]> vertices(new float[3 * numVertices]);
+   memcpy(vertices.get(), aiMesh->mVertices, sizeof(float) * 3 * numVertices);
+
+   // Normals
+   unsigned int numNormals = aiMesh->mNumVertices;
+   UPtr<float[]> normals(new float[3 * numNormals]);
+   memcpy(normals.get(), aiMesh->mNormals, sizeof(float) * 3 * numNormals);
+
+   // Indices
+   unsigned int numIndices = aiMesh->mNumFaces * 3;
+   UPtr<unsigned int[]> indices(new unsigned int[numIndices]);
+   for (unsigned int i = 0; i < aiMesh->mNumFaces; ++i) {
+      const aiFace* face = &aiMesh->mFaces[i];
+      memcpy(&indices[i * 3], face->mIndices, 3 * sizeof(unsigned int));
+   }
+
+   // Texture coordinates
+   unsigned int numTexCoords = 0;
+   UPtr<float[]> texCoords(nullptr);
+   if (aiMesh->HasTextureCoords(0)) {
+      numTexCoords = aiMesh->mNumVertices;
+      texCoords = UPtr<float[]>(new float[numTexCoords * 2]);
+      for (unsigned int i = 0; i < numTexCoords; ++i) {
+         texCoords[i * 2] = aiMesh->mTextureCoords[0][i].x;
+         texCoords[i * 2 + 1] = aiMesh->mTextureCoords[0][i].y;
+      }
+   }
+
+   return std::make_shared<Mesh>(std::move(vertices), numVertices, std::move(normals), numNormals, std::move(indices), numIndices, std::move(texCoords), numTexCoords);
+}
+
 SPtr<Mesh> getMeshFromMemory(Assimp::Importer &assimpImporter, const char *data) {
    unsigned int flags = aiProcess_GenSmoothNormals | aiProcess_Triangulate;
    const aiScene *scene = assimpImporter.ReadFileFromMemory(data, strlen(data), flags);
@@ -28,7 +64,7 @@ SPtr<Mesh> getMeshFromMemory(Assimp::Importer &assimpImporter, const char *data)
       return nullptr;
    }
 
-   return std::make_shared<Mesh>(scene->mMeshes[0]);
+   return meshFromAiMesh(scene->mMeshes[0]);
 }
 
 } // namespace
@@ -64,7 +100,7 @@ SPtr<Mesh> MeshAssetManager::loadMesh(const std::string &fileName) {
    }
 
    // TODO Support for multiple meshes
-   SPtr<Mesh> mesh(std::make_shared<Mesh>(scene->mMeshes[0]));
+   SPtr<Mesh> mesh(meshFromAiMesh(scene->mMeshes[0]));
 
    meshMap[fileName] = mesh;
    return mesh;

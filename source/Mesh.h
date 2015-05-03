@@ -4,8 +4,6 @@
 #include "GLIncludes.h"
 #include "Types.h"
 
-struct aiMesh;
-
 class Mesh {
 protected:
    /**
@@ -29,20 +27,13 @@ protected:
    GLuint tbo;
 
    /**
-    * If the mesh has a texture buffer object
-    */
-   bool hasTextureBufferObject;
-
-   /**
-    * Number of vertex indices
-    */
-   unsigned int numIndices;
-
-   /**
     * Packed array of vertices
     */
    UPtr<float[]> vertices;
 
+   /**
+    * Packed array of indices
+    */
    UPtr<unsigned int[]> indices;
 
    /**
@@ -50,8 +41,20 @@ protected:
     */
    unsigned int numVertices;
 
+   /**
+    * Number of indices
+    */
+   unsigned int numIndices;
+
+   /**
+    * If the mesh has a texture buffer object
+    */
+   bool hasTextureBufferObject;
+
 public:
-   Mesh(const aiMesh* aiMesh);
+   Mesh(UPtr<float[]> vertices, unsigned int numVertices, UPtr<float[]> normals, unsigned int numNormals,
+        UPtr<unsigned int[]> indices, unsigned int numIndices, UPtr<float[]> texCoords, unsigned int numTexCoords,
+        GLenum usage = GL_STATIC_DRAW);
 
    virtual ~Mesh();
 
