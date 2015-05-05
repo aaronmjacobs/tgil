@@ -28,8 +28,6 @@ protected:
    SPtr<Scene> scene;
    float runningTime;
    unsigned int activeShaderProgramID;
-   int windowWidth;
-   int windowHeight;
    bool quitAfterCurrentScene;
 
    void handleSpecialInputs(const InputValues &inputValues) const;
@@ -49,8 +47,6 @@ public:
    void quitAfterScene();
 
    void tick(const float dt);
-
-   void onWindowSizeChanged(int width, int height);
 
    void onWindowFocusGained() const;
 

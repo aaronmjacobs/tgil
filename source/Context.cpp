@@ -30,15 +30,13 @@ Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0), windowWidth(0), windowHeight(0), quitAfterCurrentScene(false) {
+   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0), quitAfterCurrentScene(false) {
 }
 
 Context::~Context() {
 }
 
 void Context::init() {
-   glfwGetWindowSize(window, &windowWidth, &windowHeight);
-
    audioManager->init();
    textureUnitManager->init();
    scene = SceneLoader::loadNextScene(*this);
@@ -93,11 +91,6 @@ void Context::tick(const float dt) {
    checkForSceneChange();
 }
 
-void Context::onWindowSizeChanged(int width, int height) {
-   windowWidth = width;
-   windowHeight = height;
-}
-
 void Context::onWindowFocusGained() const {
    assetManager->reloadAssets();
 }
@@ -131,9 +124,9 @@ void Context::setScene(SPtr<Scene> scene) {
 }
 
 int Context::getWindowWidth() const {
-   return windowWidth;
+   return renderer->getWindowWidth();
 }
 
 int Context::getWindowHeight() const {
-   return windowHeight;
+   return renderer->getWindowHeight();
 }

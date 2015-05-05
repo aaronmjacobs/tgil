@@ -56,6 +56,21 @@ protected:
    int height;
 
    /**
+    * Width of the window (in screen coordinates)
+    */
+   int windowWidth;
+
+   /**
+    * Height of the window (in screen coordinates)
+    */
+   int windowHeight;
+
+   /**
+    * The pixel density of the framebuffer
+    */
+   float pixelDensity;
+
+   /**
     * Field of view of the perspective projection
     */
    float fov;
@@ -76,6 +91,8 @@ protected:
     * If debug rendering is enabled
     */
    bool renderDebug;
+
+   void updatePixelDensity();
 
    void renderShadowMaps(Scene &scene);
 
@@ -108,12 +125,17 @@ public:
    /**
     * Initializes the renderer, setting OpenGL properties and preparing rendering subsystems
     */
-   void init(float fov, int width, int height);
+   void init(float fov, int width, int height, int windowWidth, int windowHeight);
 
    /**
     * Updates the renderer to match the new framebuffer resolution
     */
    void onFramebufferSizeChange(int width, int height);
+
+   /**
+    * Updates the renderer to match the new window resolution
+    */
+   void onWindowSizeChange(int width, int height);
 
    /**
     * Renders the given scene
@@ -139,6 +161,18 @@ public:
     */
    const glm::mat4& getProjectionMatrix() const {
       return projectionMatrix;
+   }
+
+   int getWindowWidth() const {
+      return windowWidth;
+   }
+
+   int getWindowHeight() const {
+      return windowHeight;
+   }
+
+   float getPixelDensity() const {
+      return pixelDensity;
    }
 };
 

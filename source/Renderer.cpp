@@ -103,7 +103,7 @@ Renderer::Renderer()
 Renderer::~Renderer() {
 }
 
-void Renderer::init(float fov, int width, int height) {
+void Renderer::init(float fov, int width, int height, int windowWidth, int windowHeight) {
    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
    // Depth Buffer Setup
@@ -123,6 +123,8 @@ void Renderer::init(float fov, int width, int height) {
 
    shadowMapManager = std::move(UPtr<ShadowMapManager>(new ShadowMapManager(ShadowMap::MAX_SHADOWS, ShadowMap::MAX_CUBE_SHADOWS)));
 
+   onWindowSizeChange(windowWidth, windowHeight);
+
    onFramebufferSizeChange(width, height);
 
    hudRenderer.init();
@@ -134,12 +136,29 @@ void Renderer::init(float fov, int width, int height) {
    debugRenderer.init();
 }
 
+void Renderer::updatePixelDensity() {
+   float newPixelDensity = (float)width / windowWidth;
+
+   if (pixelDensity != newPixelDensity) {
+      pixelDensity = newPixelDensity;
+   }
+}
+
 void Renderer::onFramebufferSizeChange(int width, int height) {
    this->width = width;
    this->height = height;
    clearFramesNeeded = 2; // Clear both the front and back buffers
 
    projectionMatrix = glm::perspective(glm::radians(fov), (float)width / height, 0.1f, 200.0f);
+
+   updatePixelDensity();
+}
+
+void Renderer::onWindowSizeChange(int width, int height) {
+   this->windowWidth = width;
+   this->windowHeight = height;
+
+   updatePixelDensity();
 }
 
 void Renderer::render(Scene &scene) {
