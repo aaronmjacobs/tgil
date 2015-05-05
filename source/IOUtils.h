@@ -2,6 +2,7 @@
 #define IOUTILS_H
 
 #include "Constants.h"
+#include "Types.h"
 
 #include <folly/Optional.h>
 
@@ -38,6 +39,16 @@ folly::Optional<std::string> readFromFile(const std::string &fileName);
  * Reads the entire contents of the text file with the given name, relative to the data directory
  */
 folly::Optional<std::string> readFromDataFile(const std::string &fileName);
+
+/**
+ * Reads the entire contents of the binary file with the given name
+ */
+UPtr<const unsigned char[]> readFromBinaryFile(const std::string &fileName);
+
+/**
+ * Reads the entire contents of the binary file with the given name, relative to the data directory
+ */
+UPtr<const unsigned char[]> readFromBinaryDataFile(const std::string &fileName);
 
 /**
  * Writes the contents of the given text to the file with the given name

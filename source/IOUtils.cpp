@@ -36,6 +36,28 @@ bool writeToFile(const std::string &fileName, const std::string &data) {
    return true;
 }
 
+UPtr<const unsigned char[]> readFromBinaryFile(const std::string &fileName) {
+   ASSERT(!fileName.empty(), "Trying to read from empty file name");
+   std::ifstream in(fileName);
+   if (!in) {
+      return nullptr;
+   }
+
+   in.seekg(0, std::ios_base::end);
+   std::size_t size = in.tellg();
+   in.seekg(0, std::ios_base::beg);
+
+   UPtr<unsigned char[]> data(new unsigned char[size]);
+   in.read((char*)data.get(), size);
+
+   return std::move(data);
+}
+
+UPtr<const unsigned char[]> readFromBinaryDataFile(const std::string &fileName) {
+   ASSERT(!fileName.empty(), "Trying to read from empty file name");
+   return std::move(readFromBinaryFile(dataPath(fileName)));
+}
+
 folly::Optional<std::string> readFromDataFile(const std::string &fileName) {
    ASSERT(!fileName.empty(), "Trying to read from empty file name");
    return readFromFile(dataPath(fileName));
