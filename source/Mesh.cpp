@@ -26,16 +26,9 @@ Mesh::Mesh(UPtr<float[]> vertices, unsigned int numVertices, UPtr<float[]> norma
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, indices.get(), usage);
 
    // Buffer for vertex texture coordinates
-   if (texCoords) {
-      glGenBuffers(1, &tbo);
-      glBindBuffer(GL_ARRAY_BUFFER, tbo);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * numTexCoords, texCoords.get(), usage);
-
-      hasTextureBufferObject = true;
-   } else {
-      hasTextureBufferObject = false;
-      tbo = 0;
-   }
+   glGenBuffers(1, &tbo);
+   glBindBuffer(GL_ARRAY_BUFFER, tbo);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * numTexCoords, texCoords.get(), usage);
 
    // Unbind
    glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -45,6 +38,7 @@ Mesh::Mesh(UPtr<float[]> vertices, unsigned int numVertices, UPtr<float[]> norma
    this->numVertices = numVertices;
    this->indices = std::move(indices);
    this->numIndices = numIndices;
+   hasTextureBufferObject = numTexCoords > 0;
 }
 
 Mesh::~Mesh() {

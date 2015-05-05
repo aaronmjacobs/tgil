@@ -39,6 +39,7 @@ set(SOURCES
    ${SRC_DIR}/ControllerInputDevice.cpp
    ${SRC_DIR}/DebugDrawer.cpp
    ${SRC_DIR}/DebugRenderer.cpp
+   ${SRC_DIR}/DynamicMesh.cpp
    ${SRC_DIR}/FlyCameraComponent.cpp
    ${SRC_DIR}/FlyCameraLogicComponent.cpp
    ${SRC_DIR}/Framebuffer.cpp
@@ -102,6 +103,7 @@ set(HEADERS
    ${SRC_DIR}/DebugDrawer.h
    ${SRC_DIR}/DebugRenderer.h
    ${SRC_DIR}/DefaultImageSource.h
+   ${SRC_DIR}/DynamicMesh.h
    ${SRC_DIR}/FancyAssert.h
    ${SRC_DIR}/FlyCameraComponent.h
    ${SRC_DIR}/FlyCameraLogicComponent.h
