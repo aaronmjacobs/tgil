@@ -133,6 +133,8 @@ void Renderer::init(float fov, int width, int height, int windowWidth, int windo
 
    skyRenderer.init();
 
+   textRenderer.init(pixelDensity);
+
    debugRenderer.init();
 }
 
@@ -141,6 +143,7 @@ void Renderer::updatePixelDensity() {
 
    if (pixelDensity != newPixelDensity) {
       pixelDensity = newPixelDensity;
+      textRenderer.onPixelDensityChange(pixelDensity);
    }
 }
 

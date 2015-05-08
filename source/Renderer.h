@@ -5,6 +5,7 @@
 #include "HUDRenderer.h"
 #include "PostProcessRenderer.h"
 #include "SkyRenderer.h"
+#include "TextRenderer.h"
 
 #include <glm/glm.hpp>
 
@@ -39,6 +40,11 @@ protected:
     * Renderer used to draw the sky
     */
    SkyRenderer skyRenderer;
+
+   /**
+    * Renderer used to draw text
+    */
+   TextRenderer textRenderer;
 
    /**
     * Renderer used to draw debug physics information
