@@ -12,13 +12,14 @@
 
 class Model;
 class PlayerLogicComponent;
+class Texture;
 class TextureMaterial;
 class Uniform;
 
 class HUDElement {
 public:
-   // ID of the texture to draw on the HUD
-   GLuint textureID;
+   // The texture to draw on the HUD
+   SPtr<Texture> texture;
 
    // Position on screen, as a percentage ((0,0) = lower left, (1,1) = upper right)
    glm::vec2 position;
@@ -37,7 +38,7 @@ public:
 
    std::function<void(HUDElement &element, const PlayerLogicComponent &playerLogic)> updateLogic;
 
-   HUDElement(GLuint textureID, glm::vec2 position, glm::vec2 scale);
+   HUDElement(SPtr<Texture> texture, glm::vec2 position, glm::vec2 scale);
 
    virtual ~HUDElement();
 

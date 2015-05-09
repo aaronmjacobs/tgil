@@ -1,24 +1,16 @@
 #include "FancyAssert.h"
 #include "Framebuffer.h"
+#include "Texture.h"
 
 Framebuffer::Framebuffer()
-   : framebuffer(0), texture(0), depthTexture(0), width(0), height(0), initialized(false) {
+   : framebuffer(0), texture(nullptr), depthTexture(nullptr), width(0), height(0), initialized(false) {
    glGenFramebuffers(1, &framebuffer);
 }
 
 Framebuffer::~Framebuffer() {
    disable();
 
-   if (initialized) {
-      deleteTextures();
-   }
-
    glDeleteFramebuffers(1, &framebuffer);
-}
-
-void Framebuffer::deleteTextures() {
-   glDeleteTextures(1, &texture);
-   glDeleteTextures(1, &depthTexture);
 }
 
 bool Framebuffer::init(int width, int height) {
@@ -26,15 +18,11 @@ bool Framebuffer::init(int width, int height) {
    this->width = width;
    this->height = height;
 
-   // Delete any pre-existing textures
-   if (initialized) {
-      deleteTextures();
-   }
    initialized = true;
 
    // Create the texture that will be the color attachment
-   glGenTextures(1, &texture);
-   glBindTexture(GL_TEXTURE_2D, texture);
+   texture = std::make_shared<Texture>(GL_TEXTURE_2D);
+   texture->bind();
 
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -42,11 +30,11 @@ bool Framebuffer::init(int width, int height) {
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-   glBindTexture(GL_TEXTURE_2D, 0);
+   texture->unbind();
 
    // Create the texture that will be the depth attachment
-   glGenTextures(1, &depthTexture);
-   glBindTexture(GL_TEXTURE_2D, depthTexture);
+   depthTexture = std::make_shared<Texture>(GL_TEXTURE_2D);
+   depthTexture->bind();
 
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -54,13 +42,13 @@ bool Framebuffer::init(int width, int height) {
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-   glBindTexture(GL_TEXTURE_2D, 0);
+   depthTexture->unbind();
 
    // Attach the color / depth textures to the framebuffer
    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->id(), 0);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture->id(), 0);
 
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -84,12 +72,12 @@ void Framebuffer::disable() const {
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-GLuint Framebuffer::getTextureID() const {
-   ASSERT(initialized, "Trying to get texture ID from uninitialized framebuffer");
+SPtr<Texture> Framebuffer::getTexture() const {
+   ASSERT(initialized, "Trying to get texture from uninitialized framebuffer");
    return texture;
 }
 
-GLuint Framebuffer::getDepthTextureID() const {
-   ASSERT(initialized, "Trying to get texture ID from uninitialized framebuffer");
+SPtr<Texture> Framebuffer::getDepthTexture() const {
+   ASSERT(initialized, "Trying to get texture from uninitialized framebuffer");
    return depthTexture;
 }

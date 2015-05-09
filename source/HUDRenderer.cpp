@@ -41,8 +41,8 @@ std::function<void(HUDElement &element, const PlayerLogicComponent &playerLogic)
 
 } // namespace
 
-HUDElement::HUDElement(GLuint textureID, glm::vec2 position, glm::vec2 scale)
-: textureID(textureID), position(position), scale(scale), fill(DEFAULT_FILL), tint(DEFAULT_TINT), opacity(DEFAULT_OPACITY), updateLogic(nullptr) {
+HUDElement::HUDElement(SPtr<Texture> texture, glm::vec2 position, glm::vec2 scale)
+   : texture(texture), position(position), scale(scale), fill(DEFAULT_FILL), tint(DEFAULT_TINT), opacity(DEFAULT_OPACITY), updateLogic(nullptr) {
 }
 
 HUDElement::~HUDElement() {
@@ -64,7 +64,7 @@ void HUDRenderer::loadPlane() {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
    SPtr<ShaderProgram> shaderProgram = assetManager.loadShaderProgram("shaders/hud");
 
-   textureMaterial = std::make_shared<TextureMaterial>(0, "uTexture");
+   textureMaterial = std::make_shared<TextureMaterial>(nullptr, "uTexture");
 
    SPtr<Mesh> planeMesh = assetManager.getMeshForShape(MeshShape::XYPlane);
    xyPlane = UPtr<Model>(new Model(shaderProgram, planeMesh));
@@ -74,16 +74,16 @@ void HUDRenderer::loadPlane() {
 void HUDRenderer::loadElements() {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
-   GLuint crosshairID = assetManager.loadTexture("textures/hud/crosshair.png");
-   GLuint throwID = assetManager.loadTexture("textures/hud/throw.png");
-   GLuint shoveID = assetManager.loadTexture("textures/hud/shove.png");
-   GLuint fillID = assetManager.loadTexture("textures/hud/fill.png");
+   SPtr<Texture> crosshairTexture = assetManager.loadTexture("textures/hud/crosshair.png");
+   SPtr<Texture> throwTexture = assetManager.loadTexture("textures/hud/throw.png");
+   SPtr<Texture> shoveTexture = assetManager.loadTexture("textures/hud/shove.png");
+   SPtr<Texture> fillTexture = assetManager.loadTexture("textures/hud/fill.png");
 
-   HUDElement crosshairElement(crosshairID, glm::vec2(50.0f), glm::vec2(CROSSHAIR_SCALE));
-   HUDElement throwElement(throwID, glm::vec2(89.0f, 90.0f), glm::vec2(COOLDOWN_SCALE));
-   HUDElement shoveElement(shoveID, glm::vec2(94.0f, 90.0f), glm::vec2(COOLDOWN_SCALE));
-   HUDElement throwFillElement(fillID, glm::vec2(89.0f, 90.0f), glm::vec2(COOLDOWN_SCALE));
-   HUDElement shoveFillElement(fillID, glm::vec2(94.0f, 90.0f), glm::vec2(COOLDOWN_SCALE));
+   HUDElement crosshairElement(crosshairTexture, glm::vec2(50.0f), glm::vec2(CROSSHAIR_SCALE));
+   HUDElement throwElement(throwTexture, glm::vec2(89.0f, 90.0f), glm::vec2(COOLDOWN_SCALE));
+   HUDElement shoveElement(shoveTexture, glm::vec2(94.0f, 90.0f), glm::vec2(COOLDOWN_SCALE));
+   HUDElement throwFillElement(fillTexture, glm::vec2(89.0f, 90.0f), glm::vec2(COOLDOWN_SCALE));
+   HUDElement shoveFillElement(fillTexture, glm::vec2(94.0f, 90.0f), glm::vec2(COOLDOWN_SCALE));
 
    throwFillElement.setUpdateLogic(getFillUpdateLogic(true));
    shoveFillElement.setUpdateLogic(getFillUpdateLogic(false));
@@ -109,7 +109,7 @@ void HUDRenderer::render(const PlayerLogicComponent &playerLogic, int width, int
 
    for (HUDElement &element : elements) {
       element.update(playerLogic);
-      textureMaterial->setTextureID(element.textureID);
+      textureMaterial->setTexture(element.texture);
 
       SPtr<ShaderProgram> shaderProgram(xyPlane->getShaderProgram());
       shaderProgram->setUniformValue("uOpacity", element.opacity);

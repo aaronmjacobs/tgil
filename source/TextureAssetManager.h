@@ -2,6 +2,7 @@
 #define TEXTURE_ASSET_MANAGER_H
 
 #include "GLIncludes.h"
+#include "Texture.h"
 
 #include <string>
 #include <unordered_map>
@@ -17,8 +18,8 @@ enum Type {
 
 } // namespace TextureWrap
 
-typedef std::unordered_map<std::string, GLuint> TextureMap;
-typedef std::unordered_map<std::string, GLuint> CubemapMap;
+typedef std::unordered_map<std::string, SPtr<Texture>> TextureMap;
+typedef std::unordered_map<std::string, SPtr<Texture>> CubemapMap;
 
 class TextureAssetManager {
 protected:
@@ -30,9 +31,9 @@ public:
 
    virtual ~TextureAssetManager();
 
-   GLuint loadTexture(const std::string &fileName, TextureWrap::Type wrap);
+   SPtr<Texture> loadTexture(const std::string &fileName, TextureWrap::Type wrap);
 
-   GLuint loadCubemap(const std::string &path, const std::string &extension);
+   SPtr<Texture> loadCubemap(const std::string &path, const std::string &extension);
 };
 
 #endif

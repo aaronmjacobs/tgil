@@ -2,6 +2,9 @@
 #define FRAMEBUFFER_H
 
 #include "GLIncludes.h"
+#include "Types.h"
+
+class Texture;
 
 class Framebuffer {
 protected:
@@ -13,12 +16,12 @@ protected:
    /**
     * Color attachment texture
     */
-   GLuint texture;
+   SPtr<Texture> texture;
 
    /**
     * Depth attachment texture
     */
-   GLuint depthTexture;
+   SPtr<Texture> depthTexture;
 
    /**
     * Resolution of the textures
@@ -30,11 +33,6 @@ protected:
     * If the framebuffer has been initialized
     */
    bool initialized;
-
-   /**
-    * Deletes the attachment textures
-    */
-   void deleteTextures();
 
 public:
    Framebuffer();
@@ -62,14 +60,14 @@ public:
    void disable() const;
 
    /**
-    * Returns the texture ID of the color attachment
+    * Returns the texture of the color attachment
     */
-   GLuint getTextureID() const;
+   SPtr<Texture> getTexture() const;
 
    /**
-    * Returns the texture ID of the depth attachment
+    * Returns the texture of the depth attachment
     */
-   GLuint getDepthTextureID() const;
+   SPtr<Texture> getDepthTexture() const;
 };
 
 #endif

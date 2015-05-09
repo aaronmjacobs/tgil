@@ -26,10 +26,10 @@ SPtr<Mesh> AssetManager::getMeshForShape(MeshShape shape) {
    return meshAssetManager.getMeshForShape(shape);
 }
 
-GLuint AssetManager::loadTexture(const std::string &fileName, TextureWrap::Type wrap) {
+SPtr<Texture> AssetManager::loadTexture(const std::string &fileName, TextureWrap::Type wrap) {
    return textureAssetManager.loadTexture(fileName, wrap);
 }
 
-GLuint AssetManager::loadCubemap(const std::string &path, const std::string &extension) {
+SPtr<Texture> AssetManager::loadCubemap(const std::string &path, const std::string &extension) {
    return textureAssetManager.loadCubemap(path, extension);
 }

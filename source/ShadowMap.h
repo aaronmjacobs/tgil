@@ -6,11 +6,12 @@
 #include <glm/glm.hpp>
 
 class ShaderProgram;
+class Texture;
 
 class ShadowMap {
 protected:
    GLuint framebufferID;
-   GLuint textureID;
+   SPtr<Texture> texture;
    bool cube;
    int size;
    SPtr<ShaderProgram> shadowProgram;
@@ -37,10 +38,6 @@ public:
 
    bool isCube() const {
       return cube;
-   }
-
-   GLuint getTextureID() const {
-      return textureID;
    }
 
    SPtr<ShaderProgram> getShadowProgram() const;

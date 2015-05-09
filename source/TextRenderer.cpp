@@ -10,6 +10,7 @@
 #include "RenderData.h"
 #include "ShaderProgram.h"
 #include "TextRenderer.h"
+#include "Texture.h"
 #include "TextureMaterial.h"
 #include "TextureUnitManager.h"
 #include "TintMaterial.h"
@@ -41,7 +42,7 @@ typedef std::map<FontType, FontRange> FontRangeMap;
 
 class FontAtlas {
 public:
-   GLuint textureID;
+   SPtr<Texture> texture;
    int bitmapSize;
    FontRangeMap fontRangeMap;
 
@@ -133,17 +134,16 @@ FontAtlas::FontAtlas(int bitmapSize, FontRangeMap &map, unsigned char *fontData)
 
    stbtt_PackEnd(&packContext);
 
-   glGenTextures(1, &textureID);
-   glBindTexture(GL_TEXTURE_2D, textureID);
+   texture = std::make_shared<Texture>(GL_TEXTURE_2D);
+   texture->bind();
 
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmapSize, bitmapSize, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap.get());
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-   glBindTexture(GL_TEXTURE_2D, 0);
+   texture->unbind();
 }
 
 FontAtlas::~FontAtlas() {
-   glDeleteTextures(1, &textureID);
 }
 
 TextRenderer::TextRenderer()
@@ -192,7 +192,7 @@ void TextRenderer::init(float pixelDensity) {
    SPtr<Model> model(std::make_shared<Model>(program, mesh));
    gameObject->getGraphicsComponent().setModel(model);
 
-   textureMaterial = std::make_shared<TextureMaterial>(0, "uTexture");
+   textureMaterial = std::make_shared<TextureMaterial>(nullptr, "uTexture");
    SPtr<TintMaterial> tintMaterial(std::make_shared<TintMaterial>(1.0f, glm::vec3(1.0f)));
    model->attachMaterial(textureMaterial);
    model->attachMaterial(tintMaterial);
@@ -227,7 +227,7 @@ void TextRenderer::render(int fbWidth, int fbHeight, float x, float y, const std
    shaderProgram->setUniformValue("uViewMatrix", glm::mat4(1.0f));
    shaderProgram->setUniformValue("uModelMatrix", glm::mat4(1.0f));
 
-   textureMaterial->setTextureID(atlas->textureID);
+   textureMaterial->setTexture(atlas->texture);
 
    float width = getStringWidth(fontRange, atlas->bitmapSize, text);
    float fontSize = fontRange.fontSize;

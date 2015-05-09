@@ -5,23 +5,21 @@
 #include "Material.h"
 
 class ShaderProgram;
+class Texture;
 
 class TextureMaterial : public Material {
 protected:
-   // The texture ID
-   GLuint textureID;
+   // The texture
+   SPtr<Texture> texture;
 
    // The texture unit
    GLenum textureUnit;
-
-   // The texture target
-   GLenum target;
 
    // Name of the texture uniform
    std::string textureUniformName;
 
 public:
-   TextureMaterial(GLuint textureID, const std::string &textureUniformName, GLenum target = GL_TEXTURE_2D);
+   TextureMaterial(SPtr<Texture> texture, const std::string &textureUniformName);
 
    virtual ~TextureMaterial();
 
@@ -29,7 +27,7 @@ public:
 
    virtual void disable();
 
-   void setTextureID(GLuint textureID);
+   void setTexture(SPtr<Texture> texture);
 };
 
 #endif

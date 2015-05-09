@@ -12,11 +12,9 @@
 ShadowMap::ShadowMap()
    : cube(false) {
    glGenFramebuffers(1, &framebufferID);
-   glGenTextures(1, &textureID);
 }
 
 ShadowMap::~ShadowMap() {
-   glDeleteTextures(1, &textureID);
    glDeleteFramebuffers(1, &framebufferID);
 }
 
@@ -26,7 +24,8 @@ void ShadowMap::init(int size) {
    cube = false;
    this->size = size;
 
-   glBindTexture(GL_TEXTURE_2D, textureID);
+   texture = std::make_shared<Texture>(GL_TEXTURE_2D);
+   texture->bind();
 
    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, size, size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
@@ -37,11 +36,11 @@ void ShadowMap::init(int size) {
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 
-   glBindTexture(GL_TEXTURE_2D, 0);
+   texture->unbind();
 
    glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
 
-   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureID, 0);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture->id(), 0);
 
    // Disable writes and reads to / from the color buffer
    glDrawBuffer(GL_NONE);
@@ -58,7 +57,8 @@ void ShadowMap::initCube(int size) {
    cube = true;
    this->size = size;
 
-   glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+   texture = std::make_shared<Texture>(GL_TEXTURE_CUBE_MAP);
+   texture->bind();
 
    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_DEPTH_COMPONENT32F, size, size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_DEPTH_COMPONENT32F, size, size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
@@ -74,11 +74,11 @@ void ShadowMap::initCube(int size) {
    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 
-   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+   texture->unbind();
 
    glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
 
-   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X, textureID, 0);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X, texture->id(), 0);
 
    // Disable writes and reads to / from the color buffer
    glDrawBuffer(GL_NONE);
@@ -93,7 +93,7 @@ void ShadowMap::setActiveFace(int face) {
    ASSERT(cube, "Trying to set active face of non-cube shadow map");
    ASSERT(face >= 0 && face < 6, "Invalid face index");
 
-   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, textureID, 0);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, texture->id(), 0);
 }
 
 void ShadowMap::enable() {
@@ -109,11 +109,7 @@ GLenum ShadowMap::bindTexture() {
    GLenum textureUnit = Context::getInstance().getTextureUnitManager().get();
 
    glActiveTexture(GL_TEXTURE0 + textureUnit);
-   if (isCube()) {
-      glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-   } else {
-      glBindTexture(GL_TEXTURE_2D, textureID);
-   }
+   texture->bind();
 
    return textureUnit;
 }

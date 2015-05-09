@@ -81,6 +81,7 @@ set(SOURCES
    ${SRC_DIR}/SkyRenderer.cpp
    ${SRC_DIR}/SunLogicComponent.cpp
    ${SRC_DIR}/TextRenderer.cpp
+   ${SRC_DIR}/Texture.cpp
    ${SRC_DIR}/TextureAssetManager.cpp
    ${SRC_DIR}/TextureMaterial.cpp
    ${SRC_DIR}/TextureUnitManager.cpp
@@ -154,6 +155,7 @@ set(HEADERS
    ${SRC_DIR}/Subject.h
    ${SRC_DIR}/SunLogicComponent.h
    ${SRC_DIR}/TextRenderer.h
+   ${SRC_DIR}/Texture.h
    ${SRC_DIR}/TextureAssetManager.h
    ${SRC_DIR}/TextureMaterial.h
    ${SRC_DIR}/TextureUnitManager.h

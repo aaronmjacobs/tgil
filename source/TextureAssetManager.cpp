@@ -73,7 +73,7 @@ TextureAssetManager::TextureAssetManager() {
 TextureAssetManager::~TextureAssetManager() {
 }
 
-GLuint TextureAssetManager::loadTexture(const std::string &fileName, TextureWrap::Type wrap) {
+SPtr<Texture> TextureAssetManager::loadTexture(const std::string &fileName, TextureWrap::Type wrap) {
    if (textureMap.count(fileName)) {
       return textureMap.at(fileName);
    }
@@ -90,9 +90,8 @@ GLuint TextureAssetManager::loadTexture(const std::string &fileName, TextureWrap
       }
    }
 
-   GLuint textureID;
-   glGenTextures(1, &textureID);
-   glBindTexture(GL_TEXTURE_2D, textureID);
+   SPtr<Texture> texture(std::make_shared<Texture>(GL_TEXTURE_2D));
+   texture->bind();
 
    glTexImage2D(GL_TEXTURE_2D, 0, format, info.width, info.height, 0, format, GL_UNSIGNED_BYTE, info.pixels);
 
@@ -102,15 +101,15 @@ GLuint TextureAssetManager::loadTexture(const std::string &fileName, TextureWrap
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 
-   glBindTexture(GL_TEXTURE_2D, 0);
+   texture->unbind();
 
    stbi_image_free(info.pixels);
 
-   textureMap[fileName] = textureID;
-   return textureID;
+   textureMap[fileName] = texture;
+   return texture;
 }
 
-GLuint TextureAssetManager::loadCubemap(const std::string &path, const std::string &extension) {
+SPtr<Texture> TextureAssetManager::loadCubemap(const std::string &path, const std::string &extension) {
    if (cubemapMap.count(path)) {
       return cubemapMap.at(path);
    }
@@ -129,9 +128,8 @@ GLuint TextureAssetManager::loadCubemap(const std::string &path, const std::stri
    ImageInfo back = loadImage(path + backName);
    ImageInfo front = loadImage(path + frontName);
 
-   GLuint cubemapID;
-   glGenTextures(1, &cubemapID);
-   glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapID);
+   SPtr<Texture> cubemap(std::make_shared<Texture>(GL_TEXTURE_CUBE_MAP));
+   cubemap->bind();
 
    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB, right.width, right.height, 0, GL_RGB, GL_UNSIGNED_BYTE, right.pixels);
    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB, left.width, left.height, 0, GL_RGB, GL_UNSIGNED_BYTE, left.pixels);
@@ -146,7 +144,7 @@ GLuint TextureAssetManager::loadCubemap(const std::string &path, const std::stri
    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+   cubemap->unbind();
 
    stbi_image_free(right.pixels);
    stbi_image_free(left.pixels);
@@ -155,6 +153,6 @@ GLuint TextureAssetManager::loadCubemap(const std::string &path, const std::stri
    stbi_image_free(back.pixels);
    stbi_image_free(front.pixels);
 
-   cubemapMap[path] = cubemapID;
-   return cubemapID;
+   cubemapMap[path] = cubemap;
+   return cubemap;
 }

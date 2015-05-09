@@ -192,18 +192,18 @@ SPtr<GameObject> createSpotLight(const glm::vec3 &position, const glm::vec3 &col
    return light;
 }
 
-void addMenuItem(Scene &scene, const std::string &texture, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic)> clickFunction) {
+void addMenuItem(Scene &scene, const std::string &textureName, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic)> clickFunction) {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
    SPtr<ShaderProgram> tintedTextureShaderProgram(assetManager.loadShaderProgram("shaders/tinted_texture"));
    SPtr<Mesh> planeMesh(assetManager.getMeshForShape(MeshShape::XYPlane));
-   GLuint textureID = assetManager.loadTexture(texture);
+   SPtr<Texture> texture = assetManager.loadTexture(textureName);
 
    const glm::vec3 menuItemScale(1.0f, 0.25f, 1.0f);
    const glm::vec3 highlightColor(0.46f, 0.71f, 0.89f);
 
    SPtr<Model> model(std::make_shared<Model>(tintedTextureShaderProgram, planeMesh));
-   model->attachMaterial(std::make_shared<TextureMaterial>(textureID, "uTexture"));
+   model->attachMaterial(std::make_shared<TextureMaterial>(texture, "uTexture"));
    SPtr<TintMaterial> tintMaterial(std::make_shared<TintMaterial>(1.0f, glm::vec3(1.0f)));
    model->attachMaterial(tintMaterial);
    WPtr<TintMaterial> wTintMaterial(tintMaterial);
@@ -333,11 +333,11 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    SPtr<ShaderProgram> phongShaderProgram(assetManager.loadShaderProgram("shaders/phong"));
    SPtr<ShaderProgram> lavaShaderProgram(assetManager.loadShaderProgram("shaders/lava"));
 
-   GLuint lavatileTextureID = assetManager.loadTexture("textures/lava/lava.jpg", TextureWrap::Repeat);
-   GLuint noiseID = assetManager.loadTexture("textures/lava/cloud.png", TextureWrap::Repeat);
+   SPtr<Texture> lavatileTexture = assetManager.loadTexture("textures/lava/lava.jpg", TextureWrap::Repeat);
+   SPtr<Texture> noiseTexture = assetManager.loadTexture("textures/lava/cloud.png", TextureWrap::Repeat);
 
-   SPtr<TextureMaterial> lavatileMaterial(std::make_shared<TextureMaterial>(lavatileTextureID, "uTexture"));
-   SPtr<TextureMaterial> noiseMaterial(std::make_shared<TextureMaterial>(noiseID, "uNoiseTexture"));
+   SPtr<TextureMaterial> lavatileMaterial(std::make_shared<TextureMaterial>(lavatileTexture, "uTexture"));
+   SPtr<TextureMaterial> noiseMaterial(std::make_shared<TextureMaterial>(noiseTexture, "uNoiseTexture"));
    SPtr<TimeMaterial> timeMaterial(std::make_shared<TimeMaterial>());
 
    SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
