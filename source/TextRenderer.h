@@ -22,8 +22,8 @@ enum class VAlign {
 
 enum class FontType {
    Small,
-   Large,
-   Number
+   Medium,
+   LargeNumber
 };
 
 class TextRenderer {
@@ -31,7 +31,7 @@ protected:
    SPtr<DynamicMesh> mesh;
    SPtr<TextureMaterial> textureMaterial;
    SPtr<GameObject> gameObject;
-   UPtr<FontAtlas> smallAtlas, largeAtlas, numberAtlas;
+   UPtr<FontAtlas> atlas;
    bool initialized;
 
    void loadFontAtlases(float pixelDensity);
@@ -45,7 +45,7 @@ public:
 
    void onPixelDensityChange(float pixelDensity);
 
-   void render(int fbWidth, int fbHeight, float x, float y, const std::string &text, FontType fontType = FontType::Large, HAlign hAlign = HAlign::Left, VAlign vAlign = VAlign::Top);
+   void render(int fbWidth, int fbHeight, float x, float y, const std::string &text, FontType fontType = FontType::Medium, HAlign hAlign = HAlign::Center, VAlign vAlign = VAlign::Center);
 };
 
 #endif

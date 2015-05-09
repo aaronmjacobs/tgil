@@ -16,23 +16,36 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#define STB_RECT_PACK_IMPLEMENTATION
+#define STBRP_STATIC
+#define STBRP_ASSERT ASSERT
+#include <stb/stb_rect_pack.h>
+
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
+#define STBTT_assert ASSERT
 #include <stb/stb_truetype.h>
 
 #include <array>
+#include <map>
 #include <vector>
+
+struct FontRange {
+   float fontSize;
+   int firstGlyph;
+   int numGlyphs;
+   std::vector<stbtt_packedchar> charData;
+};
+
+typedef std::map<FontType, FontRange> FontRangeMap;
 
 class FontAtlas {
 public:
-   const int firstGlyph;
-   const int numGlyphs;
-   const int bitmapSize;
-   const float fontSize;
-   std::vector<stbtt_bakedchar> cdata;
    GLuint textureID;
+   int bitmapSize;
+   FontRangeMap fontRangeMap;
 
-   FontAtlas(const int firstGlyph, const int numGlyphs, const int bitmapSize, const float fontSize, const unsigned char *fontData);
+   FontAtlas(int bitmapSize, FontRangeMap &map, unsigned char *fontData);
 
    virtual ~FontAtlas();
 };
@@ -45,24 +58,23 @@ const float FONT_SIZE_SMALL = 36.0f;
 const float FONT_SIZE_MEDIUM = 72.0f;
 const float FONT_SIZE_LARGE = 160.0f;
 
-const int BITMAP_SIZE_SMALL = 256;
-const int BITMAP_SIZE_LARGE = 512;
+const int BITMAP_SIZE = 512;
 
 const int FIRST_PRINTABLE_GLYPH = 32;
 const int NUM_PRINTABLE_GLYPHS = 96;
 const int FIRST_NUMERIC_GLYPH = 48;
 const int NUM_NUMERIC_GLYPHS = 10;
 
-float getStringWidth(FontAtlas &atlas, const std::string &text) {
+float getStringWidth(FontRange &range, int bitmapSize, const std::string &text) {
    float x = 0.0f, y = 0.0f;
 
    for (char c : text) {
-      if (c < atlas.firstGlyph || c > atlas.firstGlyph + atlas.numGlyphs) {
+      if (c < range.firstGlyph || c >= range.firstGlyph + range.numGlyphs) {
          continue;
       }
 
       stbtt_aligned_quad q;
-      stbtt_GetBakedQuad(atlas.cdata.data(), atlas.bitmapSize, atlas.bitmapSize, c - atlas.firstGlyph, &x, &y, &q, 1);
+      stbtt_GetPackedQuad(range.charData.data(), bitmapSize, bitmapSize, c - range.firstGlyph, &x, &y, &q, 0);
    }
 
    return x;
@@ -92,17 +104,34 @@ void renderQuad(GameObject &gameObject, DynamicMesh &mesh, const stbtt_aligned_q
 
 } // namespace
 
-FontAtlas::FontAtlas(const int firstGlyph, const int numGlyphs, const int bitmapSize, const float fontSize, const unsigned char *fontData)
-   : firstGlyph(firstGlyph), numGlyphs(numGlyphs), bitmapSize(bitmapSize), fontSize(fontSize) {
-   ASSERT(firstGlyph >= 0 && numGlyphs > 0, "Invalid glyph initialization values");
+FontAtlas::FontAtlas(int bitmapSize, FontRangeMap &map, unsigned char *fontData)
+   : bitmapSize(bitmapSize), fontRangeMap(std::move(map)) {
    ASSERT(bitmapSize > 0, "Invalid bitmap size");
-   ASSERT(fontSize > 0.0f, "Invalid font size");
-   ASSERT(fontData, "null font data");
-
-   cdata.resize(numGlyphs);
 
    UPtr<unsigned char[]> bitmap(new unsigned char[bitmapSize * bitmapSize]);
-   stbtt_BakeFontBitmap(fontData, 0, fontSize, bitmap.get(), bitmapSize, bitmapSize, firstGlyph, numGlyphs, cdata.data());
+   stbtt_pack_context packContext;
+
+   int res = stbtt_PackBegin(&packContext, bitmap.get(), bitmapSize, bitmapSize, 0, 1, nullptr);
+   ASSERT(res, "stbtt_PackBegin failed");
+
+   std::vector<stbtt_pack_range> packRanges;
+   for (std::pair<const FontType, FontRange> &item : fontRangeMap) {
+      FontRange &fontRange = item.second;
+      stbtt_pack_range packRange;
+      fontRange.charData.resize(fontRange.numGlyphs);
+
+      packRange.font_size = fontRange.fontSize;
+      packRange.first_unicode_char_in_range = fontRange.firstGlyph;
+      packRange.num_chars_in_range = fontRange.numGlyphs;
+      packRange.chardata_for_range = fontRange.charData.data();
+
+      packRanges.push_back(packRange);
+   }
+
+   res = stbtt_PackFontRanges(&packContext, fontData, 0, packRanges.data(), packRanges.size());
+   ASSERT(res, "stbtt_PackFontRanges failed");
+
+   stbtt_PackEnd(&packContext);
 
    glGenTextures(1, &textureID);
    glBindTexture(GL_TEXTURE_2D, textureID);
@@ -131,9 +160,27 @@ void TextRenderer::loadFontAtlases(float pixelDensity) {
       return;
    }
 
-   smallAtlas = UPtr<FontAtlas>(new FontAtlas(FIRST_PRINTABLE_GLYPH, NUM_PRINTABLE_GLYPHS, BITMAP_SIZE_SMALL * pixelDensity, FONT_SIZE_SMALL * pixelDensity, fontData.get()));
-   largeAtlas = UPtr<FontAtlas>(new FontAtlas(FIRST_PRINTABLE_GLYPH, NUM_PRINTABLE_GLYPHS, BITMAP_SIZE_LARGE * pixelDensity, FONT_SIZE_MEDIUM * pixelDensity, fontData.get()));
-   numberAtlas = UPtr<FontAtlas>(new FontAtlas(FIRST_NUMERIC_GLYPH, NUM_NUMERIC_GLYPHS, BITMAP_SIZE_LARGE * pixelDensity, FONT_SIZE_LARGE * pixelDensity, fontData.get()));
+   FontRangeMap fontRangeMap;
+
+   FontRange smallRange;
+   smallRange.fontSize = FONT_SIZE_SMALL * pixelDensity;
+   smallRange.firstGlyph = FIRST_PRINTABLE_GLYPH;
+   smallRange.numGlyphs = NUM_PRINTABLE_GLYPHS;
+   fontRangeMap[FontType::Small] = smallRange;
+
+   FontRange mediumRange;
+   mediumRange.fontSize = FONT_SIZE_MEDIUM * pixelDensity;
+   mediumRange.firstGlyph = FIRST_PRINTABLE_GLYPH;
+   mediumRange.numGlyphs = NUM_PRINTABLE_GLYPHS;
+   fontRangeMap[FontType::Medium] = mediumRange;
+
+   FontRange largeNumberRange;
+   largeNumberRange.fontSize = FONT_SIZE_LARGE * pixelDensity;
+   largeNumberRange.firstGlyph = FIRST_NUMERIC_GLYPH;
+   largeNumberRange.numGlyphs = NUM_NUMERIC_GLYPHS;
+   fontRangeMap[FontType::LargeNumber] = largeNumberRange;
+
+   atlas = UPtr<FontAtlas>(new FontAtlas(BITMAP_SIZE * pixelDensity, fontRangeMap, const_cast<unsigned char*>(fontData.get())));
 }
 
 void TextRenderer::init(float pixelDensity) {
@@ -164,22 +211,26 @@ void TextRenderer::onPixelDensityChange(float pixelDensity) {
 }
 
 void TextRenderer::render(int fbWidth, int fbHeight, float x, float y, const std::string &text, FontType fontType, HAlign hAlign, VAlign vAlign) {
-   ASSERT(smallAtlas && largeAtlas && numberAtlas, "Font atlases not loaded");
-   if (!smallAtlas || !largeAtlas || !numberAtlas) {
+   ASSERT(atlas, "Font atlas not loaded");
+   if (!atlas) {
       return;
    }
 
-   FontAtlas &atlas = fontType == FontType::Small ? *smallAtlas : (fontType == FontType::Large ? *largeAtlas : *numberAtlas);
+   ASSERT(atlas->fontRangeMap.count(fontType) != 0, "Invalid font type");
+   if (atlas->fontRangeMap.count(fontType) == 0) {
+      return;
+   }
+   FontRange &fontRange = atlas->fontRangeMap.at(fontType);
 
    SPtr<ShaderProgram> shaderProgram = gameObject->getGraphicsComponent().getModel()->getShaderProgram();
    shaderProgram->setUniformValue("uProjMatrix", glm::ortho<float>(0.0f, (float)fbWidth, (float)fbHeight, 0.0f));
    shaderProgram->setUniformValue("uViewMatrix", glm::mat4(1.0f));
    shaderProgram->setUniformValue("uModelMatrix", glm::mat4(1.0f));
 
-   textureMaterial->setTextureID(atlas.textureID);
+   textureMaterial->setTextureID(atlas->textureID);
 
-   float width = getStringWidth(atlas, text);
-   float fontSize = atlas.fontSize;
+   float width = getStringWidth(fontRange, atlas->bitmapSize, text);
+   float fontSize = fontRange.fontSize;
 
    float xOffset = 0.0f;
    if (hAlign == HAlign::Center) {
@@ -191,7 +242,7 @@ void TextRenderer::render(int fbWidth, int fbHeight, float x, float y, const std
    float yOffset = 0.0f;
    if (vAlign == VAlign::Center) {
       yOffset = fontSize / 4.0f; // Approximate (offset from baseline)
-   } else if (vAlign == VAlign::Bottom) {
+   } else if (vAlign == VAlign::Top) {
       yOffset = fontSize;
    }
 
@@ -200,12 +251,12 @@ void TextRenderer::render(int fbWidth, int fbHeight, float x, float y, const std
    float absX = fbWidth * x;
    float absY = fbHeight * y;
    for (char c : text) {
-      if (c < atlas.firstGlyph || c > atlas.firstGlyph + atlas.numGlyphs) {
+      if (c < fontRange.firstGlyph || c >= fontRange.firstGlyph + fontRange.numGlyphs) {
          continue;
       }
 
       stbtt_aligned_quad q;
-      stbtt_GetBakedQuad(atlas.cdata.data(), atlas.bitmapSize, atlas.bitmapSize, c - atlas.firstGlyph, &absX, &absY, &q, 1);
+      stbtt_GetPackedQuad(fontRange.charData.data(), atlas->bitmapSize, atlas->bitmapSize, c - fontRange.firstGlyph, &absX, &absY, &q, 0);
 
       renderQuad(*gameObject, *mesh, q, xOffset, yOffset);
    }
