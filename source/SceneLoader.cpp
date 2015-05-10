@@ -20,6 +20,7 @@
 #include "PlayerGraphicsComponent.h"
 #include "PlayerLogicComponent.h"
 #include "PlayerPhysicsComponent.h"
+#include "Renderer.h"
 #include "Scene.h"
 #include "SceneLoader.h"
 #include "Shader.h"
@@ -192,14 +193,19 @@ SPtr<GameObject> createSpotLight(const glm::vec3 &position, const glm::vec3 &col
    return light;
 }
 
-void addMenuItem(Scene &scene, const std::string &textureName, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic)> clickFunction) {
+void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic)> clickFunction) {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
    SPtr<ShaderProgram> tintedTextureShaderProgram(assetManager.loadShaderProgram("shaders/tinted_texture"));
    SPtr<Mesh> planeMesh(assetManager.getMeshForShape(MeshShape::XYPlane));
-   SPtr<Texture> texture = assetManager.loadTexture(textureName);
 
-   const glm::vec3 menuItemScale(1.0f, 0.25f, 1.0f);
+   Resolution res(0.0f, 0.0f);
+   SPtr<Texture> texture = Context::getInstance().getRenderer().renderTextToTexture(text, &res);
+   float aspectRatio = res.width / res.height;
+
+   float yScale = 0.25f;
+   float xScale = yScale * aspectRatio;
+   const glm::vec3 menuItemScale(xScale, yScale, 1.0f);
    const glm::vec3 highlightColor(0.46f, 0.71f, 0.89f);
 
    SPtr<Model> model(std::make_shared<Model>(tintedTextureShaderProgram, planeMesh));
@@ -521,32 +527,32 @@ SPtr<Scene> loadMenuScene(const Context &context) {
       menuCameraLogic->setTargetPosition(mainLocation.cameraPos);
       menuCameraLogic->setTargetOrientation(mainLocation.cameraOrientation);
 
-      addMenuItem(scene, "textures/menu/play.png", mainLocation.itemPos, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Play", mainLocation.itemPos, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
          menuLogic.setTargetPosition(playLocation.cameraPos);
          menuLogic.setTargetOrientation(playLocation.cameraOrientation);
       });
-      addMenuItem(scene, "textures/menu/settings.png", mainLocation.itemPos + offset, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Settings", mainLocation.itemPos + offset, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
          menuLogic.setTargetPosition(settingsLocation.cameraPos);
          menuLogic.setTargetOrientation(settingsLocation.cameraOrientation);
       });
-      addMenuItem(scene, "textures/menu/quit.png", mainLocation.itemPos + offset * 2.0f, mainLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Quit", mainLocation.itemPos + offset * 2.0f, mainLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic) {
          Context::getInstance().quitAfterScene();
          menuLogic.setTargetPosition(glm::vec3(90.0f, 25.0f + y, 80.0f));
          menuLogic.setTargetOrientation(glm::angleAxis(glm::radians(-40.0f), glm::vec3(-0.2f, 0.8f, 0.1f)) * glm::angleAxis(glm::radians(-50.0f), glm::vec3(1.0f, -0.8f, 0.0f)));
          scene.end();
       });
 
-      addMenuItem(scene, "textures/menu/start.png", playLocation.itemPos, playLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Start!", playLocation.itemPos, playLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic) {
          menuLogic.setTargetPosition(glm::vec3(40.0f, 57.0f + y, 32.0f));
          menuLogic.setTargetOrientation(glm::angleAxis(glm::radians(150.0f), glm::vec3(-0.2f, 0.8f, 0.1f)) * glm::angleAxis(glm::radians(60.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
          scene.end();
       });
-      addMenuItem(scene, "textures/menu/back.png", playLocation.itemPos + offset, playLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Back", playLocation.itemPos + offset, playLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
          menuLogic.setTargetPosition(mainLocation.cameraPos);
          menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
       });
 
-      addMenuItem(scene, "textures/menu/back.png", settingsLocation.itemPos, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Back", settingsLocation.itemPos, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
          menuLogic.setTargetPosition(mainLocation.cameraPos);
          menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
       });
