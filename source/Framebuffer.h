@@ -3,6 +3,7 @@
 
 #include "GLIncludes.h"
 #include "Types.h"
+#include "Viewport.h"
 
 class Texture;
 
@@ -34,6 +35,11 @@ protected:
     */
    bool initialized;
 
+   /**
+    * The last viewport used before this framebuffer was used
+    */
+   Viewport lastViewport;
+
 public:
    Framebuffer();
 
@@ -52,12 +58,12 @@ public:
    /**
     * Causes all drawing to occur in the framebuffer
     */
-   void use() const;
+   void use();
 
    /**
     * Causes all drawing to occur in the back buffer
     */
-   void disable() const;
+   void disable();
 
    /**
     * Returns the texture of the color attachment

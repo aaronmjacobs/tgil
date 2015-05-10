@@ -164,6 +164,7 @@ set(HEADERS
    ${SRC_DIR}/TintMaterial.h
    ${SRC_DIR}/Transform.h
    ${SRC_DIR}/Types.h
+   ${SRC_DIR}/Viewport.h
 )
 
 set(SHADERS

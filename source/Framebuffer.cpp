@@ -63,13 +63,20 @@ bool Framebuffer::init() {
    return init(viewport[2], viewport[3]);
 }
 
-void Framebuffer::use() const {
+void Framebuffer::use() {
    ASSERT(initialized, "Trying to use uninitialized framebuffer");
+
+   GLint viewport[4];
+   glGetIntegerv(GL_VIEWPORT, viewport);
+   lastViewport = Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+   glViewport(0, 0, width, height);
 }
 
-void Framebuffer::disable() const {
+void Framebuffer::disable() {
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+   glViewport(lastViewport.x, lastViewport.y, lastViewport.width, lastViewport.height);
 }
 
 SPtr<Texture> Framebuffer::getTexture() const {

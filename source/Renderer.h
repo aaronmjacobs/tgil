@@ -6,23 +6,13 @@
 #include "PostProcessRenderer.h"
 #include "SkyRenderer.h"
 #include "TextRenderer.h"
+#include "Viewport.h"
 
 #include <glm/glm.hpp>
 
 class GameObject;
 class ShadowMap;
 class ShadowMapManager;
-
-struct Viewport {
-   int x;
-   int y;
-   int width;
-   int height;
-
-   Viewport(int x, int y, int width, int height)
-   : x(x), y(y), width(width), height(height) {
-   }
-};
 
 class Renderer {
 protected:
