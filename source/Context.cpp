@@ -39,7 +39,6 @@ Context::~Context() {
 void Context::init() {
    audioManager->init();
    textureUnitManager->init();
-   scene = SceneLoader::loadNextScene(*this);
 }
 
 void Context::quit() const {
@@ -71,7 +70,7 @@ void Context::handleSpecialInputs(const InputValues &inputValues) const {
 }
 
 void Context::checkForSceneChange() {
-   if (scene->getTimeSinceEnd() > TIME_TO_NEXT_LEVEL) {
+   if (!scene || scene->getTimeSinceEnd() > TIME_TO_NEXT_LEVEL) {
       if (quitAfterCurrentScene) {
          quit();
       } else {
@@ -81,6 +80,8 @@ void Context::checkForSceneChange() {
 }
 
 void Context::tick(const float dt) {
+   checkForSceneChange();
+
    inputHandler->pollInput();
 
    handleSpecialInputs(inputHandler->getKeyMouseInputValues());
@@ -88,7 +89,6 @@ void Context::tick(const float dt) {
    scene->tick(dt);
 
    runningTime += dt;
-   checkForSceneChange();
 }
 
 void Context::onWindowFocusGained() const {
