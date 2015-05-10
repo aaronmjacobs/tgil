@@ -43,12 +43,12 @@ folly::Optional<std::string> readFromDataFile(const std::string &fileName);
 /**
  * Reads the entire contents of the binary file with the given name
  */
-UPtr<const unsigned char[]> readFromBinaryFile(const std::string &fileName);
+UPtr<unsigned char[]> readFromBinaryFile(const std::string &fileName);
 
 /**
  * Reads the entire contents of the binary file with the given name, relative to the data directory
  */
-UPtr<const unsigned char[]> readFromBinaryDataFile(const std::string &fileName);
+UPtr<unsigned char[]> readFromBinaryDataFile(const std::string &fileName);
 
 /**
  * Writes the contents of the given text to the file with the given name

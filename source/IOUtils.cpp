@@ -36,7 +36,7 @@ bool writeToFile(const std::string &fileName, const std::string &data) {
    return true;
 }
 
-UPtr<const unsigned char[]> readFromBinaryFile(const std::string &fileName) {
+UPtr<unsigned char[]> readFromBinaryFile(const std::string &fileName) {
    ASSERT(!fileName.empty(), "Trying to read from empty file name");
    std::ifstream in(fileName);
    if (!in) {
@@ -53,7 +53,7 @@ UPtr<const unsigned char[]> readFromBinaryFile(const std::string &fileName) {
    return std::move(data);
 }
 
-UPtr<const unsigned char[]> readFromBinaryDataFile(const std::string &fileName) {
+UPtr<unsigned char[]> readFromBinaryDataFile(const std::string &fileName) {
    ASSERT(!fileName.empty(), "Trying to read from empty file name");
    return std::move(readFromBinaryFile(dataPath(fileName)));
 }
