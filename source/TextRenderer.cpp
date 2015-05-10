@@ -2,6 +2,7 @@
 #include "Context.h"
 #include "DynamicMesh.h"
 #include "FancyAssert.h"
+#include "Framebuffer.h"
 #include "GameObject.h"
 #include "GeometricGraphicsComponent.h"
 #include "IOUtils.h"
@@ -66,19 +67,11 @@ const int NUM_PRINTABLE_GLYPHS = 96;
 const int FIRST_NUMERIC_GLYPH = 48;
 const int NUM_NUMERIC_GLYPHS = 10;
 
-float getStringWidth(FontRange &range, int bitmapSize, const std::string &text) {
-   float x = 0.0f, y = 0.0f;
-
-   for (char c : text) {
-      if (c < range.firstGlyph || c >= range.firstGlyph + range.numGlyphs) {
-         continue;
-      }
-
-      stbtt_aligned_quad q;
-      stbtt_GetPackedQuad(range.charData.data(), bitmapSize, bitmapSize, c - range.firstGlyph, &x, &y, &q, 0);
-   }
-
-   return x;
+void prepareShaderProgram(GameObject &gameObject, float width, float height) {
+   SPtr<ShaderProgram> shaderProgram = gameObject.getGraphicsComponent().getModel()->getShaderProgram();
+   shaderProgram->setUniformValue("uProjMatrix", glm::ortho<float>(0.0f, width, height, 0.0f));
+   shaderProgram->setUniformValue("uViewMatrix", glm::mat4(1.0f));
+   shaderProgram->setUniformValue("uModelMatrix", glm::mat4(1.0f));
 }
 
 void renderQuad(GameObject &gameObject, DynamicMesh &mesh, const stbtt_aligned_quad &q, float xOffset, float yOffset) {
@@ -101,6 +94,21 @@ void renderQuad(GameObject &gameObject, DynamicMesh &mesh, const stbtt_aligned_q
 
    RenderData renderData;
    gameObject.getGraphicsComponent().draw(renderData);
+}
+
+typedef std::function<void(const stbtt_aligned_quad &q)> QuadCallback;
+
+void processText(const std::string &text, FontRange &fontRange, int bitmapSize, float *x, float *y, QuadCallback callback) {
+   for (char c : text) {
+      if (c < fontRange.firstGlyph || c >= fontRange.firstGlyph + fontRange.numGlyphs) {
+         continue;
+      }
+
+      stbtt_aligned_quad q;
+      stbtt_GetPackedQuad(fontRange.charData.data(), bitmapSize, bitmapSize, c - fontRange.firstGlyph, x, y, &q, 0);
+
+      callback(q);
+   }
 }
 
 } // namespace
@@ -153,8 +161,8 @@ TextRenderer::TextRenderer()
 TextRenderer::~TextRenderer() {
 }
 
-void TextRenderer::loadFontAtlases(float pixelDensity) {
-   UPtr<const unsigned char[]> fontData(IOUtils::readFromBinaryDataFile(FONT_FILE));
+void TextRenderer::loadFontAtlas(float pixelDensity) {
+   UPtr<unsigned char[]> fontData(IOUtils::readFromBinaryDataFile(FONT_FILE));
    if (!fontData) {
       LOG_WARNING("Unable to load font data from " << FONT_FILE);
       return;
@@ -180,7 +188,8 @@ void TextRenderer::loadFontAtlases(float pixelDensity) {
    largeNumberRange.numGlyphs = NUM_NUMERIC_GLYPHS;
    fontRangeMap[FontType::LargeNumber] = largeNumberRange;
 
-   atlas = UPtr<FontAtlas>(new FontAtlas(BITMAP_SIZE * pixelDensity, fontRangeMap, const_cast<unsigned char*>(fontData.get())));
+   atlas = UPtr<FontAtlas>(new FontAtlas(BITMAP_SIZE * pixelDensity, fontRangeMap, fontData.get()));
+   textureMaterial->setTexture(atlas->texture);
 }
 
 void TextRenderer::init(float pixelDensity) {
@@ -197,7 +206,9 @@ void TextRenderer::init(float pixelDensity) {
    model->attachMaterial(textureMaterial);
    model->attachMaterial(tintMaterial);
 
-   loadFontAtlases(pixelDensity);
+   framebuffer = UPtr<Framebuffer>(new Framebuffer);
+
+   loadFontAtlas(pixelDensity);
 
    initialized = true;
 }
@@ -207,10 +218,10 @@ void TextRenderer::onPixelDensityChange(float pixelDensity) {
       return;
    }
 
-   loadFontAtlases(pixelDensity);
+   loadFontAtlas(pixelDensity);
 }
 
-void TextRenderer::render(int fbWidth, int fbHeight, float x, float y, const std::string &text, FontType fontType, HAlign hAlign, VAlign vAlign) {
+void TextRenderer::renderImmediate(int fbWidth, int fbHeight, float x, float y, const std::string &text, FontType fontType, HAlign hAlign, VAlign vAlign) {
    ASSERT(atlas, "Font atlas not loaded");
    if (!atlas) {
       return;
@@ -222,15 +233,8 @@ void TextRenderer::render(int fbWidth, int fbHeight, float x, float y, const std
    }
    FontRange &fontRange = atlas->fontRangeMap.at(fontType);
 
-   SPtr<ShaderProgram> shaderProgram = gameObject->getGraphicsComponent().getModel()->getShaderProgram();
-   shaderProgram->setUniformValue("uProjMatrix", glm::ortho<float>(0.0f, (float)fbWidth, (float)fbHeight, 0.0f));
-   shaderProgram->setUniformValue("uViewMatrix", glm::mat4(1.0f));
-   shaderProgram->setUniformValue("uModelMatrix", glm::mat4(1.0f));
-
-   textureMaterial->setTexture(atlas->texture);
-
-   float width = getStringWidth(fontRange, atlas->bitmapSize, text);
-   float fontSize = fontRange.fontSize;
+   float width = 0.0f, height = fontRange.fontSize;
+   processText(text, fontRange, atlas->bitmapSize, &width, &height, [](const stbtt_aligned_quad &q){});
 
    float xOffset = 0.0f;
    if (hAlign == HAlign::Center) {
@@ -241,25 +245,58 @@ void TextRenderer::render(int fbWidth, int fbHeight, float x, float y, const std
 
    float yOffset = 0.0f;
    if (vAlign == VAlign::Center) {
-      yOffset = fontSize / 4.0f; // Approximate (offset from baseline)
+      yOffset = height * 0.25f; // Approximate (offset from baseline)
    } else if (vAlign == VAlign::Top) {
-      yOffset = fontSize;
+      yOffset = height;
    }
+
+   prepareShaderProgram(*gameObject, fbWidth, fbHeight);
 
    glDisable(GL_DEPTH_TEST);
 
    float absX = fbWidth * x;
    float absY = fbHeight * y;
-   for (char c : text) {
-      if (c < fontRange.firstGlyph || c >= fontRange.firstGlyph + fontRange.numGlyphs) {
-         continue;
-      }
-
-      stbtt_aligned_quad q;
-      stbtt_GetPackedQuad(fontRange.charData.data(), atlas->bitmapSize, atlas->bitmapSize, c - fontRange.firstGlyph, &absX, &absY, &q, 0);
-
+   processText(text, fontRange, atlas->bitmapSize, &absX, &absY, [&](const stbtt_aligned_quad &q) {
       renderQuad(*gameObject, *mesh, q, xOffset, yOffset);
-   }
+   });
 
    glEnable(GL_DEPTH_TEST);
+}
+
+SPtr<Texture> TextRenderer::renderToTexture(const std::string &text, Resolution *resolution, FontType fontType) {
+   ASSERT(atlas, "Font atlas not loaded");
+   if (!atlas) {
+      return nullptr;
+   }
+
+   ASSERT(atlas->fontRangeMap.count(fontType) != 0, "Invalid font type");
+   if (atlas->fontRangeMap.count(fontType) == 0) {
+      return nullptr;
+   }
+   FontRange &fontRange = atlas->fontRangeMap.at(fontType);
+
+   float width = 0.0f, height = fontRange.fontSize;
+   processText(text, fontRange, atlas->bitmapSize, &width, &height, [](const stbtt_aligned_quad &q){});
+
+   prepareShaderProgram(*gameObject, width, height);
+   framebuffer->init(glm::ceil(width), glm::ceil(height));
+
+   framebuffer->use();
+   glClear(GL_COLOR_BUFFER_BIT);
+   glDisable(GL_DEPTH_TEST);
+
+   float x = 0.0f, y = 0.0f;
+   processText(text, fontRange, atlas->bitmapSize, &x, &y, [&](const stbtt_aligned_quad &q) {
+      renderQuad(*gameObject, *mesh, q, 0.0f, height * 0.75f);
+   });
+
+   glEnable(GL_DEPTH_TEST);
+   framebuffer->disable();
+
+   if (resolution) {
+      resolution->width = width;
+      resolution->height = height;
+   }
+
+   return framebuffer->getTexture();
 }

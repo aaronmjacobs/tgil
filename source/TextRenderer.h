@@ -5,7 +5,9 @@
 
 class DynamicMesh;
 class FontAtlas;
+class Framebuffer;
 class GameObject;
+class Texture;
 class TextureMaterial;
 
 enum class HAlign {
@@ -26,15 +28,25 @@ enum class FontType {
    LargeNumber
 };
 
+struct Resolution {
+   float width;
+   float height;
+
+   Resolution(float width, float height)
+      : width(width), height(height) {
+   }
+};
+
 class TextRenderer {
 protected:
    SPtr<DynamicMesh> mesh;
    SPtr<TextureMaterial> textureMaterial;
    SPtr<GameObject> gameObject;
    UPtr<FontAtlas> atlas;
+   UPtr<Framebuffer> framebuffer;
    bool initialized;
 
-   void loadFontAtlases(float pixelDensity);
+   void loadFontAtlas(float pixelDensity);
 
 public:
    TextRenderer();
@@ -45,7 +57,9 @@ public:
 
    void onPixelDensityChange(float pixelDensity);
 
-   void render(int fbWidth, int fbHeight, float x, float y, const std::string &text, FontType fontType = FontType::Medium, HAlign hAlign = HAlign::Center, VAlign vAlign = VAlign::Center);
+   void renderImmediate(int fbWidth, int fbHeight, float x, float y, const std::string &text, FontType fontType = FontType::Medium, HAlign hAlign = HAlign::Center, VAlign vAlign = VAlign::Center);
+
+   SPtr<Texture> renderToTexture(const std::string &text, Resolution *resolution, FontType fontType = FontType::Medium);
 };
 
 #endif

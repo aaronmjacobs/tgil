@@ -170,6 +170,8 @@ public:
    float getPixelDensity() const {
       return pixelDensity;
    }
+
+   SPtr<Texture> renderTextToTexture(const std::string &text, Resolution *resolution = nullptr);
 };
 
 #endif

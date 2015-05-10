@@ -104,7 +104,7 @@ Renderer::~Renderer() {
 }
 
 void Renderer::init(float fov, int width, int height, int windowWidth, int windowHeight) {
-   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
    // Depth Buffer Setup
    glClearDepth(1.0f);
@@ -414,4 +414,8 @@ void Renderer::renderDebugInfo(Scene &scene, const glm::mat4 &viewMatrix) {
 
    // Clear the data
    debugDrawer.clear();
+}
+
+SPtr<Texture> Renderer::renderTextToTexture(const std::string &text, Resolution *resolution) {
+   return textRenderer.renderToTexture(text, resolution);
 }
