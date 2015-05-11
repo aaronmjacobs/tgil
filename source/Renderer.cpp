@@ -199,6 +199,8 @@ void Renderer::render(Scene &scene) {
       renderFromCamera(scene, *cameras[i], viewport);
    }
 
+   glViewport(0, 0, width, height);
+
    renderFullscreenPost(scene);
 }
 
@@ -357,7 +359,7 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
    if (playerLogic) {
       hudRenderer.render(*playerLogic, width, height);
 
-      int playerNum = camera.getInputComponent().getPlayerNum();
+      int playerNum = playerLogic->getPlayerNum();
       if (scene.getGameState().hasWinner() && scene.getGameState().getWinner() == playerNum) {
          float runningTime = Context::getInstance().getRunningTime() * 5.0f;
          float timeSinceEnd = scene.getTimeSinceEnd();
@@ -376,10 +378,48 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
    }
 
    glEnable(GL_DEPTH_TEST);
+
+   if (playerLogic) {
+      renderScore(scene, *playerLogic, viewport);
+   }
+}
+
+void Renderer::renderScore(Scene &scene, const PlayerLogicComponent &playerLogic, const Viewport &viewport) {
+   const GameSession &session = Context::getInstance().getGameSession();
+   if (!session.currentLevelEnded) {
+      return;
+   }
+
+   int playerNum = playerLogic.getPlayerNum();
+   ASSERT(playerNum >= 0 && playerNum < session.players.size(), "Invalid player number: %d", playerNum);
+
+   float timeSinceEnd = scene.getTimeSinceEnd();
+   int winner = scene.getGameState().getWinner();
+
+   int score = session.players[playerNum].score;
+   FontType type = FontType::Medium;
+   std::string suffix;
+   if (playerNum == winner) {
+      if (timeSinceEnd < 1.25f) {
+         --score;
+
+         if (timeSinceEnd > 0.75f) {
+            suffix += "+";
+
+            if (timeSinceEnd > 1.0f) {
+               suffix += "+";
+            }
+         }
+      } else {
+         type = FontType::LargeNumber;
+      }
+   }
+   std::string text(std::to_string(score) + suffix);
+
+   textRenderer.renderImmediate(viewport.width, viewport.height, 0.5f, 0.5f, text, type);
 }
 
 void Renderer::renderFullscreenPost(Scene &scene) {
-   glViewport(0, 0, width, height);
    glDisable(GL_DEPTH_TEST);
 
    float opacity = 0.0f;

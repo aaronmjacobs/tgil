@@ -11,6 +11,7 @@
 #include <glm/glm.hpp>
 
 class GameObject;
+class PlayerLogicComponent;
 class ShadowMap;
 class ShadowMapManager;
 
@@ -102,6 +103,8 @@ protected:
     * Renders the scene from the given camera's perspective
     */
    void renderFromCamera(Scene &scene, const GameObject &camera, const Viewport &viewport);
+
+   void renderScore(Scene &scene, const PlayerLogicComponent &playerLogic, const Viewport &viewport);
 
    /**
     * Renders full-screen postprocessing effects
