@@ -3,6 +3,8 @@
 
 #include "Types.h"
 
+#include <vector>
+
 class AssetManager;
 class AudioManager;
 class InputHandler;
@@ -11,6 +13,31 @@ class Scene;
 class TextureUnitManager;
 struct GLFWwindow;
 struct InputValues;
+
+namespace {
+
+const int DEFAULT_SCORE_CAP = 5;
+
+} // namespace
+
+struct Player {
+   int deviceNumber;
+   int score;
+
+   Player()
+      : deviceNumber(-1), score(0) {
+   }
+};
+
+struct GameSession {
+   int scoreCap;
+   bool currentLevelEnded;
+   std::vector<Player> players;
+
+   GameSession()
+      : scoreCap(DEFAULT_SCORE_CAP), currentLevelEnded(false) {
+   }
+};
 
 class Context {
 private:
@@ -26,11 +53,16 @@ protected:
    const UPtr<Renderer> renderer;
    const UPtr<TextureUnitManager> textureUnitManager;
    SPtr<Scene> scene;
+   GameSession session;
    float runningTime;
    unsigned int activeShaderProgramID;
    bool quitAfterCurrentScene;
 
    void handleSpecialInputs(const InputValues &inputValues) const;
+
+   void setScene(SPtr<Scene> scene);
+
+   void updateSession();
 
    void checkForSceneChange();
 
@@ -57,8 +89,6 @@ public:
    Scene& getScene() const;
    TextureUnitManager& getTextureUnitManager() const;
 
-   void setScene(SPtr<Scene> scene);
-
    float getRunningTime() const {
       return runningTime;
    }
@@ -74,6 +104,10 @@ public:
    int getWindowWidth() const;
 
    int getWindowHeight() const;
+
+   const GameSession& getGameSession() const {
+      return session;
+   }
 };
 
 #endif

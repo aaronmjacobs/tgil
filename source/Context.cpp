@@ -39,6 +39,15 @@ Context::~Context() {
 void Context::init() {
    audioManager->init();
    textureUnitManager->init();
+
+   // TODO Decouple player number from device number
+   int numDevices = inputHandler->getNumDevices();
+   for (int i = 0; i < numDevices; ++i) {
+      Player player;
+      player.deviceNumber = i;
+
+      session.players.push_back(player);
+   }
 }
 
 void Context::quit() const {
@@ -69,18 +78,52 @@ void Context::handleSpecialInputs(const InputValues &inputValues) const {
    }
 }
 
+void Context::setScene(SPtr<Scene> scene) {
+   session.currentLevelEnded = false;
+   this->scene = scene;
+}
+
+void Context::updateSession() {
+   if (!session.currentLevelEnded && scene->getGameState().hasWinner()) {
+      int winner = scene->getGameState().getWinner();
+      ASSERT(winner >= 0 && winner < session.players.size(), "Invalid winner index");
+
+      session.currentLevelEnded = true;
+      session.players[winner].score++;
+   }
+}
+
 void Context::checkForSceneChange() {
-   if (!scene || scene->getTimeSinceEnd() > TIME_TO_NEXT_LEVEL) {
+   if (!scene) {
+      setScene(SceneLoader::loadMenuScene(*this));
+   } else if (scene->getTimeSinceEnd() > TIME_TO_NEXT_LEVEL) {
       if (quitAfterCurrentScene) {
          quit();
       } else {
-         scene = SceneLoader::loadNextScene(*this);
+         bool sessionOver = false;
+         for (const Player &player : session.players) {
+            if (player.score >= session.scoreCap) {
+               sessionOver = true;
+               break;
+            }
+         }
+
+         if (sessionOver) {
+            for (Player &player : session.players) {
+               player.score = 0;
+            }
+            setScene(SceneLoader::loadMenuScene(*this));
+         } else {
+            setScene(SceneLoader::loadNextLevel(*this));
+         }
       }
    }
 }
 
 void Context::tick(const float dt) {
    checkForSceneChange();
+
+   updateSession();
 
    inputHandler->pollInput();
 
@@ -117,10 +160,6 @@ Scene& Context::getScene() const {
 
 TextureUnitManager& Context::getTextureUnitManager() const {
    return *textureUnitManager;
-}
-
-void Context::setScene(SPtr<Scene> scene) {
-   this->scene = scene;
 }
 
 int Context::getWindowWidth() const {

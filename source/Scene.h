@@ -16,7 +16,7 @@ class ShaderProgram;
 namespace {
 
 const int NO_WINNER = -1;
-const float TIME_TO_NEXT_LEVEL = 4.0f;
+const float TIME_TO_NEXT_LEVEL = 5.0f;
 
 } // namespace
 
@@ -101,6 +101,8 @@ protected:
 
    void updateAudio();
 
+   void setWinner(int player);
+
 public:
    Scene();
 
@@ -111,8 +113,6 @@ public:
    const GameState& getGameState() const {
       return gameState;
    }
-
-   void setWinner(int player);
 
    SPtr<PhysicsManager> getPhysicsManager() const {
       return physicsManager;

@@ -108,7 +108,12 @@ void Scene::updateWinState() {
       return;
    }
 
-   int playerNumber = livingPlayers[0]->getInputComponent().getPlayerNum();
+   PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&livingPlayers[0]->getLogicComponent());
+   if (!playerLogic) {
+      return;
+   }
+
+   int playerNumber = playerLogic->getPlayerNum();
    setWinner(playerNumber);
 }
 
@@ -221,7 +226,8 @@ void Scene::removeObject(SPtr<GameObject> object) {
 
 SPtr<GameObject> Scene::getPlayerByNumber(int playerNum) const {
    for (SPtr<GameObject> player : players.objects) {
-      if (playerNum == player->getInputComponent().getPlayerNum()) {
+      PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&player->getLogicComponent());
+      if (playerLogic && playerNum == playerLogic->getPlayerNum()) {
          return player;
       }
    }
