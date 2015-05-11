@@ -87,8 +87,8 @@ float calcHorizontalMovementForce(glm::vec3 velocity, const glm::vec3 &horizonta
 
 } // namespace
 
-PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color)
-   : LogicComponent(gameObject), alive(true), wasJumpingLastFrame(false), canDoubleJump(false), jumpTimer(0.0f), distanceSinceStep(STEP_DISTANCE), deathTime(0.0f), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
+PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, int playerNum, const glm::vec3 &color)
+   : LogicComponent(gameObject), playerNum(playerNum), alive(true), wasJumpingLastFrame(false), canDoubleJump(false), jumpTimer(0.0f), distanceSinceStep(STEP_DISTANCE), deathTime(0.0f), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
 }
 
 PlayerLogicComponent::~PlayerLogicComponent() {

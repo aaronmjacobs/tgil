@@ -21,6 +21,7 @@ struct Ground {
 
 class PlayerLogicComponent : public LogicComponent {
 protected:
+   int playerNum;
    bool alive;
    bool wasJumpingLastFrame;
    bool canDoubleJump;
@@ -46,11 +47,15 @@ protected:
    void handleAttack(const float dt, const InputValues &inputValues, SPtr<Scene> scene);
 
 public:
-   PlayerLogicComponent(GameObject &gameObject, const glm::vec3 &color);
+   PlayerLogicComponent(GameObject &gameObject, int playerNum, const glm::vec3 &color);
 
    virtual ~PlayerLogicComponent();
 
    virtual void tick(const float dt);
+
+   int getPlayerNum() const {
+      return playerNum;
+   }
 
    const glm::vec3& getColor() const {
       return color;
