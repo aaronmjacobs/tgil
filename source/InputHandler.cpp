@@ -22,12 +22,12 @@ InputHandler::InputHandler(GLFWwindow* const window)
    }
 
    keyMouseInputDevice = std::make_shared<KeyMouseInputDevice>(window);
-   // If there are less controllers than the max number of players, add the keyboard as the first player
+   // If there are less controllers than the max number of players, add the keyboard as the first device
    /*if (inputDevices.size() < MAX_PLAYERS) {
       inputDevices.insert(inputDevices.begin(), keyMouseInputDevice);
 
       // Hide / lock the mouse
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
    }*/
 }
 
@@ -46,13 +46,13 @@ void InputHandler::pollInput() {
    keyMouseInputValues = keyMouseInputDevice->getInputValues();
 }
 
-const InputValues& InputHandler::getInputValues(int player) const {
-   ASSERT(player >= 0 && player < inputValues.size(), "Invalid player number");
-   if (player < 0 || player >= inputValues.size()) {
+const InputValues& InputHandler::getInputValues(int device) const {
+   ASSERT(device >= 0 && device < inputValues.size(), "Invalid device number");
+   if (device < 0 || device >= inputValues.size()) {
       return DEFAULT_INPUT_VALUES;
    }
 
-   return inputValues.at(player);
+   return inputValues.at(device);
 }
 
 const InputValues& InputHandler::getKeyMouseInputValues() const {

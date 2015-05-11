@@ -2,25 +2,25 @@
 #include "FancyAssert.h"
 #include "InputComponent.h"
 
-InputComponent::InputComponent(GameObject &gameObject, const int playerNum)
-   : Component(gameObject), playerNum(playerNum), inputValues({ 0 }) {
+InputComponent::InputComponent(GameObject &gameObject, const int deviceNum)
+   : Component(gameObject), deviceNum(deviceNum), inputValues({ 0 }) {
 }
 
 InputComponent::~InputComponent() {
 }
 
 void InputComponent::update() {
-   if (playerNum >= 0) {
-      inputValues = Context::getInstance().getInputHandler().getInputValues(playerNum);
+   if (deviceNum >= 0) {
+      inputValues = Context::getInstance().getInputHandler().getInputValues(deviceNum);
    }
 }
 
-const int InputComponent::getPlayerNum() const {
-   ASSERT(playerNum >= 0, "Invalid player num");
-   return playerNum;
+const int InputComponent::getDeviceNum() const {
+   ASSERT(deviceNum >= 0, "Invalid device num");
+   return deviceNum;
 }
 
 const InputValues& InputComponent::getInputValues() const {
-   ASSERT(playerNum >= 0, "Invalid player num");
+   ASSERT(deviceNum >= 0, "Invalid device num");
    return inputValues;
 }

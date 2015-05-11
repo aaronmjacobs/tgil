@@ -24,7 +24,7 @@ public:
 
    void pollInput();
 
-   const InputValues& getInputValues(int player) const;
+   const InputValues& getInputValues(int device) const;
 
    const InputValues& getKeyMouseInputValues() const;
 

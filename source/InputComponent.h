@@ -6,17 +6,17 @@
 
 class InputComponent : public Component {
 protected:
-   const int playerNum;
+   const int deviceNum;
    InputValues inputValues;
 
 public:
-   InputComponent(GameObject &gameObject, const int playerNum);
+   InputComponent(GameObject &gameObject, const int deviceNum);
 
    virtual ~InputComponent();
 
    void update();
 
-   const int getPlayerNum() const;
+   const int getDeviceNum() const;
 
    const InputValues& getInputValues() const;
 };
