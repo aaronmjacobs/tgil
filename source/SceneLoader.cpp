@@ -43,6 +43,8 @@
 
 namespace {
 
+typedef std::function<SPtr<Scene>(const Context &context)> LoadFunction;
+
 SPtr<PhongMaterial> createPhongMaterial(glm::vec3 color, float specular, float shininess, float emission = 0.0f) {
    return std::make_shared<PhongMaterial>(color * 0.3f, color * 0.7f, glm::vec3(specular), color * emission, shininess);
 }
@@ -114,7 +116,7 @@ SPtr<GameObject> createDynamicObject(SPtr<Model> model, const glm::vec3 &positio
    return dynamicObject;
 }
 
-SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3 &color, SPtr<Mesh> mesh, const glm::vec3 &position, const int playerNum) {
+SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3 &color, SPtr<Mesh> mesh, const glm::vec3 &position, const int playerNum, const int deviceNum) {
    SPtr<GameObject> player(std::make_shared<GameObject>());
 
    // Transform
@@ -137,10 +139,10 @@ SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3
    player->setCameraComponent(std::make_shared<PlayerCameraComponent>(*player));
 
    // Input
-   player->setInputComponent(std::make_shared<InputComponent>(*player, playerNum));
+   player->setInputComponent(std::make_shared<InputComponent>(*player, deviceNum));
 
    // Logic
-   player->setLogicComponent(std::make_shared<PlayerLogicComponent>(*player, color));
+   player->setLogicComponent(std::make_shared<PlayerLogicComponent>(*player, playerNum, color));
 
    // Audio
    SPtr<AudioComponent> audioComponent(std::make_shared<AudioComponent>(*player));
@@ -226,69 +228,6 @@ void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, co
          wTintMaterial.lock()->setValues(1.0f, glm::vec3(1.0f));
       }
    }));
-}
-
-void buildTower(SPtr<Scene> scene, SPtr<Model> model) {
-   float height = 20.0f;
-   SPtr<GameObject> tower = createStaticObject(model, glm::vec3(0.0f, height / 2.0f, 0.0f), glm::vec3(3.0f, height, 3.0f), 1.0f, 0.3f);
-   scene->addObject(tower);
-
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 1.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 4.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 6.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 7.5f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 9.0f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 10.5f, 3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 12.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(3.0f, 13.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(0.0f, 15.0f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 16.5f, -3.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(-3.0f, 18.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-
-   scene->addObject(createStaticObject(model, glm::vec3(9.5f, -1.25f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(10.0f, -1.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(10.5f, -0.75f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(11.0f, -0.5f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(11.5f, -0.25f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-   scene->addObject(createStaticObject(model, glm::vec3(12.0f, 0.0f, 0.0f), glm::vec3(3.0f), 1.0f, 0.3f));
-
-   SPtr<GameObject> winTrigger = std::make_shared<GameObject>();
-   float triggerSize = 1.5f;
-   winTrigger->setPosition(tower->getPosition() + glm::vec3(0.0f, height / 2.0f + triggerSize, 0.0f));
-   winTrigger->setPhysicsComponent(std::make_shared<GhostPhysicsComponent>(*winTrigger, false, CollisionGroup::Characters, glm::vec3(triggerSize)));
-   winTrigger->setTickCallback([](GameObject &gameObject, const float dt) {
-      btCollisionObject *collisionObject = gameObject.getPhysicsComponent().getCollisionObject();
-      if (!collisionObject) {
-         return;
-      }
-      btGhostObject *ghostObject = dynamic_cast<btGhostObject*>(collisionObject);
-      if (!ghostObject) {
-         return;
-      }
-      for (int i = 0; i < ghostObject->getNumOverlappingObjects(); i++) {
-         SPtr<Scene> scene = gameObject.getScene().lock();
-         if (!scene) {
-            return;
-         }
-
-         if (!scene->getGameState().hasWinner()) {
-            GameObject *collidingGameObject = static_cast<GameObject*>(ghostObject->getOverlappingObject(i)->getUserPointer());
-
-            if (collidingGameObject) {
-               int playerNum = collidingGameObject->getInputComponent().getPlayerNum();
-               scene->setWinner(playerNum);
-            }
-         }
-
-         btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(ghostObject->getOverlappingObject(i));
-         if(rigidBody) {
-            rigidBody->applyCentralForce(btVector3(0.0f, 50.0f, 0.0f));
-         }
-      }
-   });
-   scene->addObject(winTrigger);
 }
 
 void buildDeathVolume(SPtr<Scene> scene, glm::vec3 position, glm::vec3 scale) {
@@ -379,9 +318,10 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
 
    // Players
    if (addPlayers) {
-      for (int i = 0; i < context.getInputHandler().getNumDevices(); ++i) {
+      const GameSession &session = context.getGameSession();
+      for (int i = 0; i < session.players.size(); ++i) {
          int color = i % (sizeof(colors) / sizeof(glm::vec3));
-         SPtr<GameObject> player(createPlayer(phongShaderProgram, colors[color], playerMesh, spawnLocations[color], i));
+         SPtr<GameObject> player(createPlayer(phongShaderProgram, colors[color], playerMesh, spawnLocations[color], i, session.players[i].deviceNumber));
 
          // Make the players look at the center of the map
          glm::vec3 cameraPos = player->getCameraComponent().getCameraPosition();
@@ -1039,12 +979,16 @@ SPtr<Scene> loadPlusScene(const Context &context) {
    });
 }
 
-SPtr<Scene> loadNextScene(const Context &context) {
-   static std::vector<std::function<SPtr<Scene> (const Context &context)>> loadFunctions;
+SPtr<Scene> loadWinScene(const Context &context) {
+   // TODO
+   return loadCenterIslandScene(context);
+}
+
+SPtr<Scene> loadNextLevel(const Context &context) {
+   static std::vector<LoadFunction> loadFunctions;
    static int index = 0;
 
    if (loadFunctions.empty()) {
-      loadFunctions.push_back(loadMenuScene);
       loadFunctions.push_back(loadTestScene);
       loadFunctions.push_back(loadCenterIslandScene);
       loadFunctions.push_back(loadFourBridgedIslandsScene);
@@ -1053,7 +997,7 @@ SPtr<Scene> loadNextScene(const Context &context) {
       loadFunctions.push_back(loadPlusScene);
    }
 
-   std::function<SPtr<Scene> (const Context &context)> function = loadFunctions[index];
+   const LoadFunction &function = loadFunctions[index];
    index = (index + 1) % loadFunctions.size();
 
    return function(context);

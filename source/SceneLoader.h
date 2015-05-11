@@ -3,24 +3,18 @@
 
 #include "Types.h"
 
+#include <vector>
+
 class Context;
 class Scene;
 
 namespace SceneLoader {
 
-SPtr<Scene> loadTowerScene(const Context &context);
+SPtr<Scene> loadMenuScene(const Context &context);
 
-SPtr<Scene> loadCenterPlatformScene(const Context &context);
+SPtr<Scene> loadWinScene(const Context &context);
 
-SPtr<Scene> loadMiniTowersScene(const Context &context);
-
-SPtr<Scene> loadSparsePlatformScene(const Context &context);
-
-SPtr<Scene> loadSpikyScene(const Context &context);
-
-SPtr<Scene> loadFourTowersScene(const Context &context);
-
-SPtr<Scene> loadNextScene(const Context &context);
+SPtr<Scene> loadNextLevel(const Context &context);
 
 } // namespace SceneLoader
 
