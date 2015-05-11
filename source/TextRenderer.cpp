@@ -56,11 +56,11 @@ namespace {
 
 const std::string FONT_FILE = "fonts/Inconsolata-Regular.ttf";
 
-const float FONT_SIZE_SMALL = 36.0f;
-const float FONT_SIZE_MEDIUM = 72.0f;
-const float FONT_SIZE_LARGE = 160.0f;
+const float FONT_SIZE_SMALL = 50.0f;
+const float FONT_SIZE_MEDIUM = 100.0f;
+const float FONT_SIZE_LARGE = 200.0f;
 
-const int BITMAP_SIZE = 512;
+const int BITMAP_SIZE = 600;
 
 const int FIRST_PRINTABLE_GLYPH = 32;
 const int NUM_PRINTABLE_GLYPHS = 96;
@@ -71,7 +71,6 @@ void prepareShaderProgram(GameObject &gameObject, float width, float height) {
    SPtr<ShaderProgram> shaderProgram = gameObject.getGraphicsComponent().getModel()->getShaderProgram();
    shaderProgram->setUniformValue("uProjMatrix", glm::ortho<float>(0.0f, width, height, 0.0f));
    shaderProgram->setUniformValue("uViewMatrix", glm::mat4(1.0f));
-   shaderProgram->setUniformValue("uModelMatrix", glm::mat4(1.0f));
 }
 
 void renderQuad(GameObject &gameObject, DynamicMesh &mesh, const stbtt_aligned_quad &q, float xOffset, float yOffset) {
