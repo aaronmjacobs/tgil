@@ -415,7 +415,7 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
    // View frustum
    frustumChecker.updateFrustum(projectionMatrix * viewMatrix);
 
-   // Objects
+   // Opaque objects
    const std::vector<SPtr<GameObject>> &gameObjects = scene.getObjects();
    for (SPtr<GameObject> gameObject : gameObjects) {
       // Don't render the object that the camera is attached to
@@ -423,7 +423,7 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
          continue;
       }
 
-      if (frustumChecker.inFrustum(*gameObject)) {
+      if (frustumChecker.inFrustum(*gameObject) && !gameObject->getGraphicsComponent().hasTransparency()) {
          gameObject->getGraphicsComponent().draw(renderData);
       }
    }
@@ -431,6 +431,18 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
    // Sky
    if (sun) {
       skyRenderer.render(viewMatrix, projectionMatrix, viewport, glm::vec2((float)width, (float)height), sun);
+   }
+
+   // Transparent objects
+   for (SPtr<GameObject> gameObject : gameObjects) {
+      // Don't render the object that the camera is attached to
+      if (&camera == gameObject.get()) {
+         continue;
+      }
+
+      if (frustumChecker.inFrustum(*gameObject) && gameObject->getGraphicsComponent().hasTransparency()) {
+         gameObject->getGraphicsComponent().draw(renderData);
+      }
    }
 
    if (renderDebug) {

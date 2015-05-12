@@ -10,10 +10,11 @@ class RenderData;
 class GraphicsComponent : public Component {
 protected:
    SPtr<Model> model;
+   bool transparency;
 
 public:
    GraphicsComponent(GameObject &gameObject)
-      : Component(gameObject) {}
+      : Component(gameObject), transparency(false) {}
 
    virtual ~GraphicsComponent() {}
 
@@ -25,6 +26,14 @@ public:
 
    void setModel(SPtr<Model> model) {
       this->model = model;
+   }
+
+   void setHasTransparency(bool hasTransparency) {
+      this->transparency = hasTransparency;
+   }
+
+   bool hasTransparency() const {
+      return transparency;
    }
 };
 

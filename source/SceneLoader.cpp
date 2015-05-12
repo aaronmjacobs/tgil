@@ -217,6 +217,7 @@ void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, co
    WPtr<TintMaterial> wTintMaterial(tintMaterial);
 
    SPtr<GameObject> gameObject(createStaticObject(model, pos, menuItemScale, 0.0f, 0.0f, orientation, false));
+   gameObject->getGraphicsComponent().setHasTransparency(true);
    scene.addObject(gameObject);
    scene.addClickableObject(ClickableObject(gameObject, [highlightColor, wTintMaterial, clickFunction](MenuLogicComponent &menuLogic, MouseEvent event) {
       if (event == MouseEvent::Click) {
