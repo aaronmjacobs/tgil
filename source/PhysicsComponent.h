@@ -4,6 +4,8 @@
 #include "Component.h"
 #include "Observer.h"
 
+#include <glm/glm.hpp>
+
 #include <set>
 
 #define BIT(x) (1<<(x))
@@ -11,6 +13,15 @@
 class btCollisionObject;
 class btCollisionShape;
 class PhysicsManager;
+
+struct AABB {
+   glm::vec3 min;
+   glm::vec3 max;
+
+   AABB()
+      : min(0.0f), max(0.0f) {
+   }
+};
 
 namespace CollisionGroup {
 
@@ -63,6 +74,8 @@ public:
    virtual void removeFromManager(SPtr<PhysicsManager> manager);
 
    virtual void onNotify(const GameObject &gameObject, Event event);
+
+   AABB getAABB() const;
 };
 
 class NullPhysicsComponent : public PhysicsComponent {

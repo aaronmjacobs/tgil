@@ -74,6 +74,24 @@ void PhysicsComponent::onNotify(const GameObject &gameObject, Event event) {
    }
 }
 
+AABB PhysicsComponent::getAABB() const {
+   ASSERT(collisionObject && collisionShape, "Trying to get AABB without a collision object / shape");
+
+   AABB aabb;
+   if (!collisionObject || !collisionShape) {
+      return aabb;
+   }
+
+   const btTransform &transform = collisionObject->getWorldTransform();
+   btVector3 min, max;
+   collisionShape->getAabb(transform, min, max);
+
+   aabb.min = toGlm(min);
+   aabb.max = toGlm(max);
+
+   return aabb;
+}
+
 NullPhysicsComponent::NullPhysicsComponent(GameObject &gameObject)
    : PhysicsComponent(gameObject, CollisionGroup::Nothing, CollisionGroup::Nothing) {
 }
