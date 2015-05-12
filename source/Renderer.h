@@ -130,6 +130,11 @@ protected:
    void renderFullscreenPost(Scene &scene);
 
    /**
+    * Renders per-camera postprocessing effetcs
+    */
+   void renderCameraPost(Scene &scene, const GameObject &camera, const Viewport &viewport);
+
+   /**
     * Renders the debug physics information for the scene
     */
    void renderDebugInfo(Scene &scene, const glm::mat4 &viewMatrix);
