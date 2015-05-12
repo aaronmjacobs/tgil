@@ -10,10 +10,26 @@
 
 #include <glm/glm.hpp>
 
+#include <array>
+
 class GameObject;
 class PlayerLogicComponent;
 class ShadowMap;
 class ShadowMapManager;
+
+class FrustumChecker {
+protected:
+   std::array<glm::vec4, 6> planes;
+
+public:
+   FrustumChecker();
+
+   virtual ~FrustumChecker();
+
+   void updateFrustum(const glm::mat4 &viewProj);
+
+   bool inFrustum(GameObject &gameObject);
+};
 
 class Renderer {
 protected:
@@ -41,6 +57,8 @@ protected:
     * Renderer used to draw debug physics information
     */
    DebugRenderer debugRenderer;
+
+   FrustumChecker frustumChecker;
 
    /**
     * Width of the framebuffer (in pixels)

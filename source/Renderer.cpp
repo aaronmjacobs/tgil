@@ -11,6 +11,7 @@
 #include "LightComponent.h"
 #include "LogHelper.h"
 #include "Model.h"
+#include "PhysicsComponent.h"
 #include "PhysicsManager.h"
 #include "PlayerLogicComponent.h"
 #include "RenderData.h"
@@ -34,6 +35,19 @@ namespace {
 
 const float FADE_TIME = 1.0f;
 const float FADE_OUT_DELAY = TIME_TO_NEXT_LEVEL / 2.0f;
+
+bool outside(const std::array<glm::vec3, 8> &aabbPoints, const glm::vec4 &plane) {
+   for (const glm::vec3 &point : aabbPoints) {
+      if (plane.x * point.x +
+          plane.y * point.y +
+          plane.z * point.z +
+          plane.w >= 0.0f) {
+         return false;
+      }
+   }
+
+   return true;
+}
 
 std::string getErrorName(GLenum error) {
    switch (error) {
@@ -95,6 +109,63 @@ Viewport getViewport(int camera, int numCameras, int framebufferWidth, int frame
 }
 
 } // namespace
+
+FrustumChecker::FrustumChecker() {
+}
+
+FrustumChecker::~FrustumChecker() {
+}
+
+void FrustumChecker::updateFrustum(const glm::mat4 &viewProj) {
+   int sign = 1;
+   int t;
+
+   for (int i = 0; i < planes.size(); i++) {
+      t = i / 2;
+
+      glm::vec4 &plane = planes[i];
+      plane.x = viewProj[0][3] + sign * viewProj[0][t];
+      plane.y = viewProj[1][3] + sign * viewProj[1][t];
+      plane.z = viewProj[2][3] + sign * viewProj[2][t];
+      plane.w = viewProj[3][3] + sign * viewProj[3][t];
+
+      plane /= glm::length(glm::vec3(plane.x, plane.y, plane.z));
+
+      if ((i % 2) == 0) {
+         sign *= -1;
+      }
+   }
+}
+
+bool FrustumChecker::inFrustum(GameObject &gameObject) {
+   if (!gameObject.getPhysicsComponent().getCollisionObject()) {
+      // Can't check bounding box, assume we need to draw it
+      return true;
+   }
+
+   AABB aabb = gameObject.getPhysicsComponent().getAABB();
+   const glm::vec3 &min = aabb.min;
+   const glm::vec3 &max = aabb.max;
+
+   std::array<glm::vec3, 8> aabbPoints({{
+      glm::vec3(min.x, min.y, min.z),
+      glm::vec3(min.x, min.y, max.z),
+      glm::vec3(min.x, max.y, min.z),
+      glm::vec3(min.x, max.y, max.z),
+      glm::vec3(max.x, min.y, min.z),
+      glm::vec3(max.x, min.y, max.z),
+      glm::vec3(max.x, max.y, min.z),
+      glm::vec3(max.x, max.y, max.z)
+   }});
+
+   for (const glm::vec4 &plane : planes) {
+      if (outside(aabbPoints, plane)) {
+         return false;
+      }
+   }
+
+   return true;
+}
 
 Renderer::Renderer()
    : clearFramesNeeded(0), renderDebug(false) {
@@ -288,12 +359,17 @@ void Renderer::renderShadowMapFace(Scene &scene, SPtr<GameObject> light, SPtr<Sh
    LightComponent &lightComponent = light->getLightComponent();
 
    // Projection matrix
-   shadowProgram->setUniformValue("uProjMatrix", lightComponent.getProjectionMatrix());
+   glm::mat4 proj(lightComponent.getProjectionMatrix());
+   shadowProgram->setUniformValue("uProjMatrix", proj);
 
    // View matrix
-   shadowProgram->setUniformValue("uViewMatrix", lightComponent.getViewMatrix(face));
+   glm::mat4 view(lightComponent.getViewMatrix(face));
+   shadowProgram->setUniformValue("uViewMatrix", view);
 
    shadowProgram->setUniformValue("uLightDir", glm::normalize(lightComponent.getDirection()));
+
+   // View frustum
+   frustumChecker.updateFrustum(proj * view);
 
    RenderData renderData(RenderState::Shadow);
    renderData.setOverrideProgram(shadowProgram);
@@ -305,7 +381,9 @@ void Renderer::renderShadowMapFace(Scene &scene, SPtr<GameObject> light, SPtr<Sh
          continue;
       }
 
-      gameObject->getGraphicsComponent().draw(renderData);
+      if (frustumChecker.inFrustum(*gameObject)) {
+         gameObject->getGraphicsComponent().draw(renderData);
+      }
    }
 }
 
@@ -338,6 +416,9 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
       glClear(GL_COLOR_BUFFER_BIT);
    }
 
+   // View frustum
+   frustumChecker.updateFrustum(projectionMatrix * viewMatrix);
+
    // Objects
    const std::vector<SPtr<GameObject>> &gameObjects = scene.getObjects();
    for (SPtr<GameObject> gameObject : gameObjects) {
@@ -346,7 +427,9 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
          continue;
       }
 
-      gameObject->getGraphicsComponent().draw(renderData);
+      if (frustumChecker.inFrustum(*gameObject)) {
+         gameObject->getGraphicsComponent().draw(renderData);
+      }
    }
 
    if (renderDebug) {
