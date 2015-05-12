@@ -406,13 +406,9 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
       shaderProgram->setUniformValue("uCameraPos", cameraPosition, true);
    }
 
-   // Sky
+   // Clear if needed
    SPtr<GameObject> sun = scene.getSun();
-   if (sun) {
-      glDisable(GL_DEPTH_TEST);
-      skyRenderer.render(viewMatrix, projectionMatrix, viewport, glm::vec2((float)width, (float)height), sun);
-      glEnable(GL_DEPTH_TEST);
-   } else {
+   if (!sun) {
       glClear(GL_COLOR_BUFFER_BIT);
    }
 
@@ -430,6 +426,11 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
       if (frustumChecker.inFrustum(*gameObject)) {
          gameObject->getGraphicsComponent().draw(renderData);
       }
+   }
+
+   // Sky
+   if (sun) {
+      skyRenderer.render(viewMatrix, projectionMatrix, viewport, glm::vec2((float)width, (float)height), sun);
    }
 
    if (renderDebug) {
