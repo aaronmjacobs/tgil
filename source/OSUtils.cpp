@@ -1,20 +1,30 @@
+#include "Constants.h"
 #include "OSUtils.h"
 
 #ifdef __APPLE__
+#include <CoreServices/CoreServices.h>
 #include <mach-o/dyld.h>
 #include <stdlib.h>
 #include <sys/param.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #endif // __APPLE__
 
 #ifdef __linux__
 #include <cstring>
 #include <limits.h>
+#include <pwd.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #endif // __linux__
 
 #ifdef _WIN32
 #include <cstring>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <Windows.h>
 #endif // _WIN32
 
@@ -72,6 +82,52 @@ folly::Optional<std::string> getExecutablePath() {
 #endif // _WIN32
 }
 
+#ifdef __APPLE__
+folly::Optional<std::string> getAppDataPath() {
+   FSRef ref;
+   FSFindFolder(kUserDomain, kApplicationSupportFolderType, kCreateFolder, &ref);
+
+   char path[PATH_MAX];
+   FSRefMakePath(&ref, (UInt8*)&path, PATH_MAX);
+
+   std::string appDataPath(path);
+   appDataPath += "/" PROJECT_NAME;
+
+   return appDataPath;
+}
+#endif // __APPLE__
+
+#ifdef __linux__
+folly::Optional<std::string> getAppDataPath() {
+   // First, check the HOME environment variable
+   char *homePath = secure_getenv("HOME");
+
+   // If it isn't set, grab the directory from the password entry file
+   if (!homePath) {
+      passwd *pw = getpwuid(getuid())->pw_dir);
+      homePath = pw->pw_dir;
+   }
+
+   if (!homePath) {
+      return folly::none;
+   }
+
+   std::string appDataPath(homePath);
+   appDataPath += "/.config/" PROJECT_NAME;
+
+   return string;
+}
+#endif // __linux__
+
+#ifdef _WIN32
+folly::Optional<std::string> getAppDataPath() {
+   PWSTR path;
+   if (SHGetKnownFolderPath(&FOLDERID_LocalAppData, 0, nullptr, &path) != S_OK) {
+      return folly::none;
+   }
+}
+#endif // _WIN32
+
 folly::Optional<std::string> getDirectoryFromPath(const std::string &path) {
    size_t pos = path.find_last_of("/\\");
    if (pos == std::string::npos) {
@@ -111,6 +167,36 @@ bool fixWorkingDirectory() {
    }
 
    return true;
+}
+
+bool directoryExists(const std::string &dir) {
+   struct stat info;
+
+   if(stat(dir.c_str(), &info) != 0) {
+      return false;
+   }
+
+   return (info.st_mode & S_IFDIR) != 0;
+}
+
+#ifdef __APPLE__
+bool createDirectory(const std::string &dir) {
+   return mkdir(dir.c_str(), 0755) == 0;
+}
+#endif // __APPLE__
+
+bool createAppDataDirectory() {
+   folly::Optional<std::string> appDataPath(getAppDataPath());
+
+   if (!appDataPath) {
+      return false;
+   }
+
+   if (directoryExists(*appDataPath)) {
+      return true;
+   }
+
+   return createDirectory(*appDataPath);
 }
 
 } // namespace OSUtils
