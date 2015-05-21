@@ -21,9 +21,11 @@ const float spotBrightness = 1000.0;
 const float scatterStrength = 0.028;
 const float rayleighStrength = 0.139;
 const float mieStrength = 0.264;
-const float rayleighCollectionPower = 0.81;
-const float mieCollectionPower = 0.39;
+const float rayleighCollectionPower = 0.51;
+const float mieCollectionPower = 0.49;
 const vec3 Kr = vec3(0.18867780436772762, 0.4978442963618773, 0.6616065586417131);
+
+uniform samplerCube uTexture;
 
 // Removes the translation component of a matrix
 mat4 removeTranslation(mat4 matrix) {
@@ -97,6 +99,25 @@ vec3 absorb(float dist, vec3 color, float factor) {
    return color - color * pow(Kr, vec3(factor / dist));
 }
 
+vec3 cubemapLookup(in vec3 eyeDir) {
+   vec3 lookup = eyeDir;
+
+   // Flip the vector components corresponding to the non-major axes for lookups in the xy and yz planes
+   float xAmount = abs(lookup.x);
+   float yAmount = abs(lookup.y);
+   float zAmount = abs(lookup.z);
+
+   if (xAmount > yAmount && xAmount > zAmount) {
+      lookup.y = -lookup.y;
+      lookup.z = -lookup.z;
+   } else if (zAmount > xAmount && zAmount > yAmount) {
+      lookup.x = -lookup.x;
+      lookup.y = -lookup.y;
+   }
+
+   return lookup;
+}
+
 void main() {
    vec3 eyeDir = getWorldNormal();
    float alpha = dot(eyeDir, uLightDir);
@@ -137,9 +158,18 @@ void main() {
       pow(eyeDepth, mieCollectionPower)
    ) / float(stepCount);
 
-   color = vec4(
+   vec3 atmosphereColor = vec3(
       spot * mieCollected +
       mieFactor * mieCollected +
-      rayleighFactor * rayleighCollected
-      , 1.0);
+      rayleighFactor * rayleighCollected);
+
+   // Spaaaaaaace
+   const float SUN_OFFSET = 0.2;
+   float sunHeight = uLightDir.y;
+   float spaceSunFade = clamp((SUN_OFFSET - sunHeight) * 2.0, 0.0, 1.0);
+   float atmosphereIntensity = length(atmosphereColor);
+   float spaceAtmosphereFade = clamp(1.0 - atmosphereIntensity, 0.0, 1.0);
+   vec3 spaceColor = texture(uTexture, cubemapLookup(eyeDir)).rgb * spaceSunFade * spaceAtmosphereFade;
+
+   color = vec4(atmosphereColor + spaceColor, 1.0);
 }

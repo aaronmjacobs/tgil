@@ -7,6 +7,7 @@
 #include "RenderData.h"
 #include "ShaderProgram.h"
 #include "SkyRenderer.h"
+#include "TextureMaterial.h"
 
 SkyRenderer::SkyRenderer() {
 }
@@ -20,6 +21,10 @@ void SkyRenderer::loadPlane() {
 
    SPtr<Mesh> planeMesh = assetManager.getMeshForShape(MeshShape::XYPlane);
    xyPlane = UPtr<Model>(new Model(shaderProgram, planeMesh));
+
+   SPtr<Texture> spaceTexture = assetManager.loadCubemap("textures/space");
+   SPtr<TextureMaterial> textureMaterial(std::make_shared<TextureMaterial>(spaceTexture, "uTexture"));
+   xyPlane->attachMaterial(textureMaterial);
 }
 
 void SkyRenderer::init() {
