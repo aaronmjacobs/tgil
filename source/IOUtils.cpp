@@ -1,9 +1,19 @@
 #include "FancyAssert.h"
 #include "IOUtils.h"
+#include "OSUtils.h"
 
 #include <fstream>
 
 namespace IOUtils {
+
+folly::Optional<std::string> appDataPath(const std::string &fileName) {
+   folly::Optional<std::string> appDataFolder = OSUtils::getAppDataPath();
+   if (!appDataFolder) {
+      return folly::none;
+   }
+
+   return *appDataFolder + "/" + fileName;
+}
 
 bool canRead(const std::string &fileName) {
    ASSERT(!fileName.empty(), "Trying to check empty file name");

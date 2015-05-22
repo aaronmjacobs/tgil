@@ -21,6 +21,11 @@ inline std::string dataPath(const std::string &fileName) {
 }
 
 /**
+ * Gets the absolute path of a resource stored in the app data folder, given a relative path
+ */
+folly::Optional<std::string> appDataPath(const std::string &fileName);
+
+/**
  * Determines if the file with the given name can be read
  */
 bool canRead(const std::string &fileName);
