@@ -75,7 +75,7 @@ public:
 
    virtual void onNotify(const GameObject &gameObject, Event event);
 
-   AABB getAABB() const;
+   virtual AABB getAABB() const;
 };
 
 class NullPhysicsComponent : public PhysicsComponent {

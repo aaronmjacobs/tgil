@@ -61,6 +61,17 @@ PlayerPhysicsComponent::PlayerPhysicsComponent(GameObject &gameObject, float mas
 PlayerPhysicsComponent::~PlayerPhysicsComponent() {
 }
 
+AABB PlayerPhysicsComponent::getAABB() const {
+   AABB aabb = PhysicsComponent::getAABB();
+
+   // Account for the larger visual representation
+   glm::vec3 span = aabb.max - aabb.min;
+   aabb.min -= span;
+   aabb.max += span;
+
+   return aabb;
+}
+
 glm::vec3 PlayerPhysicsComponent::getVelocity() const {
    btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(getCollisionObject());
    if (!rigidBody) {
