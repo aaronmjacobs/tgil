@@ -128,14 +128,14 @@ ThrowAbility::ThrowAbility(GameObject &gameObject)
 ThrowAbility::~ThrowAbility() {
 }
 
-void ThrowAbility::use() {
+bool ThrowAbility::use() {
    if (isOnCooldown()) {
-      return;
+      return false;
    }
 
    SPtr<Scene> scene = gameObject.getScene().lock();
    if (!scene) {
-      return;
+      return false;
    }
 
    const glm::vec3 &position = gameObject.getCameraComponent().getCameraPosition();
@@ -171,9 +171,10 @@ void ThrowAbility::use() {
    // Logic
    SPtr<ProjectileLogicComponent> logic(std::make_shared<ProjectileLogicComponent>(*projectile));
    WPtr<GameObject> wProjectile(projectile);
-   logic->setCollisionCallback([wProjectile, color](GameObject &gameObject, const float lifeTime, const float dt) {
-      if (lifeTime < 0.25f) {
-         //return;
+   GameObject &creator = gameObject;
+   logic->setCollisionCallback([wProjectile, color, &creator](GameObject &gameObject, const btCollisionObject *objectCollidedWidth, const float dt) {
+      if (objectCollidedWidth == creator.getPhysicsComponent().getCollisionObject()) {
+         return;
       }
 
       SPtr<Scene> scene = gameObject.getScene().lock();
@@ -202,4 +203,6 @@ void ThrowAbility::use() {
    scene->addObject(projectile);
 
    resetTimeSinceLastUse();
+
+   return true;
 }

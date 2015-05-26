@@ -9,7 +9,7 @@ public:
 
    virtual ~ShoveAbility();
 
-   virtual void use();
+   virtual bool use();
 };
 
 #endif

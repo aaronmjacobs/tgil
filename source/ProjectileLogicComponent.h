@@ -5,7 +5,9 @@
 
 #include <functional>
 
-typedef std::function<void(GameObject&, const float, const float)> ProjectileCollisionCallback;
+class btCollisionObject;
+
+typedef std::function<void(GameObject&, const btCollisionObject*, const float)> ProjectileCollisionCallback;
 
 class ProjectileLogicComponent : public LogicComponent {
 protected:

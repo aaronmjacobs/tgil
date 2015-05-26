@@ -38,14 +38,14 @@ ShoveAbility::ShoveAbility(GameObject &gameObject)
 ShoveAbility::~ShoveAbility() {
 }
 
-void ShoveAbility::use() {
+bool ShoveAbility::use() {
    if (isOnCooldown()) {
-      return;
+      return false;
    }
 
    SPtr<Scene> scene = gameObject.getScene().lock();
    if (!scene) {
-      return;
+      return false;
    }
 
    SPtr<GameObject> shove(std::make_shared<GameObject>());
@@ -153,4 +153,6 @@ void ShoveAbility::use() {
    scene->addObject(shove);
 
    resetTimeSinceLastUse();
+
+   return true;
 }

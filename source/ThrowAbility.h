@@ -9,7 +9,7 @@ public:
 
    virtual ~ThrowAbility();
 
-   virtual void use();
+   virtual bool use();
 };
 
 #endif

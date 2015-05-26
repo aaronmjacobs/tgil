@@ -39,7 +39,7 @@ public:
       timeSinceLastUse += dt;
    }
 
-   virtual void use() = 0;
+   virtual bool use() = 0;
 };
 
 #endif
