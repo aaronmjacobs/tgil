@@ -14,10 +14,55 @@
 #include <string>
 
 PlayerGraphicsComponent::PlayerGraphicsComponent(GameObject &gameObject)
-   : GraphicsComponent(gameObject) {
+   : GraphicsComponent(gameObject), headOffset(0.0f), leftHandOffset(0.0f), rightHandOffset(0.0f), leftFootOffset(0.0f), rightFootOffset(0.0f) {
 }
 
 PlayerGraphicsComponent::~PlayerGraphicsComponent() {
+}
+
+void PlayerGraphicsComponent::drawAppendages(const RenderData &renderData, const glm::mat4 &rotMatrix, const glm::mat4 &scaleMatrix) {
+   if (headModel && !renderData.isCurrentCamera()) {
+      glm::quat vertRot = gameObject.getOrientation();
+      vertRot.x *= -1.0f;
+      vertRot.y = 0.0f;
+      vertRot.z = 0.0f;
+      vertRot = glm::normalize(vertRot);
+      const glm::mat4 &vertRotMatrix = glm::toMat4(vertRot);
+      drawAppendage(renderData, rotMatrix, vertRotMatrix, scaleMatrix, headModel, headOffset);
+   }
+
+   if (handModel) {
+      glm::quat vertRot = gameObject.getOrientation();
+      vertRot.x *= -1.0f;
+      vertRot.y = 0.0f;
+      vertRot.z = 0.0f;
+      vertRot = glm::normalize(vertRot);
+      vertRot /= 2.0f;
+      const glm::mat4 &vertRotMatrix = glm::toMat4(vertRot);
+      drawAppendage(renderData, rotMatrix, vertRotMatrix, scaleMatrix, handModel, leftHandOffset);
+      drawAppendage(renderData, rotMatrix, vertRotMatrix, scaleMatrix, handModel, rightHandOffset);
+   }
+
+   if (footModel) {
+      drawAppendage(renderData, rotMatrix, glm::mat4(1.0f), scaleMatrix, footModel, leftFootOffset);
+      drawAppendage(renderData, rotMatrix, glm::mat4(1.0f), scaleMatrix, footModel, rightFootOffset);
+   }
+}
+
+void PlayerGraphicsComponent::drawAppendage(const RenderData &renderData, const glm::mat4 &rotMatrix, const glm::mat4 &vertRotMatrix, const glm::mat4 &scaleMatrix, SPtr<Model> model, const glm::vec3 &offset) {
+   SPtr<ShaderProgram> overrideProgram = renderData.getOverrideProgram();
+
+   const glm::mat4 &offsetMatrix = glm::translate(offset);
+   const glm::mat4 &transMatrix = glm::translate(gameObject.getPosition());
+   const glm::mat4 &modelMatrix = transMatrix * offsetMatrix * rotMatrix * vertRotMatrix * scaleMatrix;
+   const glm::mat4 &normalMatrix = glm::transpose(glm::inverse(modelMatrix));
+
+   SPtr<ShaderProgram> shaderProgram = overrideProgram ? overrideProgram : model->getShaderProgram();
+
+   shaderProgram->setUniformValue("uModelMatrix", modelMatrix, true);
+   shaderProgram->setUniformValue("uNormalMatrix", normalMatrix, true);
+
+   model->draw(renderData);
 }
 
 void PlayerGraphicsComponent::draw(const RenderData &renderData) {
@@ -44,6 +89,11 @@ void PlayerGraphicsComponent::draw(const RenderData &renderData) {
 
    shaderProgram->setUniformValue("uModelMatrix", modelMatrix, true);
    shaderProgram->setUniformValue("uNormalMatrix", normalMatrix, true);
+   shaderProgram->setUniformValue("uDisableNormalOffsetting", true, true);
 
    model->draw(renderData);
+
+   drawAppendages(renderData, rotMatrix, scaleMatrix);
+
+   shaderProgram->setUniformValue("uDisableNormalOffsetting", false, true);
 }

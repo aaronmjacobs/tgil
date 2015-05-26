@@ -116,17 +116,37 @@ SPtr<GameObject> createDynamicObject(SPtr<Model> model, const glm::vec3 &positio
    return dynamicObject;
 }
 
-SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3 &color, SPtr<Mesh> mesh, const glm::vec3 &position, const int playerNum, const int deviceNum) {
+SPtr<GameObject> createPlayer(SPtr<ShaderProgram> shaderProgram, const glm::vec3 &color, const glm::vec3 &position, const int playerNum, const int deviceNum) {
+   AssetManager &assetManager = Context::getInstance().getAssetManager();
+
+   SPtr<Mesh> chestMesh = assetManager.loadMesh("meshes/chest.obj");
+   SPtr<Mesh> headMesh = assetManager.loadMesh("meshes/head.obj");
+   SPtr<Mesh> handMesh = assetManager.loadMesh("meshes/hand.obj");
+   SPtr<Mesh> footMesh = assetManager.loadMesh("meshes/foot.obj");
+
+   SPtr<Model> chestModel(std::make_shared<Model>(shaderProgram, chestMesh));
+   SPtr<Model> headModel(std::make_shared<Model>(shaderProgram, headMesh));
+   SPtr<Model> handModel(std::make_shared<Model>(shaderProgram, handMesh));
+   SPtr<Model> footModel(std::make_shared<Model>(shaderProgram, footMesh));
+
+   SPtr<Material> material(createPhongMaterial(color, 0.2f, 50.0f, 0.2f));
+   chestModel->attachMaterial(material);
+   headModel->attachMaterial(material);
+   handModel->attachMaterial(material);
+   footModel->attachMaterial(material);
+
    SPtr<GameObject> player(std::make_shared<GameObject>());
 
    // Transform
    player->setPosition(position);
 
    // Graphics
-   SPtr<Model> model(std::make_shared<Model>(shaderProgram, mesh));
-   model->attachMaterial(createPhongMaterial(color, 0.2f, 50.0f));
-   player->setGraphicsComponent(std::make_shared<PlayerGraphicsComponent>(*player));
-   player->getGraphicsComponent().setModel(model);
+   SPtr<PlayerGraphicsComponent> playerGraphics(std::make_shared<PlayerGraphicsComponent>(*player));
+   player->setGraphicsComponent(playerGraphics);
+   playerGraphics->setModel(chestModel);
+   playerGraphics->setHeadModel(headModel);
+   playerGraphics->setHandModel(handModel);
+   playerGraphics->setFootModel(footModel);
 
    // Physics
    player->setPhysicsComponent(std::make_shared<PlayerPhysicsComponent>(*player, 1.0f));
@@ -267,7 +287,7 @@ void buildDeathVolume(SPtr<Scene> scene, glm::vec3 position, glm::vec3 scale) {
 
 const glm::vec3 colors[] = {
    glm::normalize(glm::vec3(1.0f, 0.2f, 0.2f)) * 1.5f,
-   glm::normalize(glm::vec3(0.2f, 0.2f, 1.0f)) * 2.0f,
+   glm::normalize(glm::vec3(0.2f, 0.2f, 1.0f)) * 1.5f,
    glm::normalize(glm::vec3(0.9f, 0.9f, 0.2f)) * 1.5f,
    glm::normalize(glm::vec3(0.2f, 1.0f, 0.2f)) * 1.5f
 };
@@ -286,7 +306,6 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    SPtr<TextureMaterial> noiseMaterial(std::make_shared<TextureMaterial>(noiseTexture, "uNoiseTexture"));
    SPtr<TimeMaterial> timeMaterial(std::make_shared<TimeMaterial>());
 
-   SPtr<Mesh> playerMesh = assetManager.loadMesh("meshes/player.obj");
    SPtr<Mesh> lavaMesh = assetManager.loadMesh("meshes/lava.obj");
 
    SPtr<Model> lavaModel(std::make_shared<Model>(lavaShaderProgram, lavaMesh));
@@ -322,7 +341,7 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
       const GameSession &session = context.getGameSession();
       for (int i = 0; i < session.players.size(); ++i) {
          int color = i % (sizeof(colors) / sizeof(glm::vec3));
-         SPtr<GameObject> player(createPlayer(phongShaderProgram, colors[color], playerMesh, spawnLocations[color], i, session.players[i].deviceNumber));
+         SPtr<GameObject> player(createPlayer(phongShaderProgram, colors[color], spawnLocations[color], i, session.players[i].deviceNumber));
 
          // Make the players look at the center of the map
          glm::vec3 cameraPos = player->getCameraComponent().getCameraPosition();
