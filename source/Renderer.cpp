@@ -418,10 +418,7 @@ void Renderer::renderFromCamera(Scene &scene, const GameObject &camera, const Vi
    // Opaque objects
    const std::vector<SPtr<GameObject>> &gameObjects = scene.getObjects();
    for (SPtr<GameObject> gameObject : gameObjects) {
-      // Don't render the object that the camera is attached to
-      if (&camera == gameObject.get()) {
-         continue;
-      }
+      renderData.setRenderingCameraObject(&camera == gameObject.get());
 
       if (frustumChecker.inFrustum(*gameObject) && !gameObject->getGraphicsComponent().hasTransparency()) {
          gameObject->getGraphicsComponent().draw(renderData);

@@ -21,7 +21,7 @@ PlayerGraphicsComponent::~PlayerGraphicsComponent() {
 }
 
 void PlayerGraphicsComponent::drawAppendages(const RenderData &renderData, const glm::mat4 &rotMatrix, const glm::mat4 &scaleMatrix) {
-   if (headModel && !renderData.isCurrentCamera()) {
+   if (headModel && !renderData.isRenderingCameraObject()) {
       glm::quat vertRot = gameObject.getOrientation();
       vertRot.x *= -1.0f;
       vertRot.y = 0.0f;
