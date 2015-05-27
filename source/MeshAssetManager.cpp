@@ -14,6 +14,8 @@ const char* CUBE_MESH_SOURCE = "v -0.500000 -0.500000 0.500000\nv 0.500000 -0.50
 
 const char* XY_PLANE_MESH_SOURCE = "v -1.000000 -1.000000 -0.000000\nv 1.000000 -1.000000 -0.000000\nv -1.000000 1.000000 0.000000\nv 1.000000 1.000000 0.000000\nvt 1.000000 0.000000\nvt 1.000000 1.000000\nvt 0.000000 1.000000\nvt 0.000000 0.000000\nvn 0.000000 -0.000000 1.000000\ns off\nf 2/1/1 4/2/1 3/3/1\nf 1/4/1 2/1/1 3/3/1\n";
 
+const char* OPEN_TOP_CUBE_MESH_SOURCE = "v -0.500000 -0.500000 0.500000\nv 0.500000 -0.500000 0.500000\nv -0.500000 0.500000 0.500000\nv 0.500000 0.500000 0.500000\nv -0.500000 0.500000 -0.500000\nv 0.500000 0.500000 -0.500000\nv -0.500000 -0.500000 -0.500000\nv 0.500000 -0.500000 -0.500000\nvt 0.000000 0.000000\nvt 1.000000 0.000000\nvt 0.000000 1.000000\nvt 1.000000 1.000000\nvn 0.000000 -0.000000 1.000000\nvn 0.000000 0.000000 -1.000000\nvn 0.000000 -1.000000 -0.000000\nvn 1.000000 0.000000 0.000000\nvn -1.000000 0.000000 0.000000\ns 1\nf 1/1/1 2/2/1 3/3/1\nf 3/3/1 2/2/1 4/4/1\nf 5/4/2 6/3/2 7/2/2\nf 7/2/2 6/3/2 8/1/2\nf 8/2/3 1/3/3 7/1/3\nf 1/3/3 8/2/3 2/4/3\nf 2/1/4 8/2/4 4/3/4\nf 4/3/4 8/2/4 6/4/4\nf 7/1/5 1/2/5 5/3/5\nf 5/3/5 1/2/5 3/4/5\n";
+
 SPtr<Mesh> meshFromAiMesh(const aiMesh* aiMesh) {
    ASSERT(aiMesh, "Given null aiMesh");
 
@@ -109,6 +111,7 @@ SPtr<Mesh> MeshAssetManager::loadMesh(const std::string &fileName) {
 SPtr<Mesh> MeshAssetManager::getMeshForShape(MeshShape shape) {
    static SPtr<Mesh> cubeMesh = nullptr;
    static SPtr<Mesh> xyPlaneMesh = nullptr;
+   static SPtr<Mesh> openTopCubeMesh = nullptr;
 
    switch (shape) {
       case MeshShape::Cube:
@@ -121,6 +124,11 @@ SPtr<Mesh> MeshAssetManager::getMeshForShape(MeshShape shape) {
             xyPlaneMesh = getMeshFromMemory(*assimpImporter, XY_PLANE_MESH_SOURCE);
          }
          return xyPlaneMesh;
+      case MeshShape::OpenTopCube:
+         if (!openTopCubeMesh) {
+            openTopCubeMesh = getMeshFromMemory(*assimpImporter, OPEN_TOP_CUBE_MESH_SOURCE);
+         }
+         return openTopCubeMesh;
       default:
          ASSERT(false, "Invalid mesh shape");
          return nullptr;

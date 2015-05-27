@@ -15,7 +15,7 @@ class Importer;
 typedef std::unordered_map<std::string, SPtr<Mesh>> MeshMap;
 
 enum class MeshShape {
-   Cube, XYPlane
+   Cube, XYPlane, OpenTopCube
 };
 
 class MeshAssetManager {
