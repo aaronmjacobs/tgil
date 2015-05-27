@@ -7,6 +7,7 @@
 #include "PhysicsComponent.h"
 #include "PhysicsManager.h"
 #include "PlayerCameraComponent.h"
+#include "PlayerGraphicsComponent.h"
 #include "PlayerLogicComponent.h"
 #include "Scene.h"
 #include "ShoveAbility.h"
@@ -34,7 +35,7 @@ const float NORMAL_MOVE_FORCE = 240.0f;
 const float AIR_MOVE_MULTIPLIER = 0.4f;
 const float MAX_AIR_MOVE_SPEED = 9.0f;
 const float JUMP_IMPULSE = 10.0f;
-const float STEP_DISTANCE = 2.0f;
+const float STEP_DISTANCE = 2.5f;
 const float GROUND_JUMP_TIME = 0.25f;
 
 // Ground / friction constants
@@ -47,6 +48,24 @@ const float SPRING_STIFFNESS = 4.0f;
 const float SPRING_DAMPING = 0.3f;
 const float SPRING_HEIGHT = 0.6f;
 const float SPRING_RAYCAST_MARGIN = 0.5f;
+
+// Appendage constants
+const glm::vec3 HEAD_OFFSET(0.0f, 0.75f, 0.0f);
+const glm::vec3 LEFT_HAND_OFFSET(-0.65f, 0.0f, -0.5f);
+const glm::vec3 RIGHT_HAND_OFFSET(0.65f, 0.0f, -0.5f);
+const glm::vec3 LEFT_FOOT_OFFSET(-0.25f, -1.5f, 0.0f);
+const glm::vec3 RIGHT_FOOT_OFFSET(0.25f, -1.5f, 0.0f);
+const glm::vec3 FOOT_RAYCAST_OFFSET(0.0f, 3.0f, 0.0f);
+const float APPENDAGE_STIFFNESS = 16.0f;
+const float HAND_STIFFNESS = 6.0f;
+const float APPENDAGE_DAMPING = 0.2f;
+const float FOOT_STEP_RADIUS = 0.5f;
+const float FOOT_LOWER_TIME = 0.25f;
+const float FOOT_STEP_DISTANCE = 1.5f;
+const float HAND_OFFSET_MULTIPLIER = 0.25f;
+const float ABILITY_ANIMATION_TIME = 0.2f;
+const float ABILITY_ANIMATION_OFFSET = 2.0f;
+const float ABILITY_ANIMATION_Y_MULTIPLIER = 0.25f;
 
 /**
  * Calculates how related the two given vectors are (in terms of direction), from 0 (same direction) to 1 (opposite directions)
@@ -85,10 +104,30 @@ float calcHorizontalMovementForce(glm::vec3 velocity, const glm::vec3 &horizonta
    return speed < normalMoveForce / maxMoveForce ? maxMoveForce : glm::min(maxMoveForce, normalMoveForce / speed);
 }
 
+glm::vec3 springForce(const glm::vec3 &springPos, const glm::vec3 &objectPos, const glm::vec3 &objectVel, float stiffness, float damping) {
+   return -stiffness * (objectPos - springPos) - damping * objectVel;
+}
+
+glm::vec3 footPos(const glm::vec3 &playerPos, const glm::vec3 &baseFootPos, SPtr<Scene> scene) {
+   glm::vec3 baseFootWorldPos = baseFootPos + playerPos;
+   btVector3 from(toBt(baseFootWorldPos) + toBt(FOOT_RAYCAST_OFFSET));
+   btVector3 to(toBt(baseFootWorldPos) - toBt(FOOT_RAYCAST_OFFSET));
+
+   btCollisionWorld::ClosestRayResultCallback callback(from, to);
+   callback.m_collisionFilterMask = CollisionGroup::Default | CollisionGroup::StaticBodies;
+   scene->getPhysicsManager()->getDynamicsWorld().rayTest(from, to, callback);
+
+   if (!callback.hasHit() || (callback.m_hitPointWorld.y() - playerPos.y) < baseFootPos.y || (callback.m_hitPointWorld.y() > playerPos.y)) {
+      return baseFootPos;
+   }
+
+   return toGlm(callback.m_hitPointWorld) - playerPos;
+}
+
 } // namespace
 
 PlayerLogicComponent::PlayerLogicComponent(GameObject &gameObject, int playerNum, const glm::vec3 &color)
-   : LogicComponent(gameObject), playerNum(playerNum), alive(true), wasJumpingLastFrame(false), canDoubleJump(false), jumpTimer(0.0f), distanceSinceStep(STEP_DISTANCE), deathTime(0.0f), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
+   : LogicComponent(gameObject), playerNum(playerNum), alive(true), wasJumpingLastFrame(false), canDoubleJump(false), footSwap(false), jumpTimer(0.0f), distanceSinceStep(STEP_DISTANCE), deathTime(0.0f), timeSinceMovement(0.0f), timeSincePrimary(1.0f), timeSinceSecondary(1.0f), color(color), primaryAbility(std::make_shared<ThrowAbility>(gameObject)), secondaryAbility(std::make_shared<ShoveAbility>(gameObject)) {
 }
 
 PlayerLogicComponent::~PlayerLogicComponent() {
@@ -116,7 +155,8 @@ folly::Optional<Ground> PlayerLogicComponent::getGround(SPtr<PhysicsManager> phy
    }
 
    return Ground(callback.m_hitPointWorld.y() + CONVEX_DISTANCE_MARGIN, // y position of ground
-                 callback.m_collisionObject->getFriction());            // friction of ground
+                 callback.m_collisionObject->getFriction(),             // friction of ground
+                 toGlm(callback.m_hitNormalWorld));                     // normal vector of ground
 }
 
 folly::Optional<glm::vec3> PlayerLogicComponent::calcSpringForce(const Ground &ground, const btRigidBody *rigidBody) const {
@@ -273,6 +313,7 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
 
       if (distanceSinceStep >= STEP_DISTANCE || jumpTimer < 0.0f) {
          distanceSinceStep = 0.0f;
+         footSwap = !footSwap;
          gameObject.notify(gameObject, Event::STEP);
       }
 
@@ -296,6 +337,8 @@ void PlayerLogicComponent::handleMovement(const float dt, const InputValues &inp
    // Apply the impulses and forces
    rigidBody->applyCentralImpulse(netImpulse);
    rigidBody->applyCentralForce(netForce);
+
+   handleAppendages(dt, ground, scene);
 }
 
 void PlayerLogicComponent::handleAttack(const float dt, const InputValues &inputValues, SPtr<Scene> scene) {
@@ -303,12 +346,99 @@ void PlayerLogicComponent::handleAttack(const float dt, const InputValues &input
    secondaryAbility->tick(dt);
 
    if (inputValues.primaryAttack) {
-      primaryAbility->use();
+      if (primaryAbility->use()) {
+         timeSincePrimary = 0.0f;
+      }
    }
 
    if (inputValues.secondaryAttack) {
-      secondaryAbility->use();
+      if (secondaryAbility->use()) {
+         timeSinceSecondary = 0.0f;
+      }
    }
+}
+
+void PlayerLogicComponent::handleAppendages(const float dt, folly::Optional<Ground> ground, SPtr<Scene> scene) {
+   PlayerGraphicsComponent *playerGraphics = dynamic_cast<PlayerGraphicsComponent*>(&gameObject.getGraphicsComponent());
+   if (!playerGraphics) {
+      return;
+   }
+
+   btRigidBody *rigidBody = dynamic_cast<btRigidBody*>(gameObject.getPhysicsComponent().getCollisionObject());
+   ASSERT(rigidBody, "Player rigid body should not be null");
+   if (!rigidBody) {
+      return;
+   }
+
+   glm::vec3 playerVel = toGlm(rigidBody->getLinearVelocity());
+   if (glm::length(playerVel) > 0.25f) {
+      timeSinceMovement = 0.0f;
+   } else {
+      timeSinceMovement += dt;
+   }
+
+   glm::quat rot = gameObject.getOrientation();
+   rot.x = 0.0f;
+   rot.z = 0.0f;
+   glm::quat playerOrientation = glm::normalize(rot);
+
+   // Calculate limb offsets
+   float offset = (distanceSinceStep / STEP_DISTANCE) * (1.0f * glm::pi<float>()) - glm::half_pi<float>();
+   offset *= footSwap ? -1.0f : 1.0f;
+   float footStep = glm::sin(offset) * FOOT_STEP_RADIUS;
+   float footHeight = glm::cos(offset) * FOOT_STEP_RADIUS * (footSwap ? 1.0f : -1.0f);
+   float footLowerAmount = -glm::smoothstep(0.0f, FOOT_LOWER_TIME, timeSinceMovement) * FOOT_STEP_RADIUS;
+
+   glm::vec3 horizontalVel(playerVel.x, 0.0f, playerVel.z);
+   float horizontalSpeed = glm::length(horizontalVel);
+   glm::vec3 footOffset(0.0f);
+   if (horizontalSpeed > 0.0f) {
+      float footOffsetAmount = glm::smoothstep(0.0f, 1.0f, horizontalSpeed) * FOOT_STEP_DISTANCE;
+      footOffset = glm::normalize(horizontalVel) * footOffsetAmount * glm::vec3(footStep);
+      footOffset = -footOffset * glm::inverse(playerOrientation);
+   }
+   glm::vec3 limbOffset = glm::vec3(footOffset.x, footHeight, footOffset.z);
+   glm::vec3 handOffset = glm::vec3(0.0f, -footStep, footStep) * HAND_OFFSET_MULTIPLIER;
+
+   float primaryAttackAmount = timeSincePrimary < ABILITY_ANIMATION_TIME ? ABILITY_ANIMATION_OFFSET : 0.0f;
+   float secondaryAttackAmount = timeSinceSecondary < ABILITY_ANIMATION_TIME ? ABILITY_ANIMATION_OFFSET : 0.0f;
+   timeSincePrimary += dt;
+   timeSinceSecondary += dt;
+
+   glm::vec3 rightHandOffset(handOffset + glm::vec3(0.0f, (primaryAttackAmount + secondaryAttackAmount) * ABILITY_ANIMATION_Y_MULTIPLIER, -(primaryAttackAmount + secondaryAttackAmount)));
+   glm::vec3 leftHandOffset(-handOffset + glm::vec3(0.0f, secondaryAttackAmount * ABILITY_ANIMATION_Y_MULTIPLIER, -secondaryAttackAmount));
+
+   glm::vec3 headSpringPos(HEAD_OFFSET * playerOrientation);
+   glm::vec3 leftHandSpringPos((LEFT_HAND_OFFSET + leftHandOffset) * playerOrientation);
+   glm::vec3 rightHandSpringPos((RIGHT_HAND_OFFSET + rightHandOffset) * playerOrientation);
+   glm::vec3 leftFootOffset(limbOffset + glm::vec3(0.0f, footLowerAmount, 0.0f));
+   glm::vec3 leftFootSpringPos((LEFT_FOOT_OFFSET + leftFootOffset) * playerOrientation);
+   glm::vec3 rightFootOffset(-limbOffset + glm::vec3(0.0f, footLowerAmount, 0.0f));
+   glm::vec3 rightFootSpringPos((RIGHT_FOOT_OFFSET + rightFootOffset) * playerOrientation);
+
+   // Raycast to find feet positions
+   leftFootSpringPos = footPos(gameObject.getPosition(), leftFootSpringPos, scene);
+   rightFootSpringPos = footPos(gameObject.getPosition(), rightFootSpringPos, scene);
+
+   glm::vec3 headPos(playerGraphics->getHeadOffset());
+   glm::vec3 leftHandPos(playerGraphics->getLeftHandOffset());
+   glm::vec3 rightHandPos(playerGraphics->getRightHandOffset());
+   glm::vec3 leftFootPos(playerGraphics->getLeftFootOffset());
+   glm::vec3 rightFootPos(playerGraphics->getRightFootOffset());
+
+   // Apply spring forces, calculate new positions
+   glm::vec3 headForce(springForce(headSpringPos, headPos, playerVel, APPENDAGE_STIFFNESS, APPENDAGE_DAMPING));
+   glm::vec3 leftHandForce(springForce(leftHandSpringPos, leftHandPos, playerVel, HAND_STIFFNESS, APPENDAGE_DAMPING));
+   glm::vec3 rightHandForce(springForce(rightHandSpringPos, rightHandPos, playerVel, HAND_STIFFNESS, APPENDAGE_DAMPING));
+   glm::vec3 leftFootForce(springForce(leftFootSpringPos, leftFootPos, playerVel, APPENDAGE_STIFFNESS, APPENDAGE_DAMPING));
+   glm::vec3 rightFootForce(springForce(rightFootSpringPos, rightFootPos, playerVel, APPENDAGE_STIFFNESS, APPENDAGE_DAMPING));
+
+   // Set new positions
+   playerGraphics->setHeadOffset(headPos + (headForce * dt));
+   playerGraphics->setLeftHandOffset(leftHandPos + (leftHandForce * dt));
+   playerGraphics->setRightHandOffset(rightHandPos + (rightHandForce * dt));
+   playerGraphics->setLeftFootOffset(leftFootPos + (leftFootForce * dt));
+   playerGraphics->setRightFootOffset(rightFootPos + (rightFootForce * dt));
 }
 
 void PlayerLogicComponent::tick(const float dt) {

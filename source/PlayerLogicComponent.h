@@ -13,9 +13,10 @@ class PhysicsManager;
 struct Ground {
    const float y;
    const float friction;
+   const glm::vec3 normal;
 
-   Ground(float y, float friction)
-      : y(y), friction(friction) {
+   Ground(float y, float friction, glm::vec3 normal)
+      : y(y), friction(friction), normal(normal) {
    }
 };
 
@@ -25,9 +26,13 @@ protected:
    bool alive;
    bool wasJumpingLastFrame;
    bool canDoubleJump;
+   bool footSwap;
    float jumpTimer;
    float distanceSinceStep;
    float deathTime;
+   float timeSinceMovement;
+   float timeSincePrimary;
+   float timeSinceSecondary;
    glm::vec3 color;
    SPtr<Ability> primaryAbility;
    SPtr<Ability> secondaryAbility;
@@ -45,6 +50,8 @@ protected:
    void handleMovement(const float dt, const InputValues &inputValues, SPtr<Scene> scene);
 
    void handleAttack(const float dt, const InputValues &inputValues, SPtr<Scene> scene);
+
+   void handleAppendages(const float dt, folly::Optional<Ground> ground, SPtr<Scene> scene);
 
 public:
    PlayerLogicComponent(GameObject &gameObject, int playerNum, const glm::vec3 &color);
