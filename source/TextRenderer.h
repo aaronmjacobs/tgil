@@ -44,7 +44,8 @@ protected:
    SPtr<GameObject> gameObject;
    UPtr<FontAtlas> atlas;
    UPtr<Framebuffer> framebuffer;
-   bool initialized;
+   float pixelDensity;
+   float targetPixelDensity;
 
    void loadFontAtlas(float pixelDensity);
 

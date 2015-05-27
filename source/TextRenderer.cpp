@@ -60,7 +60,7 @@ const float FONT_SIZE_SMALL = 50.0f;
 const float FONT_SIZE_MEDIUM = 100.0f;
 const float FONT_SIZE_LARGE = 200.0f;
 
-const int BITMAP_SIZE = 600;
+const int BITMAP_SIZE = 700;
 
 const int FIRST_PRINTABLE_GLYPH = 32;
 const int NUM_PRINTABLE_GLYPHS = 96;
@@ -154,7 +154,7 @@ FontAtlas::~FontAtlas() {
 }
 
 TextRenderer::TextRenderer()
-   : initialized(false) {
+   : pixelDensity(0.0f), targetPixelDensity(0.0f) {
 }
 
 TextRenderer::~TextRenderer() {
@@ -189,6 +189,8 @@ void TextRenderer::loadFontAtlas(float pixelDensity) {
 
    atlas = UPtr<FontAtlas>(new FontAtlas(BITMAP_SIZE * pixelDensity, fontRangeMap, fontData.get()));
    textureMaterial->setTexture(atlas->texture);
+
+   this->pixelDensity = pixelDensity;
 }
 
 void TextRenderer::init(float pixelDensity) {
@@ -207,20 +209,19 @@ void TextRenderer::init(float pixelDensity) {
 
    framebuffer = UPtr<Framebuffer>(new Framebuffer);
 
+   this->pixelDensity = this->targetPixelDensity = pixelDensity;
    loadFontAtlas(pixelDensity);
-
-   initialized = true;
 }
 
 void TextRenderer::onPixelDensityChange(float pixelDensity) {
-   if (!initialized) {
-      return;
-   }
-
-   loadFontAtlas(pixelDensity);
+   this->targetPixelDensity = pixelDensity;
 }
 
 void TextRenderer::renderImmediate(int fbWidth, int fbHeight, float x, float y, const std::string &text, FontType fontType, HAlign hAlign, VAlign vAlign) {
+   if (pixelDensity != targetPixelDensity) {
+      loadFontAtlas(targetPixelDensity);
+   }
+
    ASSERT(atlas, "Font atlas not loaded");
    if (!atlas) {
       return;
@@ -263,6 +264,10 @@ void TextRenderer::renderImmediate(int fbWidth, int fbHeight, float x, float y, 
 }
 
 SPtr<Texture> TextRenderer::renderToTexture(const std::string &text, Resolution *resolution, FontType fontType) {
+   if (pixelDensity != targetPixelDensity) {
+      loadFontAtlas(targetPixelDensity);
+   }
+
    ASSERT(atlas, "Font atlas not loaded");
    if (!atlas) {
       return nullptr;
