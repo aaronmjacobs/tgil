@@ -108,6 +108,8 @@ public:
    const GameSession& getGameSession() const {
       return session;
    }
+
+   void changeScoreCap();
 };
 
 #endif

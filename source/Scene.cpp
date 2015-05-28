@@ -254,6 +254,12 @@ void Scene::addClickableObject(ClickableObject clickableObject) {
    clickableObjects.push_back(clickableObject);
 }
 
-const std::vector<ClickableObject>& Scene::getClickableObjecst() const {
+void Scene::cleanUpClickableObjects() {
+   clickableObjects.erase(std::remove_if(clickableObjects.begin(), clickableObjects.end(), [](const ClickableObject &clickableObject) {
+      return clickableObject.gameObject.expired();
+   }), clickableObjects.end());
+}
+
+const std::vector<ClickableObject>& Scene::getClickableObjects() const {
    return clickableObjects;
 }

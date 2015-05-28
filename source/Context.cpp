@@ -169,3 +169,23 @@ int Context::getWindowWidth() const {
 int Context::getWindowHeight() const {
    return renderer->getWindowHeight();
 }
+
+void Context::changeScoreCap() {
+   switch (session.scoreCap) {
+      case DEFAULT_SCORE_CAP:
+         session.scoreCap = 10;
+         break;
+      case 10:
+         session.scoreCap = 25;
+         break;
+      case 25:
+         session.scoreCap = 50;
+         break;
+      case 50:
+         session.scoreCap = 100;
+         break;
+      default:
+         session.scoreCap = DEFAULT_SCORE_CAP;
+         break;
+   }
+}

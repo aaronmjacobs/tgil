@@ -31,7 +31,7 @@ void genNearAndFar(int x, int y, int width, int height, const glm::mat4 &view, c
 }
 
 void fireEvent(MenuLogicComponent &menuLogic, const Scene &scene, const btCollisionObject *object, MouseEvent event) {
-   const std::vector<ClickableObject> &clickableObjects = scene.getClickableObjecst();
+   const std::vector<ClickableObject> &clickableObjects = scene.getClickableObjects();
    for (const ClickableObject &clickableObject : clickableObjects) {
       SPtr<GameObject> gameObject = clickableObject.gameObject.lock();
       if (!gameObject) {

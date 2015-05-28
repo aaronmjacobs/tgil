@@ -172,7 +172,9 @@ public:
 
    void addClickableObject(ClickableObject clickableObject);
 
-   const std::vector<ClickableObject>& getClickableObjecst() const;
+   void cleanUpClickableObjects();
+
+   const std::vector<ClickableObject>& getClickableObjects() const;
 
    float getTimeSinceStart() const {
       return timeSinceStart;

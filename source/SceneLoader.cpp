@@ -217,7 +217,7 @@ SPtr<GameObject> createSpotLight(const glm::vec3 &position, const glm::vec3 &col
    return light;
 }
 
-void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic)> clickFunction) {
+void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject)> clickFunction) {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
    SPtr<ShaderProgram> tintedTextureShaderProgram(assetManager.loadShaderProgram("shaders/tinted_texture"));
@@ -241,9 +241,10 @@ void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, co
    SPtr<GameObject> gameObject(createStaticObject(model, pos, menuItemScale, 0.0f, 0.0f, orientation, false));
    gameObject->getGraphicsComponent().setHasTransparency(true);
    scene.addObject(gameObject);
-   scene.addClickableObject(ClickableObject(gameObject, [highlightColor, wTintMaterial, clickFunction](MenuLogicComponent &menuLogic, MouseEvent event) {
+   WPtr<GameObject> wGameObject = gameObject;
+   scene.addClickableObject(ClickableObject(gameObject, [highlightColor, wTintMaterial, clickFunction, wGameObject](MenuLogicComponent &menuLogic, MouseEvent event) {
       if (event == MouseEvent::Click) {
-         clickFunction(menuLogic);
+         clickFunction(menuLogic, wGameObject);
       } else if (event == MouseEvent::Enter) {
          // TODO sound
          wTintMaterial.lock()->setValues(1.0f, highlightColor);
@@ -402,6 +403,23 @@ struct MenuLocation {
    glm::quat cameraOrientation, itemOrientation;
 };
 
+void addScoreToWinMenuItem(Scene &scene, const MenuLocation &playLocation, const glm::vec3 &offset) {
+   int scoreCap = Context::getInstance().getGameSession().scoreCap;
+
+   addMenuItem(scene, "Score to Win: " + std::to_string(scoreCap), playLocation.itemPos + offset, playLocation.itemOrientation, [playLocation, offset](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
+      Context::getInstance().changeScoreCap();
+      Scene &currentScene = Context::getInstance().getScene();
+
+      SPtr<GameObject> obj = gameObject.lock();
+      if (obj) {
+         currentScene.removeObject(obj);
+         currentScene.cleanUpClickableObjects();
+      }
+
+      addScoreToWinMenuItem(currentScene, playLocation, offset);
+   });
+}
+
 SPtr<Scene> loadMenuScene(const Context &context) {
    glm::vec3 spawnLocations[] = {
       glm::vec3(33.5f, 9.1f, -30.5f),
@@ -496,7 +514,7 @@ SPtr<Scene> loadMenuScene(const Context &context) {
       mainLocation.itemOrientation = glm::angleAxis(glm::radians(40.0f), glm::vec3(0.0f, 0.8f, 0.0f));
 
       playLocation.cameraPos = glm::vec3(-40.0f, 17.0f + y, -22.0f);
-      playLocation.itemPos = glm::vec3(-37.5f, 17.6f + y, -21.0f);
+      playLocation.itemPos = glm::vec3(-36.0f, 18.8f + y, -19.8f);
       playLocation.cameraOrientation = glm::angleAxis(glm::radians(150.0f), glm::vec3(-0.2f, 0.8f, 0.1f));
       playLocation.itemOrientation = glm::angleAxis(glm::radians(-140.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -508,39 +526,42 @@ SPtr<Scene> loadMenuScene(const Context &context) {
       menuCameraLogic->setTargetPosition(mainLocation.cameraPos);
       menuCameraLogic->setTargetOrientation(mainLocation.cameraOrientation);
 
-      addMenuItem(scene, "Play", mainLocation.itemPos, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Play", mainLocation.itemPos, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
          menuLogic.setTargetPosition(playLocation.cameraPos);
          menuLogic.setTargetOrientation(playLocation.cameraOrientation);
       });
-      addMenuItem(scene, "Settings", mainLocation.itemPos + offset, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Settings", mainLocation.itemPos + offset, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
          menuLogic.setTargetPosition(settingsLocation.cameraPos);
          menuLogic.setTargetOrientation(settingsLocation.cameraOrientation);
       });
-      addMenuItem(scene, "Quit", mainLocation.itemPos + offset * 2.0f, mainLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Quit", mainLocation.itemPos + offset * 2.0f, mainLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
          Context::getInstance().quitAfterScene();
          menuLogic.setTargetPosition(glm::vec3(90.0f, 25.0f + y, 80.0f));
          menuLogic.setTargetOrientation(glm::angleAxis(glm::radians(-40.0f), glm::vec3(-0.2f, 0.8f, 0.1f)) * glm::angleAxis(glm::radians(-50.0f), glm::vec3(1.0f, -0.8f, 0.0f)));
          scene.end();
       });
 
-      addMenuItem(scene, "Start!", playLocation.itemPos, playLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Start!", playLocation.itemPos, playLocation.itemOrientation, [=, &scene](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
          menuLogic.setTargetPosition(glm::vec3(40.0f, 57.0f + y, 32.0f));
          menuLogic.setTargetOrientation(glm::angleAxis(glm::radians(150.0f), glm::vec3(-0.2f, 0.8f, 0.1f)) * glm::angleAxis(glm::radians(60.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
          scene.end();
       });
-      addMenuItem(scene, "Back", playLocation.itemPos + offset, playLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+
+      addScoreToWinMenuItem(scene, playLocation, offset);
+
+      addMenuItem(scene, "Back", playLocation.itemPos + offset * 2.0f, playLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
          menuLogic.setTargetPosition(mainLocation.cameraPos);
          menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
       });
 
       int numDevices = Context::getInstance().getInputHandler().getNumDevices();
       for (int i = 0; i < numDevices; ++i) {
-         addMenuItem(scene, "Controller " + std::to_string(i + 1), settingsLocation.itemPos + offset * (float)i, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+         addMenuItem(scene, "Controller " + std::to_string(i + 1), settingsLocation.itemPos + offset * (float)i, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
             // TODO
          });
       }
 
-      addMenuItem(scene, "Back", settingsLocation.itemPos + offset * (float)numDevices, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+      addMenuItem(scene, "Back", settingsLocation.itemPos + offset * (float)numDevices, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
          menuLogic.setTargetPosition(mainLocation.cameraPos);
          menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
       });
