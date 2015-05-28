@@ -87,8 +87,7 @@ folly::Optional<std::string> getAppDataPath() {
 
    // If it isn't set, grab the directory from the password entry file
    if (!homePath) {
-      passwd *pw = getpwuid(getuid())->pw_dir);
-      homePath = pw->pw_dir;
+      homePath = getpwuid(getuid())->pw_dir;
    }
 
    if (!homePath) {
@@ -98,7 +97,7 @@ folly::Optional<std::string> getAppDataPath() {
    std::string appDataPath(homePath);
    appDataPath += "/.config/" PROJECT_NAME;
 
-   return string;
+   return appDataPath;
 }
 
 bool setWorkingDirectory(const std::string &dir) {
