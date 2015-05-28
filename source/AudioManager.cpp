@@ -96,7 +96,7 @@ const std::string& SoundGroup::getSoundFile() const {
 }
 
 // Music
-const SoundGroup SoundGroup::STRIFE({"music/strife.ogg"}, true, false, 0.0f);
+const SoundGroup SoundGroup::QUICKDRAW({"music/quickdraw.ogg"}, true, false, 0.0f);
 
 // Sound effects
 const SoundGroup SoundGroup::JUMP({"sounds/jump.ogg"}, false, true, 3.0f);
@@ -192,7 +192,7 @@ void AudioManager::init() {
    check(musicGroup->setVolume(MUSIC_VOLUME));
    check(effectsGroup->setVolume(EFFECTS_VOLUME));
 
-   load(SoundGroup::STRIFE);
+   load(SoundGroup::QUICKDRAW);
    load(SoundGroup::JUMP);
    load(SoundGroup::STEP);
    load(SoundGroup::DIE);
@@ -202,7 +202,7 @@ void AudioManager::init() {
    load(SoundGroup::ENTER);
    load(SoundGroup::CLICK);
 
-   play(SoundGroup::STRIFE);
+   play(SoundGroup::QUICKDRAW);
 }
 
 void AudioManager::update(ListenerAttributes *listeners, int numListeners) {

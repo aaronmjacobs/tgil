@@ -35,7 +35,7 @@ protected:
 
 public:
    // Music
-   static const SoundGroup STRIFE;
+   static const SoundGroup QUICKDRAW;
 
    // Sound effects
    static const SoundGroup JUMP;
