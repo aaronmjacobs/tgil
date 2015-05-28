@@ -22,13 +22,15 @@ InputHandler::InputHandler(GLFWwindow* const window)
    }
 
    keyMouseInputDevice = std::make_shared<KeyMouseInputDevice>(window);
+   RUN_DEBUG(
    // If there are less controllers than the max number of players, add the keyboard as the first device
-   /*if (inputDevices.size() < MAX_PLAYERS) {
+   if (inputDevices.size() < MAX_PLAYERS) {
       inputDevices.insert(inputDevices.begin(), keyMouseInputDevice);
 
       // Hide / lock the mouse
       //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-   }*/
+   }
+   )
 }
 
 InputHandler::~InputHandler() {
