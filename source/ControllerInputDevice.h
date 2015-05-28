@@ -21,12 +21,7 @@ struct ControllerMap {
    ControllerAxis primaryTriggerAxis;
    ControllerAxis secondaryTriggerAxis;
 
-   int actionButton;
-   int primaryAttackButton;
-   int secondaryAttackButton;
-   int specialAttackButton;
    int jumpButton;
-   int quitButton;
 };
 
 class ControllerInputDevice : public InputDevice {

@@ -17,7 +17,6 @@ struct InputValues {
    bool action;
    bool primaryAttack;
    bool secondaryAttack;
-   bool specialAttack;
    bool jump;
    bool quit;
 };

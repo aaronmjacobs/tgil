@@ -18,7 +18,6 @@ struct KeyMouseMap {
 
    int primaryAttackButton;
    int secondaryAttackButton;
-   int specialAttackButton;
 };
 
 class KeyMouseInputDevice : public InputDevice {

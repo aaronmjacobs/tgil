@@ -5,9 +5,9 @@
 
 namespace {
 
-const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 0, 7, 6, 13, 1, 12 };
+const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 1 };
 
-const ControllerMap XBOX_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 0, -1, -1, -1, 11, 12 };
+const ControllerMap XBOX_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 11 };
 
 const float AXIS_MIN = -1.0f;
 const float AXIS_MAX = 1.0f;
@@ -97,12 +97,11 @@ InputValues ControllerInputDevice::getInputValues() {
    inputValues.lookY = getAxisValue(axes, axisCount, map.verticalLookAxis, map.deadzone) * map.lookSensitivity * (map.invertYAxis ? -1.0f : 1.0f);
    inputValues.lookX = getAxisValue(axes, axisCount, map.horizontalLookAxis, map.deadzone) * map.lookSensitivity;
 
-   inputValues.action = getButtonValue(buttons, buttonCount, map.actionButton);
+   inputValues.action = false;
    inputValues.jump = getButtonValue(buttons, buttonCount, map.jumpButton);
-   inputValues.quit = getButtonValue(buttons, buttonCount, map.quitButton);
-   inputValues.primaryAttack = getButtonValue(buttons, buttonCount, map.primaryAttackButton) || getAxisValue(axes, axisCount, map.primaryTriggerAxis, map.deadzone) > 0.5f;
-   inputValues.secondaryAttack = getButtonValue(buttons, buttonCount, map.secondaryAttackButton) || getAxisValue(axes, axisCount, map.secondaryTriggerAxis, map.deadzone) > 0.5;
-   inputValues.specialAttack = getButtonValue(buttons, buttonCount, map.specialAttackButton);
+   inputValues.quit = false;
+   inputValues.primaryAttack = getAxisValue(axes, axisCount, map.primaryTriggerAxis, map.deadzone) > 0.5f;
+   inputValues.secondaryAttack = getAxisValue(axes, axisCount, map.secondaryTriggerAxis, map.deadzone) > 0.5f;
 
    return inputValues;
 }
