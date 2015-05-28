@@ -16,6 +16,13 @@
 #undef far
 #endif // _WIN32
 
+namespace {
+
+const float LIGHT_CUTOFF_DIST = 100.0f;
+const float DIRECTIONAL_LIGHT_WIDTH = 60.0f;
+
+} // namespace
+
 LightComponent::LightComponent(GameObject &gameObject, LightType type, const glm::vec3 &color, const glm::vec3 &direction, float linearFalloff, float squareFalloff, float beamAngle, float cutoffAngle)
    : Component(gameObject), type(type), color(color), direction(direction), linearFalloff(linearFalloff), squareFalloff(squareFalloff), beamAngle(beamAngle), cutoffAngle(cutoffAngle) {
 }
@@ -92,9 +99,6 @@ void LightComponent::draw(ShaderProgram &shaderProgram, const unsigned int index
 glm::mat4 LightComponent::getViewMatrix(int face) const {
    ASSERT(face >= 0 && face < 6 || face == -1, "Invalid face value");
 
-   // TODO Determine by scene geometry?
-   const float directionalLightDist = 50.0f;
-
    const glm::vec3 &pos = gameObject.getPosition();
    glm::vec3 look;
    glm::vec3 up(0.0f, 1.0f, 0.0f);
@@ -129,16 +133,13 @@ glm::mat4 LightComponent::getViewMatrix(int face) const {
       case Point:
          return glm::lookAt(pos, pos + look, up);
       case Directional:
-         return glm::lookAt(glm::normalize(-direction) * directionalLightDist, glm::vec3(0.0f), up);
+         return glm::lookAt(glm::normalize(-direction), glm::vec3(0.0f), up);
       case Spot:
          return glm::lookAt(pos, pos + direction, up);
    }
 }
 
 glm::mat4 LightComponent::getProjectionMatrix() const {
-   // TODO Determine by scene geometry?
-   const float directionWidth = 50.0f;
-
    float near = getNearPlaneDist();
    float far = getFarPlaneDist();
 
@@ -146,7 +147,7 @@ glm::mat4 LightComponent::getProjectionMatrix() const {
       case Point:
          return glm::perspective(glm::radians(90.0f), 1.0f, near, far);
       case Directional:
-         return glm::ortho<float>(-directionWidth, directionWidth, -directionWidth, directionWidth, near, far);
+         return glm::ortho<float>(-DIRECTIONAL_LIGHT_WIDTH, DIRECTIONAL_LIGHT_WIDTH, -DIRECTIONAL_LIGHT_WIDTH, DIRECTIONAL_LIGHT_WIDTH, near, far);
       case Spot:
          return glm::perspective(cutoffAngle * 2.0f, 1.0f, near, far);
    }
@@ -164,7 +165,7 @@ glm::mat4 LightComponent::getBiasedProjectionMatrix() const {
 
 float LightComponent::getNearPlaneDist() const {
    if (type == Directional) {
-      return 0.0f;
+      return -LIGHT_CUTOFF_DIST;
    }
 
    return 0.25f;
@@ -172,7 +173,7 @@ float LightComponent::getNearPlaneDist() const {
 
 float LightComponent::getFarPlaneDist() const {
    const float lightCutoffAttenuation = 0.01f;
-   float cutoffDist = 100.0f;
+   float cutoffDist = LIGHT_CUTOFF_DIST;
 
    if (squareFalloff * lightCutoffAttenuation > 0.0f) {
       cutoffDist = glm::sqrt(1.0f / (squareFalloff * lightCutoffAttenuation));

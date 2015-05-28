@@ -73,7 +73,7 @@ SPtr<GameObject> createStaticObject(SPtr<Model> model, const glm::vec3 &position
    return staticObject;
 }
 
-SPtr<GameObject> createBvhObject(SPtr<Model> model, const glm::vec3 &position, const glm::vec3 &scale, float friction, float restitution, const glm::quat orientation = glm::quat()) {
+SPtr<GameObject> createBvhObject(SPtr<Model> model, const glm::vec3 &position, const glm::vec3 &scale, float friction, float restitution, const glm::quat orientation = glm::quat(), bool enableShadows = true) {
    SPtr<GameObject> staticObject(std::make_shared<GameObject>());
 
    // Transform
@@ -82,7 +82,9 @@ SPtr<GameObject> createBvhObject(SPtr<Model> model, const glm::vec3 &position, c
    staticObject->setOrientation(orientation);
 
    // Graphics
-   staticObject->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*staticObject));
+   SPtr<GeometricGraphicsComponent> graphicsComponent(std::make_shared<GeometricGraphicsComponent>(*staticObject));
+   graphicsComponent->enableCastingShadows(enableShadows);
+   staticObject->setGraphicsComponent(graphicsComponent);
    staticObject->getGraphicsComponent().setModel(model);
 
    // Physics
@@ -328,10 +330,29 @@ SPtr<Scene> loadBasicScene(const Context &context, glm::vec3 spawnLocations[4], 
    //scene->addLight(createPointLight(glm::vec3(0.0f, 23.0f, -12.0f), lavaLightColor, 0.0f, 0.0f));
    //scene->addLight(createPointLight(glm::vec3(0.0f, 23.0f, 12.0f), lavaLightColor, 0.0f, 0.0f));
 
+   // Create open-topped cube to prevent issues with shadows after sun sets
+   SPtr<Mesh> openTopCubeMesh = assetManager.getMeshForShape(MeshShape::OpenTopCube);
+   SPtr<ShaderProgram> simpleShaderProgram(assetManager.loadShaderProgram("shaders/simple"));
+   SPtr<Model> openTopCubeModel(std::make_shared<Model>(simpleShaderProgram, openTopCubeMesh));
+
+   SPtr<GameObject> openTopCubeObject(std::make_shared<GameObject>());
+
+   // Transform
+   openTopCubeObject->setPosition(glm::vec3(0.0f, -10.0f, 0.0f));
+   openTopCubeObject->setScale(glm::vec3(200.0f, 30.0f, 200.0f));
+
+   // Graphics
+   SPtr<GeometricGraphicsComponent> graphicsComponent(std::make_shared<GeometricGraphicsComponent>(*openTopCubeObject));
+   graphicsComponent->enableCastingShadows(true);
+   graphicsComponent->setHasTransparency(true);
+   openTopCubeObject->setGraphicsComponent(graphicsComponent);
+   openTopCubeObject->getGraphicsComponent().setModel(openTopCubeModel);
+   scene->addObject(openTopCubeObject);
+
    // Lava
    float deathVolumeSize = 1000.0f;
    float lavaScale = 2.0f;
-   scene->addObject(createBvhObject(lavaModel, glm::vec3(0.0f), glm::vec3(lavaScale), 1.0f, 0.3f));
+   scene->addObject(createBvhObject(lavaModel, glm::vec3(0.0f), glm::vec3(lavaScale), 1.0f, 0.3f, glm::quat(), false));
    buildDeathVolume(scene, glm::vec3(0.0f), glm::vec3(deathVolumeSize, 4.0f, deathVolumeSize));
 
    callback(*scene);
@@ -480,9 +501,9 @@ SPtr<Scene> loadMenuScene(const Context &context) {
       playLocation.itemOrientation = glm::angleAxis(glm::radians(-140.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
       settingsLocation.cameraPos = glm::vec3(-52.0f, 6.0f + y, 22.0f);
-      settingsLocation.itemPos = glm::vec3(-50.0f, 7.0f + y, 22.0f);
+      settingsLocation.itemPos = glm::vec3(-49.0f, 8.5f + y, 19.0f);
       settingsLocation.cameraOrientation = glm::angleAxis(glm::radians(75.0f), glm::vec3(-0.2f, 0.8f, 0.1f));
-      settingsLocation.itemOrientation = glm::angleAxis(glm::radians(-75.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+      settingsLocation.itemOrientation = glm::angleAxis(glm::radians(-60.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
       menuCameraLogic->setTargetPosition(mainLocation.cameraPos);
       menuCameraLogic->setTargetOrientation(mainLocation.cameraOrientation);
@@ -512,7 +533,14 @@ SPtr<Scene> loadMenuScene(const Context &context) {
          menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
       });
 
-      addMenuItem(scene, "Back", settingsLocation.itemPos, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+      int numDevices = Context::getInstance().getInputHandler().getNumDevices();
+      for (int i = 0; i < numDevices; ++i) {
+         addMenuItem(scene, "Controller " + std::to_string(i + 1), settingsLocation.itemPos + offset * (float)i, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
+            // TODO
+         });
+      }
+
+      addMenuItem(scene, "Back", settingsLocation.itemPos + offset * (float)numDevices, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic) {
          menuLogic.setTargetPosition(mainLocation.cameraPos);
          menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
       });
