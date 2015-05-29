@@ -7,7 +7,7 @@ layout(location = 0) in vec3 aPosition;
 
 out vec3 vSkyboxCoord;
 
-mat4 removeTranslation(mat4 matrix) {
+mat4 removeTranslation(in mat4 matrix) {
    matrix[3][0] = 0.0;
    matrix[3][1] = 0.0;
    matrix[3][2] = 0.0;
