@@ -91,6 +91,8 @@ protected:
 
    float timeSinceEnd;
 
+   float timeUntilEnd;
+
    bool addToVectors(GameObjectVectors &vectors, SPtr<GameObject> object);
 
    bool removeFromVectors(GameObjectVectors &vectors, SPtr<GameObject> object);
@@ -190,6 +192,10 @@ public:
 
    bool hasEnded() const {
       return ended;
+   }
+
+   void endIn(float seconds) {
+      timeUntilEnd = seconds;
    }
 };
 

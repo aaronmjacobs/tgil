@@ -1060,8 +1060,95 @@ SPtr<Scene> loadPlusScene(const Context &context) {
 }
 
 SPtr<Scene> loadWinScene(const Context &context) {
-   // TODO
-   return loadCenterIslandScene(context);
+   glm::vec3 spawnLocations[] = {
+      glm::vec3(33.5f, 9.1f, -30.5f),
+      glm::vec3(18.2f, 24.7f, 30.0f),
+      glm::vec3(-35.2f, 12.6f, 29.6477),
+      glm::vec3(-35.7f, 21.5f, -8.18972)
+   };
+
+   return loadBasicScene(context, spawnLocations, [&context](Scene &scene) {
+      int maxScore = -1;
+      int playerIndex = -1;
+      for (int i = 0; i < context.getGameSession().players.size(); ++i) {
+         const Player &player = context.getGameSession().players[i];
+
+         if (player.score > maxScore) {
+            maxScore = player.score;
+            playerIndex = i;
+         }
+      }
+      glm::vec3 playerColor(glm::vec3(0.86f, 0.26f, 0.0f) * 1.5f);
+      if (playerIndex >= 0 && playerIndex < 4) {
+         playerColor = colors[playerIndex];
+      }
+
+      AssetManager &assetManager = context.getAssetManager();
+      SPtr<ShaderProgram> phongShaderProgram(assetManager.loadShaderProgram("shaders/phong"));
+
+      SPtr<PhongMaterial> trunkMaterial = createPhongMaterial(glm::vec3(0.36f, 0.27f, 0.11f), 0.2f, 5.0f);
+      SPtr<Mesh> trunkMesh = assetManager.loadMesh("meshes/trunk_lg.obj");
+      SPtr<Model> trunkModel(std::make_shared<Model>(phongShaderProgram, trunkMesh));
+      trunkModel->attachMaterial(trunkMaterial);
+
+      SPtr<PhongMaterial> leavesMaterial = createPhongMaterial(glm::vec3(0.86f, 0.26f, 0.0f) * 1.5f, 0.2f, 5.0f);
+      SPtr<Mesh> leavesMesh = assetManager.loadMesh("meshes/leaves_lg.obj");
+      SPtr<Model> leavesModel(std::make_shared<Model>(phongShaderProgram, leavesMesh));
+      leavesModel->attachMaterial(leavesMaterial);
+
+      SPtr<PhongMaterial> rockMaterial = createPhongMaterial(glm::vec3(0.4f, 0.4f, 0.4f) * 1.5f, 0.2f, 5.0f);
+      SPtr<Mesh> rockMesh = assetManager.loadMesh("meshes/rock_lg.obj");
+      SPtr<Model> rockModel(std::make_shared<Model>(phongShaderProgram, rockMesh));
+      rockModel->attachMaterial(rockMaterial);
+
+      SPtr<PhongMaterial> smallIslandMaterial = createPhongMaterial(glm::vec3(0.78f, 0.60f, 0.34f) * 1.5f, 0.2f, 5.0f);
+      SPtr<Mesh> smallIslandMesh = assetManager.loadMesh("meshes/island_sm.obj");
+      SPtr<Model> smallIslandModel(std::make_shared<Model>(phongShaderProgram, smallIslandMesh));
+      smallIslandModel->attachMaterial(smallIslandMaterial);
+
+      glm::vec3 loc(0.0f, 3.0f, 0.0f);
+      scene.addObject(createBvhObject(smallIslandModel, loc, glm::vec3(2.0f), 1.0f, 0.3f));
+
+      glm::vec3 treeOffset(0.0f, 3.0f, 0.0f);
+      scene.addObject(createBvhObject(trunkModel, loc + treeOffset, glm::vec3(2.5f, 4.0f, 2.5f), 1.0f, 0.3f));
+      scene.addObject(createBvhObject(leavesModel, loc + treeOffset, glm::vec3(4.0f), 1.0f, 0.3f));
+
+      SPtr<GameObject> player(createPlayer(phongShaderProgram, playerColor, glm::vec3(0.0f, 90.0f, 1.0f), playerIndex, playerIndex));
+      scene.addObject(player);
+      scene.addLight(player);
+
+
+      float y = 10.0f;
+      // Camera
+      SPtr<GameObject> camera(std::make_shared<GameObject>());
+      camera->setPosition(glm::vec3(-5.0f, 2.0f + y, 0.0f));
+      camera->setOrientation(glm::toQuat(glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.5f, -0.8f), glm::vec3(0.0f, 1.0f, 0.0f))));
+      camera->setCameraComponent(std::make_shared<FlyCameraComponent>(*camera));
+      SPtr<MenuLogicComponent> menuCameraLogic(std::make_shared<MenuLogicComponent>(*camera));
+      camera->setLogicComponent(menuCameraLogic);
+      scene.addCamera(camera);
+      scene.addObject(camera);
+
+      glm::quat orientation(glm::toQuat(glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f))));
+      player->setOrientation(orientation);
+
+      // Menu items
+      glm::vec3 offset(0.0f, -0.5f, 0.0f);
+
+      MenuLocation mainLocation;
+
+      mainLocation.cameraPos = glm::vec3(0.0f, 30.0f + y, 40.0f);
+      mainLocation.itemPos = glm::vec3(40.0f, 23.9f + y, 24.0f);
+      mainLocation.cameraOrientation = glm::angleAxis(glm::radians(-30.0f), glm::vec3(-0.6f, -0.8f, 0.1f));
+      mainLocation.itemOrientation = glm::angleAxis(glm::radians(-40.0f), glm::vec3(0.0f, 0.8f, 0.0f));
+
+      menuCameraLogic->setTargetPosition(mainLocation.cameraPos);
+      menuCameraLogic->setTargetOrientation(mainLocation.cameraOrientation);
+
+      addMenuItem(scene, "Player " + std::to_string(playerIndex + 1) + " Wins!", glm::vec3(2.0f, 30.25f + y, 38.0f), mainLocation.itemOrientation, [](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject){}, false);
+
+      scene.endIn(10.0f);
+   }, false);
 }
 
 SPtr<Scene> loadNextLevel(const Context &context) {

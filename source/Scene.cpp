@@ -18,8 +18,8 @@
 #include <algorithm>
 
 Scene::Scene()
-   : ended(false), physicsManager(std::make_shared<PhysicsManager>()), debugDrawer(new DebugDrawer), ticking(false), timeSinceStart(0.0f), timeSinceEnd(0.0f) {
-   physicsManager->setDebugDrawer(debugDrawer.get());
+   : ended(false), physicsManager(std::make_shared<PhysicsManager>()), debugDrawer(new DebugDrawer), ticking(false), timeSinceStart(0.0f), timeSinceEnd(0.0f), timeUntilEnd(-1.0f) {
+   RUN_DEBUG(physicsManager->setDebugDrawer(debugDrawer.get());)
 }
 
 Scene::~Scene() {
@@ -157,6 +157,13 @@ void Scene::tick(const float dt) {
    }
 
    updateWinState();
+
+   if (timeUntilEnd > 0.0f) {
+      timeUntilEnd -= dt;
+      if (timeUntilEnd <= 0.0f) {
+         ended = true;
+      }
+   }
 
    timeSinceStart += dt;
    if (ended) {

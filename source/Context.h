@@ -56,6 +56,7 @@ protected:
    GameSession session;
    float runningTime;
    unsigned int activeShaderProgramID;
+   bool menuAfterCurrentScene;
    bool quitAfterCurrentScene;
 
    void handleSpecialInputs(const InputValues &inputValues) const;

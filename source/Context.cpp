@@ -30,7 +30,7 @@ Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0), quitAfterCurrentScene(false) {
+   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0), menuAfterCurrentScene(false), quitAfterCurrentScene(false) {
 }
 
 Context::~Context() {
@@ -66,6 +66,7 @@ void Context::handleSpecialInputs(const InputValues &inputValues) const {
       }
    }
 
+   RUN_DEBUG(
    static bool actionHeld = false;
    if (inputValues.action) {
       if (!actionHeld) {
@@ -76,6 +77,7 @@ void Context::handleSpecialInputs(const InputValues &inputValues) const {
    } else {
       actionHeld = false;
    }
+   )
 }
 
 void Context::setScene(SPtr<Scene> scene) {
@@ -96,9 +98,13 @@ void Context::updateSession() {
 void Context::checkForSceneChange() {
    if (!scene) {
       setScene(SceneLoader::loadMenuScene(*this));
+      menuAfterCurrentScene = false;
    } else if (scene->getTimeSinceEnd() > TIME_TO_NEXT_LEVEL) {
       if (quitAfterCurrentScene) {
          quit();
+      } else if (menuAfterCurrentScene) {
+         setScene(SceneLoader::loadMenuScene(*this));
+         menuAfterCurrentScene = false;
       } else {
          bool sessionOver = false;
          for (const Player &player : session.players) {
@@ -109,10 +115,13 @@ void Context::checkForSceneChange() {
          }
 
          if (sessionOver) {
+            setScene(SceneLoader::loadWinScene(*this));
+
             for (Player &player : session.players) {
                player.score = 0;
             }
-            setScene(SceneLoader::loadMenuScene(*this));
+
+            menuAfterCurrentScene = true;
          } else {
             setScene(SceneLoader::loadNextLevel(*this));
          }
