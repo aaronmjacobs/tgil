@@ -10,8 +10,8 @@
 
 // Yup, defined in windows.h for whatever reason
 #ifdef _WIN32
-#undef near
-#undef far
+#undef min
+#undef max
 #endif // _WIN32
 
 #define BIT(x) (1<<(x))
