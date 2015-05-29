@@ -217,7 +217,7 @@ SPtr<GameObject> createSpotLight(const glm::vec3 &position, const glm::vec3 &col
    return light;
 }
 
-void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject)> clickFunction, bool clickable = true) {
+void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject)> clickFunction, bool clickable = true, glm::vec3 baseColor = glm::vec3(1.0f)) {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
    SPtr<ShaderProgram> tintedTextureShaderProgram(assetManager.loadShaderProgram("shaders/tinted_texture"));
@@ -234,7 +234,7 @@ void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, co
 
    SPtr<Model> model(std::make_shared<Model>(tintedTextureShaderProgram, planeMesh));
    model->attachMaterial(std::make_shared<TextureMaterial>(texture, "uTexture"));
-   SPtr<TintMaterial> tintMaterial(std::make_shared<TintMaterial>(1.0f, glm::vec3(1.0f)));
+   SPtr<TintMaterial> tintMaterial(std::make_shared<TintMaterial>(1.0f, baseColor));
    model->attachMaterial(tintMaterial);
    WPtr<TintMaterial> wTintMaterial(tintMaterial);
 
@@ -243,7 +243,7 @@ void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, co
    scene.addObject(gameObject);
    WPtr<GameObject> wGameObject = gameObject;
    if (clickable) {
-      scene.addClickableObject(ClickableObject(gameObject, [highlightColor, wTintMaterial, clickFunction, wGameObject](MenuLogicComponent &menuLogic, MouseEvent event) {
+      scene.addClickableObject(ClickableObject(gameObject, [baseColor, highlightColor, wTintMaterial, clickFunction, wGameObject](MenuLogicComponent &menuLogic, MouseEvent event) {
          if (event == MouseEvent::Click) {
             Context::getInstance().getAudioManager().play(SoundGroup::CLICK);
             clickFunction(menuLogic, wGameObject);
@@ -251,7 +251,7 @@ void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, co
             Context::getInstance().getAudioManager().play(SoundGroup::ENTER);
             wTintMaterial.lock()->setValues(1.0f, highlightColor);
          } else if (event == MouseEvent::Exit) {
-            wTintMaterial.lock()->setValues(1.0f, glm::vec3(1.0f));
+            wTintMaterial.lock()->setValues(1.0f, baseColor);
          }
       }));
    }
@@ -529,12 +529,19 @@ SPtr<Scene> loadMenuScene(const Context &context) {
       menuCameraLogic->setTargetPosition(mainLocation.cameraPos);
       menuCameraLogic->setTargetOrientation(mainLocation.cameraOrientation);
 
+      int numDevices = Context::getInstance().getInputHandler().getNumDevices();
+
       addMenuItem(scene, "The Ground Is Lava!", glm::vec3(38.7f, 24.1f + y, 26.1f), mainLocation.itemOrientation, [](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject){}, false);
 
-      addMenuItem(scene, "Play", mainLocation.itemPos, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
-         menuLogic.setTargetPosition(playLocation.cameraPos);
-         menuLogic.setTargetOrientation(playLocation.cameraOrientation);
-      });
+      if (numDevices < 2) {
+         addMenuItem(scene, "Need At Least 2 Controllers", mainLocation.itemPos + glm::vec3(-2.0f, 0.3f, 0.0f), mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject){}, false, glm::vec3(0.8f, 0.3f, 0.25f));
+      } else {
+         addMenuItem(scene, "Play", mainLocation.itemPos, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
+            menuLogic.setTargetPosition(playLocation.cameraPos);
+            menuLogic.setTargetOrientation(playLocation.cameraOrientation);
+         });
+      }
+
       addMenuItem(scene, "Settings", mainLocation.itemPos + offset, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
          menuLogic.setTargetPosition(settingsLocation.cameraPos);
          menuLogic.setTargetOrientation(settingsLocation.cameraOrientation);
@@ -559,7 +566,6 @@ SPtr<Scene> loadMenuScene(const Context &context) {
          menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
       });
 
-      int numDevices = Context::getInstance().getInputHandler().getNumDevices();
       for (int i = 0; i < numDevices; ++i) {
          addMenuItem(scene, "Controller " + std::to_string(i + 1), settingsLocation.itemPos + offset * (float)i, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
             // TODO
