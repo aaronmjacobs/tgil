@@ -48,7 +48,7 @@ bool writeToFile(const std::string &fileName, const std::string &data) {
 
 UPtr<unsigned char[]> readFromBinaryFile(const std::string &fileName) {
    ASSERT(!fileName.empty(), "Trying to read from empty file name");
-   std::ifstream in(fileName);
+   std::ifstream in(fileName, std::ifstream::binary);
    if (!in) {
       return nullptr;
    }
