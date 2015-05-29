@@ -16,6 +16,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/compatibility.hpp>
 
+// Yup, defined in windows.h for whatever reason
+#ifdef _WIN32
+#undef near
+#undef far
+#endif // _WIN32
+
 namespace {
 
 const float INTERP_TIME = 3.0f;

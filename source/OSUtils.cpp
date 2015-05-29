@@ -22,7 +22,10 @@
 #endif // __linux__
 
 #ifdef _WIN32
+#include <codecvt>
 #include <cstring>
+#include <locale>
+#include <ShlObj.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <Windows.h>
@@ -135,9 +138,16 @@ folly::Optional<std::string> getExecutablePath() {
 
 folly::Optional<std::string> getAppDataPath() {
    PWSTR path;
-   if (SHGetKnownFolderPath(&FOLDERID_LocalAppData, 0, nullptr, &path) != S_OK) {
+   if (SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path) != S_OK) {
+      CoTaskMemFree(path);
       return folly::none;
    }
+
+   std::wstring widePathStr(path);
+   CoTaskMemFree(path);
+
+   std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+   return converter.to_bytes(widePathStr);
 }
 
 bool setWorkingDirectory(const std::string &dir) {
@@ -145,7 +155,7 @@ bool setWorkingDirectory(const std::string &dir) {
 }
 
 bool createDirectory(const std::string &dir) {
-   return false;
+   return CreateDirectory(dir.c_str(), nullptr);;
 }
 #endif // _WIN32
 

@@ -60,7 +60,7 @@ const float FONT_SIZE_SMALL = 50.0f;
 const float FONT_SIZE_MEDIUM = 100.0f;
 const float FONT_SIZE_LARGE = 200.0f;
 
-const int BITMAP_SIZE = 700;
+const int BITMAP_SIZE = 1024;
 
 const int FIRST_PRINTABLE_GLYPH = 32;
 const int NUM_PRINTABLE_GLYPHS = 96;
@@ -74,18 +74,18 @@ void prepareShaderProgram(GameObject &gameObject, float width, float height) {
 }
 
 void renderQuad(GameObject &gameObject, DynamicMesh &mesh, const stbtt_aligned_quad &q, float xOffset, float yOffset) {
-   std::array<float, 12> vertices({{ q.x0 + xOffset, q.y1 + yOffset, 0.0f,
-                                     q.x1 + xOffset, q.y1 + yOffset, 0.0f,
-                                     q.x0 + xOffset, q.y0 + yOffset, 0.0f,
-                                     q.x1 + xOffset, q.y0 + yOffset, 0.0f }});
+   std::array<float, 12> vertices = {{ q.x0 + xOffset, q.y1 + yOffset, 0.0f,
+                                       q.x1 + xOffset, q.y1 + yOffset, 0.0f,
+                                       q.x0 + xOffset, q.y0 + yOffset, 0.0f,
+                                       q.x1 + xOffset, q.y0 + yOffset, 0.0f }};
 
-   std::array<unsigned int, 6> indices({{ 0, 1, 2,
-                                          2, 1, 3 }});
+   std::array<unsigned int, 6> indices = {{ 0, 1, 2,
+                                            2, 1, 3 }};
 
-   std::array<float, 8> texCoords({{ q.s0, q.t1,
-                                     q.s1, q.t1,
-                                     q.s0, q.t0,
-                                     q.s1, q.t0 }});
+   std::array<float, 8> texCoords = {{ q.s0, q.t1,
+                                       q.s1, q.t1,
+                                       q.s0, q.t0,
+                                       q.s1, q.t0 }};
 
    mesh.setVertices(vertices.data(), vertices.size());
    mesh.setIndices(indices.data(), indices.size());

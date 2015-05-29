@@ -173,14 +173,12 @@ if(MSVC)
       if(version LESS 14)
         set(__install__libs
           "${MSVC${v}_CRT_DIR}/msvcp${v}0.dll"
-          "${MSVC${v}_CRT_DIR}/msvcr${v}0.dll"
+          "${MSVC${v}_CRT_DIR}/vcruntime${v}0.dll"
           )
       else()
         set(__install__libs
           "${MSVC${v}_CRT_DIR}/msvcp${v}0.dll"
           "${MSVC${v}_CRT_DIR}/vcruntime${v}0.dll"
-          "${MSVC${v}_CRT_DIR}/appcrt${v}0.dll"
-          "${MSVC${v}_CRT_DIR}/desktopcrt${v}0.dll"
           )
       endif()
     else()
@@ -193,14 +191,12 @@ if(MSVC)
       if(version LESS 14)
         set(__install__libs ${__install__libs}
           "${MSVC${v}_CRT_DIR}/msvcp${v}0d.dll"
-          "${MSVC${v}_CRT_DIR}/msvcr${v}0d.dll"
+          "${MSVC${v}_CRT_DIR}/vcruntime${v}0d.dll"
           )
       else()
         set(__install__libs ${__install__libs}
           "${MSVC${v}_CRT_DIR}/msvcp${v}0d.dll"
           "${MSVC${v}_CRT_DIR}/vcruntime${v}0d.dll"
-          "${MSVC${v}_CRT_DIR}/appcrt${v}0d.dll"
-          "${MSVC${v}_CRT_DIR}/desktopcrt${v}0d.dll"
           )
       endif()
     endif()
