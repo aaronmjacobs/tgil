@@ -27,7 +27,7 @@ namespace {
 const float COOLDOWN = 3.0f;
 const float FORCE = 110.0f;
 const float LIFE_TIME = 0.25f;
-const float SCALE = 2.7f;
+const float SCALE = 2.4f;
 
 } // namespace
 
@@ -50,24 +50,25 @@ bool ShoveAbility::use() {
 
    SPtr<GameObject> shove(std::make_shared<GameObject>());
 
-   shove->setPosition(gameObject.getPosition() + gameObject.getCameraComponent().getFrontVector() / 3.0f);
+   shove->setPosition(gameObject.getPosition() + gameObject.getCameraComponent().getFrontVector());
    shove->setScale(glm::vec3(SCALE));
 
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
    // Graphics
-   SPtr<Mesh> mesh = assetManager.loadMesh("meshes/shove.obj");
+   SPtr<Mesh> mesh = assetManager.loadMesh("meshes/force_attack.obj");
    glm::vec3 color(1.0f, 0.35f, 0.15f);
    PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&gameObject.getLogicComponent());
    if (playerLogic) {
       color = playerLogic->getColor();
    }
    SPtr<ShaderProgram> shaderProgram(assetManager.loadShaderProgram("shaders/phong"));
-   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 0.8f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 0.8f, glm::vec3(0.2f), color * 0.2f, 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, mesh));
    model->attachMaterial(material);
    shove->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*shove));
    shove->getGraphicsComponent().setModel(model);
+   shove->getGraphicsComponent().setNormalOffsetShadows(false);
 
    // Light
    shove->setLightComponent(std::make_shared<LightComponent>(*shove, LightComponent::Spot, color * 2.0f, gameObject.getCameraComponent().getFrontVector(), 0.0f, 0.02f, 0.5f, 0.6f));
@@ -111,7 +112,7 @@ bool ShoveAbility::use() {
       rot.z *= -1.0f;
       rot = glm::normalize(rot);
 
-      gameObject.setPosition(cameraPos + front / 4.0f);
+      gameObject.setPosition(cameraPos + front);
       gameObject.setOrientation(rot);
       btTransform &ghostTrans = ghostObject->getWorldTransform();
       ghostTrans.setOrigin(toBt(gameObject.getPosition()));

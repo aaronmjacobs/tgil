@@ -41,7 +41,7 @@ SPtr<GameObject> createExplosion(const glm::vec3 &position, const float scale, c
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
    // Graphics
-   SPtr<Mesh> sphereMesh = assetManager.loadMesh("meshes/sphere.obj");
+   SPtr<Mesh> sphereMesh = assetManager.loadMesh("meshes/rock_attack.obj");
    SPtr<ShaderProgram> shaderProgram(assetManager.loadShaderProgram("shaders/phong"));
    SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 1.0f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
    SPtr<Model> model(std::make_shared<Model>(shaderProgram, sphereMesh));
@@ -148,13 +148,13 @@ bool ThrowAbility::use() {
 
    // Graphics
    SPtr<Model> playerModel = gameObject.getGraphicsComponent().getModel();
-   SPtr<Mesh> mesh = Context::getInstance().getAssetManager().loadMesh("meshes/sphere.obj");
+   SPtr<Mesh> mesh = Context::getInstance().getAssetManager().loadMesh("meshes/rock_attack.obj");
    glm::vec3 color(1.0f, 0.75f, 0.15f);
    PlayerLogicComponent *playerLogic = dynamic_cast<PlayerLogicComponent*>(&gameObject.getLogicComponent());
    if (playerLogic) {
       color = playerLogic->getColor();
    }
-   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 0.6f, glm::vec3(0.2f), glm::vec3(0.0f), 50.0f));
+   SPtr<Material> material(std::make_shared<PhongMaterial>(color * 0.2f, color * 0.6f, glm::vec3(0.2f), color * 0.2f, 50.0f));
    SPtr<Model> model(std::make_shared<Model>(playerModel->getShaderProgram(), mesh));
    model->attachMaterial(material);
    projectile->setGraphicsComponent(std::make_shared<GeometricGraphicsComponent>(*projectile));

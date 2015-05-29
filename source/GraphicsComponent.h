@@ -11,10 +11,11 @@ class GraphicsComponent : public Component {
 protected:
    SPtr<Model> model;
    bool transparency;
+   bool normalOffsetShadows;
 
 public:
    GraphicsComponent(GameObject &gameObject)
-      : Component(gameObject), transparency(false) {}
+      : Component(gameObject), transparency(false), normalOffsetShadows(true) {}
 
    virtual ~GraphicsComponent() {}
 
@@ -34,6 +35,14 @@ public:
 
    bool hasTransparency() const {
       return transparency;
+   }
+
+   void setNormalOffsetShadows(bool enabled) {
+      this->normalOffsetShadows = enabled;
+   }
+
+   bool useNormalOffsetShadows() const {
+      return normalOffsetShadows;
    }
 };
 

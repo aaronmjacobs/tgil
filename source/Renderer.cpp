@@ -382,6 +382,7 @@ void Renderer::renderShadowMapFace(Scene &scene, SPtr<GameObject> light, SPtr<Sh
       }
 
       if (frustumChecker.inFrustum(*gameObject)) {
+         shadowProgram->setUniformValue("uDisableNormalOffsetting", !gameObject->getGraphicsComponent().useNormalOffsetShadows(), true);
          gameObject->getGraphicsComponent().draw(renderData);
       }
    }

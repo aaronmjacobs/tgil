@@ -15,6 +15,7 @@
 
 PlayerGraphicsComponent::PlayerGraphicsComponent(GameObject &gameObject)
    : GraphicsComponent(gameObject), headOffset(0.0f), leftHandOffset(0.0f), rightHandOffset(0.0f), leftFootOffset(0.0f), rightFootOffset(0.0f) {
+   normalOffsetShadows = false;
 }
 
 PlayerGraphicsComponent::~PlayerGraphicsComponent() {
@@ -89,11 +90,8 @@ void PlayerGraphicsComponent::draw(const RenderData &renderData) {
 
    shaderProgram->setUniformValue("uModelMatrix", modelMatrix, true);
    shaderProgram->setUniformValue("uNormalMatrix", normalMatrix, true);
-   shaderProgram->setUniformValue("uDisableNormalOffsetting", true, true);
 
    model->draw(renderData);
 
    drawAppendages(renderData, rotMatrix, scaleMatrix);
-
-   shaderProgram->setUniformValue("uDisableNormalOffsetting", false, true);
 }
