@@ -36,7 +36,11 @@ void windowSizeCallback(GLFWwindow *window, int width, int height) {
 
 } // namespace
 
+#ifdef _WIN32
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+#else
 int main(int argc, char *argv[]) {
+#endif
    LOG_INFO(PROJECT_NAME << " " << VERSION_TYPE << " " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_MICRO << "." << VERSION_BUILD);
 
    if (!OSUtils::fixWorkingDirectory()) {

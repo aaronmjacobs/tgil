@@ -456,7 +456,7 @@ foreach(DEBUG_LIBRARY ${DEBUG_LIBRARIES})
 endforeach(DEBUG_LIBRARY)
 
 # Binary
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${SHADERS})
+add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS} ${SHADERS})
 
 # Link
 target_link_libraries(${PROJECT_NAME} ${TAGGED_RELEASE_LIBRARIES} ${TAGGED_DEBUG_LIBRARIES})
