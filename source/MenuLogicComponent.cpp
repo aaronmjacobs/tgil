@@ -120,12 +120,10 @@ void MenuLogicComponent::handleEvents(const Scene &scene, const btCollisionObjec
 
    if (hitObject && hitObject != lastObject) {
       fireEvent(*this, scene, hitObject, MouseEvent::Enter);
-      Context::getInstance().getAudioManager().play(SoundGroup::ENTER);
    }
 
    if (hitObject && click && !wasClicking) {
       fireEvent(*this, scene, hitObject, MouseEvent::Click);
-      Context::getInstance().getAudioManager().play(SoundGroup::CLICK);
    }
 
    lastObject = hitObject;

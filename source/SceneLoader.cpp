@@ -217,7 +217,7 @@ SPtr<GameObject> createSpotLight(const glm::vec3 &position, const glm::vec3 &col
    return light;
 }
 
-void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject)> clickFunction) {
+void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, const glm::quat &orientation, std::function<void(MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject)> clickFunction, bool clickable = true) {
    AssetManager &assetManager = Context::getInstance().getAssetManager();
 
    SPtr<ShaderProgram> tintedTextureShaderProgram(assetManager.loadShaderProgram("shaders/tinted_texture"));
@@ -242,16 +242,19 @@ void addMenuItem(Scene &scene, const std::string &text, const glm::vec3 &pos, co
    gameObject->getGraphicsComponent().setHasTransparency(true);
    scene.addObject(gameObject);
    WPtr<GameObject> wGameObject = gameObject;
-   scene.addClickableObject(ClickableObject(gameObject, [highlightColor, wTintMaterial, clickFunction, wGameObject](MenuLogicComponent &menuLogic, MouseEvent event) {
-      if (event == MouseEvent::Click) {
-         clickFunction(menuLogic, wGameObject);
-      } else if (event == MouseEvent::Enter) {
-         // TODO sound
-         wTintMaterial.lock()->setValues(1.0f, highlightColor);
-      } else if (event == MouseEvent::Exit) {
-         wTintMaterial.lock()->setValues(1.0f, glm::vec3(1.0f));
-      }
-   }));
+   if (clickable) {
+      scene.addClickableObject(ClickableObject(gameObject, [highlightColor, wTintMaterial, clickFunction, wGameObject](MenuLogicComponent &menuLogic, MouseEvent event) {
+         if (event == MouseEvent::Click) {
+            Context::getInstance().getAudioManager().play(SoundGroup::CLICK);
+            clickFunction(menuLogic, wGameObject);
+         } else if (event == MouseEvent::Enter) {
+            Context::getInstance().getAudioManager().play(SoundGroup::ENTER);
+            wTintMaterial.lock()->setValues(1.0f, highlightColor);
+         } else if (event == MouseEvent::Exit) {
+            wTintMaterial.lock()->setValues(1.0f, glm::vec3(1.0f));
+         }
+      }));
+   }
 }
 
 void buildDeathVolume(SPtr<Scene> scene, glm::vec3 position, glm::vec3 scale) {
@@ -509,8 +512,8 @@ SPtr<Scene> loadMenuScene(const Context &context) {
       MenuLocation mainLocation, playLocation, settingsLocation;
 
       mainLocation.cameraPos = glm::vec3(40.0f, 23.0f + y, 28.0f);
-      mainLocation.itemPos = glm::vec3(40.0f, 23.9f + y, 25.0f);
-      mainLocation.cameraOrientation = glm::angleAxis(glm::radians(-40.0f), glm::vec3(-0.2f, 0.8f, 0.1f));
+      mainLocation.itemPos = glm::vec3(40.0f, 23.9f + y, 24.0f);
+      mainLocation.cameraOrientation = glm::angleAxis(glm::radians(-40.0f), glm::vec3(0.0f, 0.8f, 0.1f));
       mainLocation.itemOrientation = glm::angleAxis(glm::radians(40.0f), glm::vec3(0.0f, 0.8f, 0.0f));
 
       playLocation.cameraPos = glm::vec3(-40.0f, 17.0f + y, -22.0f);
@@ -525,6 +528,8 @@ SPtr<Scene> loadMenuScene(const Context &context) {
 
       menuCameraLogic->setTargetPosition(mainLocation.cameraPos);
       menuCameraLogic->setTargetOrientation(mainLocation.cameraOrientation);
+
+      addMenuItem(scene, "The Ground Is Lava!", glm::vec3(38.7f, 24.1f + y, 26.1f), mainLocation.itemOrientation, [](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject){}, false);
 
       addMenuItem(scene, "Play", mainLocation.itemPos, mainLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
          menuLogic.setTargetPosition(playLocation.cameraPos);
