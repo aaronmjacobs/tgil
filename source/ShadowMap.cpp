@@ -120,13 +120,19 @@ SPtr<ShaderProgram> ShadowMap::getShadowProgram() const {
 
 // ShadowMapManager
 
-ShadowMapManager::ShadowMapManager(int numStandard, int numCube, int standardSize, int cubeSize) {
-   ASSERT(numStandard >= 0 && numCube >= 0 && standardSize > 0 && cubeSize > 0, "Invalid ShadowMapManager initialization values");
+ShadowMapManager::ShadowMapManager(int numStandard, int numLarge, int numCube, int standardSize, int largeSize, int cubeSize) {
+   ASSERT(numStandard >= 0 && numLarge >=0 && numCube >= 0 && standardSize > 0 && largeSize > 0 && cubeSize > 0, "Invalid ShadowMapManager initialization values");
 
    for (unsigned int i = 0; i < numStandard; ++i) {
       SPtr<ShadowMap> shadowMap(std::make_shared<ShadowMap>());
       shadowMap->init(standardSize);
       standardShadowMaps.push_back(shadowMap);
+   }
+
+   for (unsigned int i = 0; i < numLarge; ++i) {
+      SPtr<ShadowMap> shadowMap(std::make_shared<ShadowMap>());
+      shadowMap->init(largeSize);
+      largeShadowMaps.push_back(shadowMap);
    }
 
    for (unsigned int i = 0; i < numCube; ++i) {
@@ -151,6 +157,10 @@ SPtr<ShadowMap> ShadowMapManager::getShadowMap(const std::vector<SPtr<ShadowMap>
 
 SPtr<ShadowMap> ShadowMapManager::getFreeStandardMap() {
    return getShadowMap(standardShadowMaps);
+}
+
+SPtr<ShadowMap> ShadowMapManager::getFreeLargeMap() {
+   return getShadowMap(largeShadowMaps);
 }
 
 SPtr<ShadowMap> ShadowMapManager::getFreeCubeMap() {

@@ -17,7 +17,8 @@ protected:
    SPtr<ShaderProgram> shadowProgram;
 
 public:
-   static const int MAX_SHADOWS = 5;
+   static const int MAX_SHADOWS = 4;
+   static const int MAX_LARGE_SHADOWS = 1;
    static const int MAX_CUBE_SHADOWS = 4;
 
    ShadowMap();
@@ -46,16 +47,19 @@ public:
 class ShadowMapManager {
 protected:
    std::vector<SPtr<ShadowMap>> standardShadowMaps;
+   std::vector<SPtr<ShadowMap>> largeShadowMaps;
    std::vector<SPtr<ShadowMap>> cubeShadowMaps;
 
    SPtr<ShadowMap> getShadowMap(const std::vector<SPtr<ShadowMap>> &maps);
 
 public:
-   ShadowMapManager(int numStandard, int numCube, int standardSize = 4096, int cubeSize = 512);
+   ShadowMapManager(int numStandard, int numLarge, int numCube, int standardSize = 1024, int largeSize = 4096, int cubeSize = 512);
 
    virtual ~ShadowMapManager();
 
    SPtr<ShadowMap> getFreeStandardMap();
+
+   SPtr<ShadowMap> getFreeLargeMap();
 
    SPtr<ShadowMap> getFreeCubeMap();
 };

@@ -192,7 +192,7 @@ void Renderer::init(float fov, int width, int height, int windowWidth, int windo
 
    this->fov = fov;
 
-   shadowMapManager = std::move(UPtr<ShadowMapManager>(new ShadowMapManager(ShadowMap::MAX_SHADOWS, ShadowMap::MAX_CUBE_SHADOWS)));
+   shadowMapManager = std::move(UPtr<ShadowMapManager>(new ShadowMapManager(ShadowMap::MAX_SHADOWS, ShadowMap::MAX_LARGE_SHADOWS, ShadowMap::MAX_CUBE_SHADOWS)));
 
    onWindowSizeChange(windowWidth, windowHeight);
 
@@ -329,6 +329,8 @@ void Renderer::renderShadowMap(Scene &scene, SPtr<GameObject> light) {
    if (!shadowMap) {
       if (lightComponent.getLightType() == LightComponent::Point) {
          shadowMap = shadowMapManager->getFreeCubeMap();
+      } else if (lightComponent.getLightType() == LightComponent::Directional) {
+         shadowMap = shadowMapManager->getFreeLargeMap();
       } else {
          shadowMap = shadowMapManager->getFreeStandardMap();
       }
