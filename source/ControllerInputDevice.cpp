@@ -4,16 +4,21 @@
 #include <glm/glm.hpp>
 
 #include <algorithm>
+#include <cctype>
 
 namespace {
 
+const std::string XBOX = "Xbox";
+const std::string PS3 = "PS3";
+const std::string PS4 = "PS4";
+
 #ifdef __APPLE__
 
-const ControllerMap XBOX_360_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 11, -1, -1 };
+const ControllerMap XBOX_CONTROLLER_MAP = { XBOX, false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 11, -1, -1 };
 
-const ControllerMap PS3_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { -1, false, false }, { -1, false, false }, 14, 9, 8 };
+const ControllerMap PS3_CONTROLLER_MAP = { PS3, false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { -1, false, false }, { -1, false, false }, 14, 9, 8 };
 
-const ControllerMap PS4_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 1, -1, -1 };
+const ControllerMap PS4_CONTROLLER_MAP = { PS4, false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 1, -1, -1 };
 
 #endif // __APPLE__
 
@@ -21,22 +26,22 @@ const ControllerMap PS4_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }
 
 // TODO Figure out Linux bindings
 
-const ControllerMap XBOX_360_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 11, -1, -1 };
+const ControllerMap XBOX_CONTROLLER_MAP = { XBOX, false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 11, -1, -1 };
 
-const ControllerMap PS3_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { -1, false, false }, { -1, false, false }, 14, 9, 8 };
+const ControllerMap PS3_CONTROLLER_MAP = { PS3, false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { -1, false, false }, { -1, false, false }, 14, 9, 8 };
 
-const ControllerMap PS4_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 1, -1, -1 };
+const ControllerMap PS4_CONTROLLER_MAP = { PS4, false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 1, -1, -1 };
 
 #endif // __linux__
 
 #ifdef _WIN32
 
-const ControllerMap XBOX_360_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 4, false, true }, { 3, false, true }, { 2, true, false }, { 2, false, false }, 0, -1, -1 };
+const ControllerMap XBOX_CONTROLLER_MAP = { XBOX, false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 4, false, true }, { 3, false, true }, { 2, true, false }, { 2, false, false }, 0, -1, -1 };
 
 // TODO PS3 not well supported, fall back to 360 - see if we can do better
-const ControllerMap PS3_CONTROLLER_MAP = XBOX_360_CONTROLLER_MAP;
+const ControllerMap PS3_CONTROLLER_MAP = { PS3, false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 4, false, true }, { 3, false, true }, { 2, true, false }, { 2, false, false }, 0, -1, -1 };
 
-const ControllerMap PS4_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 4, false, false }, { 5, false, false }, 1, -1, -1 };
+const ControllerMap PS4_CONTROLLER_MAP = { PS4, false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 4, false, false }, { 5, false, false }, 1, -1, -1 };
 
 #endif // _WIN32
 
@@ -51,13 +56,13 @@ ControllerMap guessControllerMap(const std::string &name) {
       return PS3_CONTROLLER_MAP;
    }
    if (stringContainsIgnoreCase(name, "360") || stringContainsIgnoreCase(name, "xbox")) {
-      return XBOX_360_CONTROLLER_MAP;
+      return XBOX_CONTROLLER_MAP;
    }
    if (stringContainsIgnoreCase(name, "wireless controller")) {
       return PS4_CONTROLLER_MAP;
    }
 
-   return XBOX_360_CONTROLLER_MAP;
+   return XBOX_CONTROLLER_MAP;
 }
 
 const float AXIS_MIN = -1.0f;
@@ -159,4 +164,14 @@ InputValues ControllerInputDevice::getInputValues() {
 
 void ControllerInputDevice::setControllerMap(const ControllerMap &map) {
    this->map = map;
+}
+
+void ControllerInputDevice::rotateControllerMap() {
+   if (map.name == XBOX) {
+      map = PS3_CONTROLLER_MAP;
+   } else if (map.name == PS3) {
+      map = PS4_CONTROLLER_MAP;
+   } else {
+      map = XBOX_CONTROLLER_MAP;
+   }
 }

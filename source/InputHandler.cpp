@@ -80,3 +80,7 @@ bool InputHandler::isLeftMouseClicked() const {
 bool InputHandler::isRightMouseClicked() const {
    return keyMouseInputDevice->isRightMouseClicked();
 }
+
+const std::vector<SPtr<InputDevice>>& InputHandler::getInputDevices() const {
+   return inputDevices;
+}

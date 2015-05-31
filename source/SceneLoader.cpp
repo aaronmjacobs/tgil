@@ -3,6 +3,7 @@
 #include "AudioManager.h"
 #include "BvhMeshPhysicsComponent.h"
 #include "Context.h"
+#include "ControllerInputDevice.h"
 #include "FlyCameraComponent.h"
 #include "FlyCameraLogicComponent.h"
 #include "GameObject.h"
@@ -423,6 +424,35 @@ void addScoreToWinMenuItem(Scene &scene, const MenuLocation &playLocation, const
    });
 }
 
+void addControllerBindingMenuItems(Scene &scene, SPtr<InputDevice> inputDevice, int controllerNum, const MenuLocation &settingsLocation, const glm::vec3 &offset) {
+   ControllerInputDevice *controller = dynamic_cast<ControllerInputDevice*>(inputDevice.get());
+   if (!controller) {
+      addMenuItem(scene, "Controller " + std::to_string(controllerNum) + ": Keyboard / Mouse", settingsLocation.itemPos + offset, settingsLocation.itemOrientation, [](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject){}, false);
+      return;
+   }
+
+   WPtr<InputDevice> wInputDevice(inputDevice);
+   addMenuItem(scene, "Controller " + std::to_string(controllerNum) + ": " + controller->getControllerMapName(), settingsLocation.itemPos + offset, settingsLocation.itemOrientation, [settingsLocation, offset, wInputDevice, controllerNum](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
+      SPtr<InputDevice> inputDevice = wInputDevice.lock();
+      if (inputDevice) {
+         ControllerInputDevice *controller = dynamic_cast<ControllerInputDevice*>(inputDevice.get());
+         if (controller) {
+            controller->rotateControllerMap();
+         }
+      }
+
+      Scene &currentScene = Context::getInstance().getScene();
+
+      SPtr<GameObject> obj = gameObject.lock();
+      if (obj) {
+         currentScene.removeObject(obj);
+         currentScene.cleanUpClickableObjects();
+      }
+
+      addControllerBindingMenuItems(currentScene, inputDevice, controllerNum, settingsLocation, offset);
+   });
+}
+
 SPtr<Scene> loadMenuScene(const Context &context) {
    glm::vec3 spawnLocations[] = {
       glm::vec3(33.5f, 9.1f, -30.5f),
@@ -522,7 +552,7 @@ SPtr<Scene> loadMenuScene(const Context &context) {
       playLocation.itemOrientation = glm::angleAxis(glm::radians(-140.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
       settingsLocation.cameraPos = glm::vec3(-52.0f, 6.0f + y, 22.0f);
-      settingsLocation.itemPos = glm::vec3(-49.0f, 8.5f + y, 19.0f);
+      settingsLocation.itemPos = glm::vec3(-49.0f, 8.5f + y, 20.0f);
       settingsLocation.cameraOrientation = glm::angleAxis(glm::radians(75.0f), glm::vec3(-0.2f, 0.8f, 0.1f));
       settingsLocation.itemOrientation = glm::angleAxis(glm::radians(-60.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -566,13 +596,13 @@ SPtr<Scene> loadMenuScene(const Context &context) {
          menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
       });
 
-      for (int i = 0; i < numDevices; ++i) {
-         addMenuItem(scene, "Controller " + std::to_string(i + 1), settingsLocation.itemPos + offset * (float)i, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
-            // TODO
-         });
+      int controllerNum = 0;
+      for (SPtr<InputDevice> inputDevice : context.getInputHandler().getInputDevices()) {
+         ++controllerNum;
+         addControllerBindingMenuItems(scene, inputDevice, controllerNum, settingsLocation, offset * (float)controllerNum);
       }
 
-      addMenuItem(scene, "Back", settingsLocation.itemPos + offset * (float)numDevices, settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
+      addMenuItem(scene, "Back", settingsLocation.itemPos + offset * (float)(controllerNum + 1), settingsLocation.itemOrientation, [=](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject) {
          menuLogic.setTargetPosition(mainLocation.cameraPos);
          menuLogic.setTargetOrientation(mainLocation.cameraOrientation);
       });

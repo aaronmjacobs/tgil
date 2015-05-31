@@ -37,6 +37,8 @@ public:
    bool isLeftMouseClicked() const;
 
    bool isRightMouseClicked() const;
+
+   const std::vector<SPtr<InputDevice>>& getInputDevices() const;
 };
 
 #endif

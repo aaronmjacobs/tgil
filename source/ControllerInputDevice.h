@@ -12,6 +12,8 @@ struct ControllerAxis {
 };
 
 struct ControllerMap {
+   std::string name;
+
    bool invertYAxis;
    float lookSensitivity;
    float deadzone;
@@ -42,6 +44,12 @@ public:
    virtual InputValues getInputValues();
 
    void setControllerMap(const ControllerMap &map);
+
+   void rotateControllerMap();
+
+   const std::string& getControllerMapName() const {
+      return map.name;
+   }
 };
 
 #endif
