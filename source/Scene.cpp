@@ -104,6 +104,11 @@ void Scene::updateWinState() {
    }
 
    std::vector<SPtr<GameObject>> livingPlayers(getLivingPlayers());
+   if (livingPlayers.size() == 0 && players.objects.size() > 0) {
+      ended = true;
+      return;
+   }
+
    if (livingPlayers.size() != 1) {
       return;
    }
@@ -117,25 +122,23 @@ void Scene::updateWinState() {
    setWinner(playerNumber);
 }
 
-void Scene::updateAudio() {
+void Scene::updateAudioAttributes() {
    AudioManager &audioManager = Context::getInstance().getAudioManager();
 
-   int numCameras = cameras.objects.size();
-   UPtr<ListenerAttributes[]> attributes(new ListenerAttributes[numCameras]);
-
-   for (int i = 0; i < numCameras; ++i) {
-      CameraComponent &cameraComponent = cameras.objects[i]->getCameraComponent();
-      PlayerPhysicsComponent *physicsComponent = dynamic_cast<PlayerPhysicsComponent*>(&cameras.objects[i]->getPhysicsComponent());
+   std::vector<ListenerAttributes> attributes;
+   for (SPtr<GameObject> gameObject : cameras.objects) {
+      CameraComponent &cameraComponent = gameObject->getCameraComponent();
+      PlayerPhysicsComponent *physicsComponent = dynamic_cast<PlayerPhysicsComponent*>(&gameObject->getPhysicsComponent());
 
       glm::vec3 velocity(0.0f);
       if (physicsComponent) {
          velocity = physicsComponent->getVelocity();
       }
 
-      attributes[i] = { cameraComponent.getCameraPosition(), velocity, cameraComponent.getFrontVector(), cameraComponent.getUpVector() };
+      attributes.push_back({ cameraComponent.getCameraPosition(), velocity, cameraComponent.getFrontVector(), cameraComponent.getUpVector() });
    }
 
-   audioManager.update(attributes.get(), numCameras);
+   audioManager.updateAttributes(attributes);
 }
 
 void Scene::setWinner(int player) {
@@ -144,8 +147,6 @@ void Scene::setWinner(int player) {
 }
 
 void Scene::tick(const float dt) {
-   updateAudio();
-
    processPendingObjects();
 
    ticking = true;
@@ -155,6 +156,8 @@ void Scene::tick(const float dt) {
    for (SPtr<GameObject> object : objects.objects) {
       object->tick(dt);
    }
+
+   updateAudioAttributes();
 
    updateWinState();
 

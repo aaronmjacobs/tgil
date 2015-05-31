@@ -9,6 +9,7 @@
 
 namespace FMOD {
 
+class Channel;
 class ChannelGroup;
 class Sound;
 class System;
@@ -24,6 +25,12 @@ struct ListenerAttributes {
    glm::vec3 up;
 };
 
+namespace {
+
+const float MUSIC_FADE_TIME = 1.0f;
+
+} // namespace
+
 class SoundGroup {
 protected:
    const std::vector<std::string> soundFiles;
@@ -35,7 +42,10 @@ protected:
 
 public:
    // Music
-   static const SoundGroup QUICKDRAW;
+   static const SoundGroup MENU_MUSIC;
+   static const SoundGroup GAME_MUSIC;
+   static const SoundGroup WIN_MUSIC;
+   static const SoundGroup SILENCE;
 
    // Sound effects
    static const SoundGroup JUMP;
@@ -73,6 +83,7 @@ protected:
    FMOD::System *system;
    FMOD::ChannelGroup *musicGroup;
    FMOD::ChannelGroup *effectsGroup;
+   FMOD::Channel *activeMusicChannel;
 
    SoundMap musicMap;
    SoundMap effectsMap;
@@ -92,7 +103,9 @@ public:
 
    void init();
 
-   void update(ListenerAttributes *listeners, int numListeners);
+   void update();
+
+   void updateAttributes(const std::vector<ListenerAttributes> &attributes);
 
    void play(const SoundGroup &soundGroup, const glm::vec3 &pos = glm::vec3(0.0f), const glm::vec3 &vel = glm::vec3(0.0f));
 };

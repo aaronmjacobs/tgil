@@ -30,7 +30,7 @@ Context& Context::getInstance() {
 // Normal class members
 
 Context::Context(GLFWwindow* const window)
-   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), runningTime(0.0f), activeShaderProgramID(0), menuAfterCurrentScene(false), quitAfterCurrentScene(false) {
+   : window(window), assetManager(new AssetManager), audioManager(new AudioManager), inputHandler(new InputHandler(window)), renderer(new Renderer), textureUnitManager(new TextureUnitManager), state(ContextState::INIT), musicChangeInitiated(false), runningTime(0.0f), activeShaderProgramID(0), menuAfterCurrentScene(false), quitAfterCurrentScene(false) {
 }
 
 Context::~Context() {
@@ -96,40 +96,93 @@ void Context::updateSession() {
 }
 
 void Context::checkForSceneChange() {
-   if (!scene) {
-      setScene(SceneLoader::loadMenuScene(*this));
-      menuAfterCurrentScene = false;
-   } else if (scene->getTimeSinceEnd() > TIME_TO_NEXT_LEVEL) {
-      if (quitAfterCurrentScene) {
-         quit();
-      } else if (menuAfterCurrentScene) {
+   if (scene && scene->getTimeSinceEnd() < TIME_TO_NEXT_LEVEL) {
+      return;
+   }
+
+   ContextState nextState = determineNextState();
+
+   switch (nextState) {
+      case ContextState::MENU:
          setScene(SceneLoader::loadMenuScene(*this));
          menuAfterCurrentScene = false;
-      } else {
-         bool sessionOver = false;
-         for (const Player &player : session.players) {
-            if (player.score >= session.scoreCap) {
-               sessionOver = true;
-               break;
-            }
+         break;
+      case ContextState::GAMEPLAY:
+         setScene(SceneLoader::loadNextLevel(*this));
+         break;
+      case ContextState::WIN:
+         setScene(SceneLoader::loadWinScene(*this));
+
+         for (Player &player : session.players) {
+            player.score = 0;
          }
 
-         if (sessionOver) {
-            setScene(SceneLoader::loadWinScene(*this));
+         menuAfterCurrentScene = true;
+         break;
+      case ContextState::QUIT:
+         quit();
+         break;
+      default:
+         break;
+   }
 
-            for (Player &player : session.players) {
-               player.score = 0;
-            }
+   state = nextState;
+   musicChangeInitiated = false;
+}
 
-            menuAfterCurrentScene = true;
-         } else {
-            setScene(SceneLoader::loadNextLevel(*this));
+void Context::checkForMusicChange() {
+   if ((scene && scene->getTimeSinceEnd() < (TIME_TO_NEXT_LEVEL - MUSIC_FADE_TIME)) || musicChangeInitiated) {
+      return;
+   }
+
+   ContextState nextState = determineNextState();
+
+   switch (nextState) {
+      case ContextState::MENU:
+         audioManager->play(SoundGroup::MENU_MUSIC);
+         break;
+      case ContextState::GAMEPLAY:
+         if (state != ContextState::GAMEPLAY) {
+            audioManager->play(SoundGroup::GAME_MUSIC);
          }
+         break;
+      case ContextState::WIN:
+         audioManager->play(SoundGroup::WIN_MUSIC);
+         break;
+      case ContextState::QUIT:
+         audioManager->play(SoundGroup::SILENCE);
+         break;
+      default:
+         break;
+   }
+
+   musicChangeInitiated = true;
+}
+
+ContextState Context::determineNextState() {
+   if (!scene) {
+      return ContextState::MENU;
+   }
+
+   if (quitAfterCurrentScene) {
+      return ContextState::QUIT;
+   }
+
+   if (menuAfterCurrentScene) {
+      return ContextState::MENU;
+   }
+
+   for (const Player &player : session.players) {
+      if (player.score >= session.scoreCap) {
+         return ContextState::WIN;
       }
    }
+
+   return ContextState::GAMEPLAY;
 }
 
 void Context::tick(const float dt) {
+   checkForMusicChange();
    checkForSceneChange();
 
    updateSession();
@@ -139,6 +192,8 @@ void Context::tick(const float dt) {
    handleSpecialInputs(inputHandler->getKeyMouseInputValues());
 
    scene->tick(dt);
+
+   audioManager->update();
 
    runningTime += dt;
 }

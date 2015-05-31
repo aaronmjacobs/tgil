@@ -1177,7 +1177,8 @@ SPtr<Scene> loadWinScene(const Context &context) {
 
       addMenuItem(scene, "Player " + std::to_string(playerIndex + 1) + " Wins!", glm::vec3(2.0f, 30.25f + y, 38.0f), mainLocation.itemOrientation, [](MenuLogicComponent &menuLogic, WPtr<GameObject> gameObject){}, false);
 
-      scene.endIn(10.0f);
+      // Just enough time for one playthrough of "Oh Yeah!"
+      scene.endIn(10.5f);
    }, false);
 }
 

@@ -101,7 +101,7 @@ protected:
 
    void updateWinState();
 
-   void updateAudio();
+   void updateAudioAttributes();
 
    void setWinner(int player);
 

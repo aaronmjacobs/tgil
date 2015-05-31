@@ -39,6 +39,10 @@ struct GameSession {
    }
 };
 
+enum class ContextState {
+   INIT, MENU, GAMEPLAY, WIN, QUIT
+};
+
 class Context {
 private:
    static UPtr<Context> instance;
@@ -52,6 +56,8 @@ protected:
    const UPtr<InputHandler> inputHandler;
    const UPtr<Renderer> renderer;
    const UPtr<TextureUnitManager> textureUnitManager;
+   ContextState state;
+   bool musicChangeInitiated;
    SPtr<Scene> scene;
    GameSession session;
    float runningTime;
@@ -66,6 +72,10 @@ protected:
    void updateSession();
 
    void checkForSceneChange();
+
+   void checkForMusicChange();
+
+   ContextState determineNextState();
 
 public:
    static void load(GLFWwindow* const window);

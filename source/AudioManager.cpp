@@ -16,7 +16,7 @@ const float MAX_DISTANCE = 10000.0f;
 const float MUSIC_VOLUME = 0.35f;
 const float EFFECTS_VOLUME = 0.7f;
 
-std::default_random_engine generator;
+std::default_random_engine generator(std::random_device{}());
 
 enum class ErrorLevel {
    Warning,
@@ -78,6 +78,29 @@ FMOD_VECTOR toFmod(const glm::vec3 &vector) {
    return { vector.x, vector.y, vector.z };
 }
 
+void fadeIn(FMOD::System *system, FMOD::Channel *channel, float seconds) {
+   int rate;
+   check(system->getSoftwareFormat(&rate, nullptr, nullptr));
+
+   unsigned long long dspclock;
+   check(channel->getDSPClock(0, &dspclock));
+
+   check(channel->addFadePoint(dspclock, 0.0f));
+   check(channel->addFadePoint(dspclock + (rate * seconds), 1.0f));
+}
+
+void fadeOut(FMOD::System *system, FMOD::Channel *channel, float seconds) {
+   int rate;
+   check(system->getSoftwareFormat(&rate, nullptr, nullptr));
+
+   unsigned long long dspclock;
+   check(channel->getDSPClock(0, &dspclock));
+
+   check(channel->addFadePoint(dspclock, 1.0f));
+   check(channel->addFadePoint(dspclock + (rate * seconds), 0.0f));
+   check(channel->setDelay(0, dspclock + (rate * seconds), true));
+}
+
 } // namespace
 
 // SoundGroup
@@ -96,7 +119,10 @@ const std::string& SoundGroup::getSoundFile() const {
 }
 
 // Music
-const SoundGroup SoundGroup::QUICKDRAW({"music/quickdraw.ogg"}, true, false, 0.0f);
+const SoundGroup SoundGroup::MENU_MUSIC({"music/anticipate.ogg"}, true, false, 0.0f);
+const SoundGroup SoundGroup::GAME_MUSIC({"music/quickdraw.ogg", "music/pursuit.ogg"}, true, false, 0.0f);
+const SoundGroup SoundGroup::WIN_MUSIC({"music/ohyeah.ogg"}, true, false, 0.0f);
+const SoundGroup SoundGroup::SILENCE({"music/silence.ogg"}, true, false, 0.0f);
 
 // Sound effects
 const SoundGroup SoundGroup::JUMP({"sounds/jump.ogg"}, false, true, 3.0f);
@@ -111,7 +137,7 @@ const SoundGroup SoundGroup::CLICK({"sounds/click.ogg"}, false, false, 5.0f);
 // AudioManager
 
 AudioManager::AudioManager()
-   : system(nullptr), musicGroup(nullptr), effectsGroup(nullptr), numListeners(1) {
+   : system(nullptr), musicGroup(nullptr), effectsGroup(nullptr), activeMusicChannel(nullptr), numListeners(1) {
 }
 
 AudioManager::~AudioManager() {
@@ -192,7 +218,11 @@ void AudioManager::init() {
    check(musicGroup->setVolume(MUSIC_VOLUME));
    check(effectsGroup->setVolume(EFFECTS_VOLUME));
 
-   load(SoundGroup::QUICKDRAW);
+   load(SoundGroup::MENU_MUSIC);
+   load(SoundGroup::GAME_MUSIC);
+   load(SoundGroup::WIN_MUSIC);
+   load(SoundGroup::SILENCE);
+
    load(SoundGroup::JUMP);
    load(SoundGroup::STEP);
    load(SoundGroup::DIE);
@@ -201,31 +231,30 @@ void AudioManager::init() {
    load(SoundGroup::THROW);
    load(SoundGroup::ENTER);
    load(SoundGroup::CLICK);
-
-   play(SoundGroup::QUICKDRAW);
 }
 
-void AudioManager::update(ListenerAttributes *listeners, int numListeners) {
+void AudioManager::update() {
+   check(system->update());
+}
+
+void AudioManager::updateAttributes(const std::vector<ListenerAttributes> &attributesVec) {
    ASSERT(system, "Audio system not initialized");
-   ASSERT(numListeners >= 0 && numListeners < 5, "Invalid number of listeners");
+   ASSERT(attributesVec.size() < 5, "Invalid number of listeners");
 
-   if (numListeners > 0 && numListeners < 5) {
-      if (this->numListeners != numListeners) {
-         this->numListeners = numListeners;
-         check(system->set3DNumListeners(numListeners));
-      }
-
-      for (int i = 0; i < numListeners; ++i) {
-         FMOD_VECTOR position = toFmod(listeners[i].position);
-         FMOD_VECTOR velocity = toFmod(listeners[i].velocity);
-         FMOD_VECTOR forward = toFmod(listeners[i].forward);
-         FMOD_VECTOR up = toFmod(listeners[i].up);
-
-         check(system->set3DListenerAttributes(i, &position, &velocity, &forward, &up));
-      }
+   if (numListeners != attributesVec.size()) {
+      numListeners = attributesVec.size();
+      check(system->set3DNumListeners(numListeners));
    }
 
-   check(system->update());
+   int i = 0;
+   for (const ListenerAttributes &attributes : attributesVec) {
+      FMOD_VECTOR position = toFmod(attributes.position);
+      FMOD_VECTOR velocity = toFmod(attributes.velocity);
+      FMOD_VECTOR forward = toFmod(attributes.forward);
+      FMOD_VECTOR up = toFmod(attributes.up);
+
+      check(system->set3DListenerAttributes(i++, &position, &velocity, &forward, &up));
+   }
 }
 
 void AudioManager::play(const SoundGroup &soundGroup, const glm::vec3 &pos, const glm::vec3 &vel) {
@@ -259,6 +288,15 @@ void AudioManager::play(const SoundGroup &soundGroup, const glm::vec3 &pos, cons
 
    if (soundGroup.isStream()) {
       check(channel->setLoopCount(-1));
+   }
+
+   if (group == musicGroup) {
+      if (activeMusicChannel) {
+         fadeIn(system, channel, MUSIC_FADE_TIME);
+         fadeOut(system, activeMusicChannel, MUSIC_FADE_TIME);
+      }
+
+      activeMusicChannel = channel;
    }
 
    check(channel->setPaused(false));
