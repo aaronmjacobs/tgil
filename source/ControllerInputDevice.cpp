@@ -36,7 +36,7 @@ const ControllerMap PS4_CONTROLLER_MAP = { PS4, false, 0.7f, 0.1f, { 0, false, t
 
 #ifdef _WIN32
 
-const ControllerMap XBOX_CONTROLLER_MAP = { XBOX, false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 4, false, true }, { 3, false, true }, { 2, true, false }, { 2, false, false }, 0, -1, -1 };
+const ControllerMap XBOX_CONTROLLER_MAP = { XBOX, false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 4, false, true }, { 3, false, true }, { 2, true, true }, { 2, false, true }, 0, -1, -1 };
 
 // TODO PS3 not well supported, fall back to 360 - see if we can do better
 const ControllerMap PS3_CONTROLLER_MAP = { PS3, false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 4, false, true }, { 3, false, true }, { 2, true, false }, { 2, false, false }, 0, -1, -1 };
