@@ -3,6 +3,8 @@
 
 #include "InputDevice.h"
 
+#include <string>
+
 struct ControllerAxis {
    int index;
    bool invert;
@@ -22,11 +24,14 @@ struct ControllerMap {
    ControllerAxis secondaryTriggerAxis;
 
    int jumpButton;
+   int primaryTriggerButton;
+   int secondaryTriggerButton;
 };
 
 class ControllerInputDevice : public InputDevice {
 protected:
    const int controller;
+   const std::string name;
    ControllerMap map;
 
 public:

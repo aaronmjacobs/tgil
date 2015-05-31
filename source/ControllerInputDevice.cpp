@@ -3,11 +3,62 @@
 
 #include <glm/glm.hpp>
 
+#include <algorithm>
+
 namespace {
 
-const ControllerMap DEFAULT_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 1 };
+#ifdef __APPLE__
 
-const ControllerMap XBOX_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 11 };
+const ControllerMap XBOX_360_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 11, -1, -1 };
+
+const ControllerMap PS3_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { -1, false, false }, { -1, false, false }, 14, 9, 8 };
+
+const ControllerMap PS4_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 1, -1, -1 };
+
+#endif // __APPLE__
+
+#ifdef __linux__
+
+// TODO Figure out Linux bindings
+
+const ControllerMap XBOX_360_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 11, -1, -1 };
+
+const ControllerMap PS3_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { -1, false, false }, { -1, false, false }, 14, 9, 8 };
+
+const ControllerMap PS4_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 5, false, false }, { 4, false, false }, 1, -1, -1 };
+
+#endif // __linux__
+
+#ifdef _WIN32
+
+const ControllerMap XBOX_360_CONTROLLER_MAP = { false, 0.7f, 0.2f, { 0, false, true }, { 1, false, true }, { 4, false, true }, { 3, false, true }, { 2, true, false }, { 2, false, false }, 0, -1, -1 };
+
+// TODO PS3 not well supported, fall back to 360 - see if we can do better
+const ControllerMap PS3_CONTROLLER_MAP = XBOX_360_CONTROLLER_MAP;
+
+const ControllerMap PS4_CONTROLLER_MAP = { false, 0.7f, 0.1f, { 0, false, true }, { 1, false, true }, { 2, false, true }, { 3, false, true }, { 4, false, false }, { 5, false, false }, 1, -1, -1 };
+
+#endif // _WIN32
+
+bool stringContainsIgnoreCase(const std::string &haystack, const std::string &needle) {
+   return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(),
+                       [](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); })
+           != haystack.end();
+}
+
+ControllerMap guessControllerMap(const std::string &name) {
+   if (stringContainsIgnoreCase(name, "playstation") && stringContainsIgnoreCase(name, "3")) {
+      return PS3_CONTROLLER_MAP;
+   }
+   if (stringContainsIgnoreCase(name, "360") || stringContainsIgnoreCase(name, "xbox")) {
+      return XBOX_360_CONTROLLER_MAP;
+   }
+   if (stringContainsIgnoreCase(name, "wireless controller")) {
+      return PS4_CONTROLLER_MAP;
+   }
+
+   return XBOX_360_CONTROLLER_MAP;
+}
 
 const float AXIS_MIN = -1.0f;
 const float AXIS_MAX = 1.0f;
@@ -64,7 +115,7 @@ bool getButtonValue(const unsigned char *buttons, const int buttonCount, const i
 } // namespace
 
 ControllerInputDevice::ControllerInputDevice(GLFWwindow* const window, const int controller)
-   : InputDevice(window), controller(controller), map(XBOX_CONTROLLER_MAP) {
+   : InputDevice(window), controller(controller), name(glfwGetJoystickName(controller)), map(guessControllerMap(name)) {
 }
 
 ControllerInputDevice::~ControllerInputDevice() {
@@ -100,8 +151,8 @@ InputValues ControllerInputDevice::getInputValues() {
    inputValues.action = false;
    inputValues.jump = getButtonValue(buttons, buttonCount, map.jumpButton);
    inputValues.quit = false;
-   inputValues.primaryAttack = getAxisValue(axes, axisCount, map.primaryTriggerAxis, map.deadzone) > 0.5f;
-   inputValues.secondaryAttack = getAxisValue(axes, axisCount, map.secondaryTriggerAxis, map.deadzone) > 0.5f;
+   inputValues.primaryAttack = getAxisValue(axes, axisCount, map.primaryTriggerAxis, map.deadzone) > 0.0f || getButtonValue(buttons, buttonCount, map.primaryTriggerButton);
+   inputValues.secondaryAttack = getAxisValue(axes, axisCount, map.secondaryTriggerAxis, map.deadzone) > 0.0f || getButtonValue(buttons, buttonCount, map.secondaryTriggerButton);
 
    return inputValues;
 }
