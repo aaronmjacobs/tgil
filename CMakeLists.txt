@@ -1,7 +1,9 @@
 ### Project Info ###
 
 cmake_minimum_required(VERSION 2.8)
-project(Struggle)
+project(tgil)
+
+set(PROJECT_DISPLAY_NAME "The Ground Is Lava!")
 
 # Version info
 set(VERSION_TYPE "Pre-Alpha")
@@ -474,7 +476,7 @@ endif (COPY_LIBRARIES)
 
 # Install
 if (APPLE)
-   set(APP_DIR "${PROJECT_NAME}.app")
+   set(APP_DIR "${PROJECT_DISPLAY_NAME}.app")
    set(CONTENTS_DIR "${APP_DIR}/Contents")
    set(MACOS_DIR "${CONTENTS_DIR}/MacOS")
 

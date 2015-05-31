@@ -2,8 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleExecutable</key>
-	<string>Struggle</string>
+   <key>CFBundleExecutable</key>
+   <string>tgil</string>
+   <key>CFBundleIdentifier</key>
+   <string>com.aaronmjacobs.tgil</string>
+   <key>CFBundleName</key>
+   <string>The Ground Is Lava!</string>
+   <key>CFBundleDisplayName</key>
+   <string>The Ground Is Lava!</string>
    <key>NSHighResolutionCapable</key>
    <string>YES</string>
 </dict>
