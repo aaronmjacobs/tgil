@@ -51,7 +51,8 @@ bool stringContainsIgnoreCase(const std::string &haystack, const std::string &ne
            != haystack.end();
 }
 
-ControllerMap guessControllerMap(const std::string &name) {
+ControllerMap guessControllerMap(const std::string &name, int numButtons, int numAxes) {
+   // Check by name
    if (stringContainsIgnoreCase(name, "playstation") && stringContainsIgnoreCase(name, "3")) {
       return PS3_CONTROLLER_MAP;
    }
@@ -60,6 +61,14 @@ ControllerMap guessControllerMap(const std::string &name) {
    }
    if (stringContainsIgnoreCase(name, "wireless controller")) {
       return PS4_CONTROLLER_MAP;
+   }
+
+   // Check by number of buttons / axes
+   if (numButtons == 18 && numAxes == 6) {
+      return PS4_CONTROLLER_MAP;
+   }
+   if (numButtons == 19 && numAxes == 4) {
+      return PS3_CONTROLLER_MAP;
    }
 
    return XBOX_CONTROLLER_MAP;
@@ -120,7 +129,12 @@ bool getButtonValue(const unsigned char *buttons, const int buttonCount, const i
 } // namespace
 
 ControllerInputDevice::ControllerInputDevice(GLFWwindow* const window, const int controller)
-   : InputDevice(window), controller(controller), name(glfwGetJoystickName(controller)), map(guessControllerMap(name)) {
+   : InputDevice(window), controller(controller), name(glfwGetJoystickName(controller)) {
+   int buttonCount = 0, axisCount = 0;
+   glfwGetJoystickButtons(controller, &buttonCount);
+   glfwGetJoystickAxes(controller, &axisCount);
+
+   map = guessControllerMap(name, buttonCount, axisCount);
 }
 
 ControllerInputDevice::~ControllerInputDevice() {
