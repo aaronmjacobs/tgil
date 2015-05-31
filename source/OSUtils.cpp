@@ -147,7 +147,7 @@ folly::Optional<std::string> getAppDataPath() {
    CoTaskMemFree(path);
 
    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-   return converter.to_bytes(widePathStr);
+   return converter.to_bytes(widePathStr) + "/" PROJECT_NAME;
 }
 
 bool setWorkingDirectory(const std::string &dir) {
@@ -155,7 +155,7 @@ bool setWorkingDirectory(const std::string &dir) {
 }
 
 bool createDirectory(const std::string &dir) {
-   return CreateDirectory(dir.c_str(), nullptr);;
+   return CreateDirectory(dir.c_str(), nullptr);
 }
 #endif // _WIN32
 
