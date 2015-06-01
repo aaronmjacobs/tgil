@@ -609,82 +609,6 @@ SPtr<Scene> loadMenuScene(const Context &context) {
    }, false);
 }
 
-SPtr<Scene> loadTestScene(const Context &context) {
-   glm::vec3 spawnLocations[] = {
-      glm::vec3(33.5f, 9.1f, -30.5f),
-      glm::vec3(18.2f, 24.7f, 30.0f),
-      glm::vec3(-35.2f, 12.6f, 29.6477),
-      glm::vec3(-35.7f, 21.5f, -8.18972)
-   };
-
-   return loadBasicScene(context, spawnLocations, [&context](Scene &scene) {
-      float y = 7.0f;
-
-      AssetManager &assetManager = context.getAssetManager();
-      SPtr<ShaderProgram> phongShaderProgram(assetManager.loadShaderProgram("shaders/phong"));
-
-      SPtr<PhongMaterial> floorMaterial = createPhongMaterial(glm::vec3(0.78f, 0.60f, 0.34f) * 1.5f, 0.2f, 5.0f);
-      SPtr<Mesh> floorMesh = assetManager.loadMesh("meshes/land.obj");
-      SPtr<Model> floorModel(std::make_shared<Model>(phongShaderProgram, floorMesh));
-      floorModel->attachMaterial(floorMaterial);
-      scene.addObject(createBvhObject(floorModel, glm::vec3(0.0f, y, 0.0f), glm::vec3(1.0f), 1.0f, 0.3f));
-
-      SPtr<PhongMaterial> trunkMaterial = createPhongMaterial(glm::vec3(0.36f, 0.27f, 0.11f), 0.2f, 5.0f);
-      SPtr<Mesh> trunkMesh = assetManager.loadMesh("meshes/trunk_lg.obj");
-      SPtr<Model> trunkModel(std::make_shared<Model>(phongShaderProgram, trunkMesh));
-      trunkModel->attachMaterial(trunkMaterial);
-
-      SPtr<PhongMaterial> leavesMaterial = createPhongMaterial(glm::vec3(0.86f, 0.26f, 0.0f) * 1.5f, 0.2f, 5.0f);
-      SPtr<Mesh> leavesMesh = assetManager.loadMesh("meshes/leaves_lg.obj");
-      SPtr<Model> leavesModel(std::make_shared<Model>(phongShaderProgram, leavesMesh));
-      leavesModel->attachMaterial(leavesMaterial);
-
-      SPtr<PhongMaterial> rockMaterial = createPhongMaterial(glm::vec3(0.4f, 0.4f, 0.4f) * 1.5f, 0.2f, 5.0f);
-      SPtr<Mesh> rockMesh = assetManager.loadMesh("meshes/rock_lg.obj");
-      SPtr<Model> rockModel(std::make_shared<Model>(phongShaderProgram, rockMesh));
-      rockModel->attachMaterial(rockMaterial);
-
-      // Trees
-
-      glm::vec3 loc(22.0f, y + 15.6f, 31.0f);
-      scene.addObject(createStaticObject(trunkModel, loc, glm::vec3(1.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(leavesModel, loc, glm::vec3(1.0f), 1.0f, 0.3f));
-
-      glm::vec3 loc2(-37.8f, y + 13.0f, -12.8f);
-      scene.addObject(createStaticObject(trunkModel, loc2, glm::vec3(1.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(leavesModel, loc2, glm::vec3(1.0f), 1.0f, 0.3f));
-
-      glm::vec3 loc3(-31.9f, y + 4.1f, 15.4f);
-      scene.addObject(createStaticObject(trunkModel, loc3, glm::vec3(1.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(leavesModel, loc3, glm::vec3(1.0f), 1.0f, 0.3f));
-
-      glm::vec3 loc4(1.0f, y + -0.2f, -6.8f);
-      scene.addObject(createStaticObject(trunkModel, loc4, glm::vec3(1.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(leavesModel, loc4, glm::vec3(1.0f), 1.0f, 0.3f));
-
-      glm::vec3 loc5(40.3f, y + -1.1f, -32.1f);
-      scene.addObject(createStaticObject(trunkModel, loc5, glm::vec3(1.0f), 1.0f, 0.3f));
-      scene.addObject(createStaticObject(leavesModel, loc5, glm::vec3(1.0f), 1.0f, 0.3f));
-
-      // Rocks
-
-      glm::vec3 loc6(13.0f, y + 5.6f, 10.0f);
-      scene.addObject(createStaticObject(rockModel, loc6, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
-
-      glm::vec3 loc7(-10.0f, y + 1.0f, 6.0f);
-      scene.addObject(createStaticObject(rockModel, loc7, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
-
-      glm::vec3 loc8(30.0f, y + 0.5f, -9.0f);
-      scene.addObject(createStaticObject(rockModel, loc8, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
-
-      glm::vec3 loc9(-33.7f, y + 13.0f, -13.3f);
-      scene.addObject(createStaticObject(rockModel, loc9, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
-
-      glm::vec3 loc10(-8.0f, y + 2.6f, 33.0f);
-      scene.addObject(createStaticObject(rockModel, loc10, glm::vec3(randomScale(0.5f, 2.0f)), 1.0f, 0.3f, randomOrientation()));
-   });
-}
-
 SPtr<Scene> loadCenterIslandScene(const Context &context) {
    glm::vec3 spawnLocations[] = {
       glm::vec3(-10.0f, 20.0f, 0.0f),
@@ -954,60 +878,6 @@ SPtr<Scene> loadGridIslandScene(const Context &context) {
    });
 }
 
-SPtr<Scene> loadTorusIslandScene(const Context &context) {
-   const float SIZE = 26.0f;
-   const float DISTANCE = 13.0f;
-   const float PLATFORM_HEIGHT = 15.0f;
-   const float HEIGHT_RANGE = 4.0f;
-   const float SPAWN_HEIGHT = PLATFORM_HEIGHT + HEIGHT_RANGE + 5.0f;
-
-   glm::vec3 spawnLocations[] = {
-      glm::vec3(-SIZE, SPAWN_HEIGHT, -SIZE),
-      glm::vec3(SIZE, SPAWN_HEIGHT, -SIZE),
-      glm::vec3(-SIZE, SPAWN_HEIGHT, SIZE),
-      glm::vec3(SIZE, SPAWN_HEIGHT, SIZE)
-   };
-
-   return loadBasicScene(context, spawnLocations, [&context, SIZE, DISTANCE, PLATFORM_HEIGHT, HEIGHT_RANGE](Scene &scene) {
-      AssetManager &assetManager = context.getAssetManager();
-      SPtr<ShaderProgram> phongShaderProgram(assetManager.loadShaderProgram("shaders/phong"));
-
-      SPtr<PhongMaterial> trunkMaterial = createPhongMaterial(glm::vec3(0.36f, 0.27f, 0.11f), 0.2f, 5.0f);
-      SPtr<Mesh> trunkMesh = assetManager.loadMesh("meshes/trunk_lg.obj");
-      SPtr<Model> trunkModel(std::make_shared<Model>(phongShaderProgram, trunkMesh));
-      trunkModel->attachMaterial(trunkMaterial);
-
-      SPtr<PhongMaterial> leavesMaterial = createPhongMaterial(glm::vec3(0.86f, 0.26f, 0.0f) * 1.5f, 0.2f, 5.0f);
-      SPtr<Mesh> leavesMesh = assetManager.loadMesh("meshes/leaves_lg.obj");
-      SPtr<Model> leavesModel(std::make_shared<Model>(phongShaderProgram, leavesMesh));
-      leavesModel->attachMaterial(leavesMaterial);
-
-      SPtr<PhongMaterial> rockMaterial = createPhongMaterial(glm::vec3(0.4f, 0.4f, 0.4f) * 1.5f, 0.2f, 5.0f);
-      SPtr<Mesh> rockMesh = assetManager.loadMesh("meshes/rock_lg.obj");
-      SPtr<Model> rockModel(std::make_shared<Model>(phongShaderProgram, rockMesh));
-      rockModel->attachMaterial(rockMaterial);
-
-      SPtr<PhongMaterial> torusMaterial = createPhongMaterial(glm::vec3(0.78f, 0.60f, 0.34f) * 1.5f, 0.2f, 5.0f);
-      SPtr<Mesh> torusMesh = assetManager.loadMesh("meshes/torus.obj");
-      SPtr<Model> torusModel(std::make_shared<Model>(phongShaderProgram, torusMesh));
-      torusModel->attachMaterial(torusMaterial);
-
-      SPtr<PhongMaterial> smallIslandMaterial = createPhongMaterial(glm::vec3(0.78f, 0.60f, 0.34f) * 1.5f, 0.2f, 5.0f);
-      SPtr<Mesh> smallIslandMesh = assetManager.loadMesh("meshes/island_sm.obj");
-      SPtr<Model> smallIslandModel(std::make_shared<Model>(phongShaderProgram, smallIslandMesh));
-      smallIslandModel->attachMaterial(smallIslandMaterial);
-
-      scene.addObject(createBvhObject(torusModel, glm::vec3(0.0f, 7.0f, 0.0f), glm::vec3(1.8f), 1.0f, 0.3f));
-      scene.addObject(createBvhObject(torusModel, glm::vec3(0.0f, 13.0f, 0.0f), glm::vec3(1.0f), 1.0f, 0.3f));
-
-      scene.addObject(createBvhObject(smallIslandModel, glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(2.0f), 1.0f, 0.3f));
-
-      glm::vec3 loc(0.0f, 12.0f, 0.0f);
-      scene.addObject(createBvhObject(trunkModel, loc, glm::vec3(5.0f), 1.0f, 0.3f));
-      scene.addObject(createBvhObject(leavesModel, loc, glm::vec3(5.0f), 1.0f, 0.3f));
-   });
-}
-
 SPtr<Scene> loadPlusScene(const Context &context) {
    const float SIZE = 40.0f;
    const float DISTANCE = 13.0f;
@@ -1187,11 +1057,9 @@ SPtr<Scene> loadNextLevel(const Context &context) {
    static int index = 0;
 
    if (loadFunctions.empty()) {
-      loadFunctions.push_back(loadTestScene);
       loadFunctions.push_back(loadCenterIslandScene);
       loadFunctions.push_back(loadFourBridgedIslandsScene);
       loadFunctions.push_back(loadGridIslandScene);
-      loadFunctions.push_back(loadTorusIslandScene);
       loadFunctions.push_back(loadPlusScene);
    }
 
