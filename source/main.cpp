@@ -47,10 +47,6 @@ int main(int argc, char *argv[]) {
       LOG_ERROR("Unable to fix working directory");
    }
 
-   if (!OSUtils::createAppDataDirectory()) {
-      LOG_ERROR("Unable to create app data directory");
-   }
-
    glfwSetErrorCallback(errorCallback);
    int glfwInitRes = glfwInit();
    if (!glfwInitRes) {
