@@ -169,15 +169,6 @@ set(HEADERS
    ${SRC_DIR}/Viewport.h
 )
 
-set(SHADERS
-   ${DATA_DIR}/shaders/debug.vert
-   ${DATA_DIR}/shaders/debug.frag
-   ${DATA_DIR}/shaders/framebuffer.vert
-   ${DATA_DIR}/shaders/framebuffer.frag
-   ${DATA_DIR}/shaders/phong.vert
-   ${DATA_DIR}/shaders/phong.frag
-)
-
 ### Libraries ###
 
 # GLFW
@@ -458,7 +449,7 @@ foreach(DEBUG_LIBRARY ${DEBUG_LIBRARIES})
 endforeach(DEBUG_LIBRARY)
 
 # Binary
-add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS} ${SHADERS})
+add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS})
 
 # Link
 target_link_libraries(${PROJECT_NAME} ${TAGGED_RELEASE_LIBRARIES} ${TAGGED_DEBUG_LIBRARIES})
