@@ -1,6 +1,6 @@
 ### Project Info ###
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 project(tgil)
 
 set(PROJECT_DISPLAY_NAME "The Ground Is Lava!")
@@ -11,6 +11,23 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 0)
 set(VERSION_MICRO 0)
 set(VERSION_BUILD 1)
+
+# Compiler requirements
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Platform detection
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   set(LINUX true)
+else(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   set(LINUX false)
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+   set(64_BIT true)
+else(CMAKE_SIZEOF_VOID_P EQUAL 8)
+   set(64_BIT false)
+endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 # Directories
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
@@ -169,303 +186,267 @@ set(HEADERS
    ${SRC_DIR}/Viewport.h
 )
 
+list(APPEND INCLUDES
+   ${SRC_DIR}
+   ${BIN_INCLUDE_DIR}
+)
+
 ### Libraries ###
 
-# GLFW
-set(GLFW_DIR "${DEP_DIR}/GLFW")
-set(GLFW_INCLUDE_DIR "${GLFW_DIR}/include")
+function(attach_lib include source lib)
+   if(include)
+      list(APPEND INCLUDES ${include})
+      set(INCLUDES ${INCLUDES} PARENT_SCOPE)
+   endif(include)
 
-if (APPLE)
-   set(GLFW_LIBRARY_RELEASE ${GLFW_DIR}/lib/osx/release/libglfw.3.1.dylib)
-   set(GLFW_LIBRARY_DEBUG ${GLFW_DIR}/lib/osx/debug/libglfwd.3.1.dylib)
-   list(APPEND COPY_LIBRARIES
-      ${GLFW_LIBRARY_RELEASE}
-      ${GLFW_LIBRARY_DEBUG}
-   )
-endif (APPLE)
+   if(source)
+      list(APPEND SOURCES ${source})
+      set(SOURCES ${SOURCES} PARENT_SCOPE)
+   endif(source)
 
-if (WIN32)
-   set(GLFW_LIBRARY_RELEASE ${GLFW_DIR}/lib/win32/release/glfw3dll.lib)
-   set(GLFW_LIBRARY_DEBUG ${GLFW_DIR}/lib/win32/debug/glfw3ddll.lib)
-   list(APPEND COPY_LIBRARIES
-      ${GLFW_DIR}/lib/win32/release/glfw3.dll
-      ${GLFW_DIR}/lib/win32/debug/glfw3d.dll
-   )
-endif (WIN32)
+   if(lib)
+      list(APPEND LIBS ${lib})
+      set(LIBS ${LIBS} PARENT_SCOPE)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   set(GLFW_LIBRARY_RELEASE ${GLFW_DIR}/lib/linux/release/libglfw.so.3.1)
-   set(GLFW_LIBRARY_DEBUG ${GLFW_DIR}/lib/linux/debug/libglfwd.so.3.1)
-   list(APPEND COPY_LIBRARIES
-      ${GLFW_DIR}/lib/linux/release/libglfw.so.3.1
-      ${GLFW_DIR}/lib/linux/release/libglfw.so.3
-      ${GLFW_DIR}/lib/linux/release/libglfw.so
-      ${GLFW_DIR}/lib/linux/debug/libglfwd.so.3.1
-      ${GLFW_DIR}/lib/linux/debug/libglfwd.so.3
-      ${GLFW_DIR}/lib/linux/debug/libglfwd.so
-   )
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+      if(BUILD_SHARED_LIBS)
+         list(APPEND COPY_LIBS ${lib})
+         set(COPY_LIBS ${COPY_LIBS} PARENT_SCOPE)
+      endif(BUILD_SHARED_LIBS)
+   endif(lib)
+endfunction(attach_lib)
 
-# glad
-set(GLAD_DIR "${DEP_DIR}/glad")
-set(GLAD_INCLUDE_DIR "${GLAD_DIR}/include")
-list(APPEND SOURCES
-   ${GLAD_DIR}/src/glad.c
-)
+function(set_import_locations target lib_release lib_debug imp_release imp_debug)
+   if(lib_release)
+      set_target_properties(${target} PROPERTIES IMPORTED_LOCATION_RELEASE ${lib_release})
+   endif(lib_release)
 
-# Pempek Assert
-set(PEMPEK_DIR "${DEP_DIR}/PempekAssert")
-set(PEMPEK_INCLUDE_DIR "${PEMPEK_DIR}/include")
-list(APPEND SOURCES
-   ${PEMPEK_DIR}/lib/pempek_assert.cpp
-)
+   if(lib_debug)
+      set_target_properties(${target} PROPERTIES IMPORTED_LOCATION_DEBUG ${lib_debug})
+   endif(lib_debug)
 
-# Boxer
-set(BOXER_DIR "${DEP_DIR}/Boxer")
-set(BOXER_INCLUDE_DIR "${BOXER_DIR}/include")
-set(BOXER_LIBRARY Boxer)
-add_subdirectory(${BOXER_DIR})
+   if(imp_release)
+      set_target_properties(${target} PROPERTIES IMPORTED_IMPLIB_RELEASE ${imp_release})
+   endif(imp_release)
 
-# templog
-set(TEMPLOG_DIR "${DEP_DIR}/templog")
-set(TEMPLOG_INCLUDE_DIR "${TEMPLOG_DIR}/include")
-list(APPEND SOURCES
-   ${TEMPLOG_DIR}/imp/logging.cpp
-)
+   if(imp_debug)
+      set_target_properties(${target} PROPERTIES IMPORTED_IMPLIB_DEBUG ${imp_debug})
+   endif(imp_debug)
+endfunction(set_import_locations)
 
-# GLM
-set(GLM_DIR "${DEP_DIR}/glm")
-set(GLM_INCLUDE_DIR "${GLM_DIR}/include")
-
-# Folly
-set(FOLLY_DIR "${DEP_DIR}/folly")
-set(FOLLY_INCLUDE_DIR "${FOLLY_DIR}/include")
-
-# Assimp
-set(ASSIMP_DIR "${DEP_DIR}/assimp")
-set(ASSIMP_INCLUDE_DIR "${ASSIMP_DIR}/include")
-
-if (APPLE)
-   set(ASSIMP_LIBRARY_RELEASE "${ASSIMP_DIR}/lib/osx/release/libassimp.3.1.1.dylib")
-   set(ASSIMP_LIBRARY_DEBUG "${ASSIMP_DIR}/lib/osx/debug/libassimpd.3.1.1.dylib")
-   list(APPEND COPY_LIBRARIES
-      ${ASSIMP_LIBRARY_RELEASE}
-      ${ASSIMP_LIBRARY_DEBUG}
-   )
-endif (APPLE)
-
-if (WIN32)
-   set(ASSIMP_LIBRARY_RELEASE "${ASSIMP_DIR}/lib/win32/release/assimp.lib")
-   set(ASSIMP_LIBRARY_DEBUG "${ASSIMP_DIR}/lib/win32/debug/assimpd.lib")
-   list(APPEND COPY_LIBRARIES
-      ${ASSIMP_DIR}/lib/win32/release/assimp.dll
-      ${ASSIMP_DIR}/lib/win32/debug/assimpd.dll
-   )
-endif (WIN32)
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   set(ASSIMP_LIBRARY_RELEASE ${ASSIMP_DIR}/lib/linux/release/libassimp.so.3.1.1)
-   set(ASSIMP_LIBRARY_DEBUG ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so.3.1.1)
-   list(APPEND COPY_LIBRARIES
-      ${ASSIMP_DIR}/lib/linux/release/libassimp.so.3.1.1
-      ${ASSIMP_DIR}/lib/linux/release/libassimp.so.3
-      ${ASSIMP_DIR}/lib/linux/release/libassimp.so
-      ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so.3.1.1
-      ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so.3
-      ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so
-   )
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-# FMOD
-set(FMOD_DIR "${DEP_DIR}/FMOD")
-set(FMOD_INCLUDE_DIR "${FMOD_DIR}/include")
-
-if (APPLE)
-   set(FMOD_LIBRARY_RELEASE "${FMOD_DIR}/lib/osx/release/libfmod.dylib")
-   set(FMOD_LIBRARY_DEBUG "${FMOD_DIR}/lib/osx/debug/libfmodL.dylib")
-   list(APPEND COPY_LIBRARIES
-      ${FMOD_LIBRARY_RELEASE}
-      ${FMOD_LIBRARY_DEBUG}
-   )
-endif (APPLE)
-
-if (WIN32)
-   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-      set(FMOD_WIN_ARCHITECTURE "x86_64")
-   else (CMAKE_SIZEOF_VOID_P EQUAL 8)
-      set(FMOD_WIN_ARCHITECTURE "x86")
-   endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
-
-   set(FMOD_LIBRARY_RELEASE "${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/release/fmod_vc.lib")
-   set(FMOD_LIBRARY_DEBUG "${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/debug/fmodL_vc.lib")
-   list(APPEND COPY_LIBRARIES
-      ${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/release/fmod.dll
-      ${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/debug/fmodL.dll
-   )
-endif (WIN32)
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-      set(FMOD_LINUX_ARCHITECTURE "x86_64")
-   else (CMAKE_SIZEOF_VOID_P EQUAL 8)
-      set(FMOD_LINUX_ARCHITECTURE "x86")
-   endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
-
-   set(FMOD_LIBRARY_RELEASE "${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.10")
-   set(FMOD_LIBRARY_DEBUG "${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.10")
-   list(APPEND COPY_LIBRARIES
-      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.10
-      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5
-      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so
-      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.10
-      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5
-      ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so
-   )
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-# stb
-set(STB_DIR "${DEP_DIR}/stb")
-set(STB_INCLUDE_DIR "${STB_DIR}/include")
+## Integrated ##
 
 # cereal
 set(CEREAL_DIR "${DEP_DIR}/cereal")
-set(CEREAL_INCLUDE_DIR "${CEREAL_DIR}/include")
+attach_lib("${CEREAL_DIR}/include" "" "")
+
+# Folly
+set(FOLLY_DIR "${DEP_DIR}/folly")
+attach_lib("${FOLLY_DIR}/include" "" "")
+
+# glad
+set(GLAD_DIR "${DEP_DIR}/glad")
+attach_lib("${GLAD_DIR}/include" "${GLAD_DIR}/src/glad.c" "")
+
+# GLM
+set(GLM_DIR "${DEP_DIR}/glm")
+attach_lib("${GLM_DIR}/include" "" "")
+
+# Pempek Assert
+set(PEMPEK_DIR "${DEP_DIR}/PempekAssert")
+attach_lib("${PEMPEK_DIR}/include" "${PEMPEK_DIR}/lib/pempek_assert.cpp" "")
+
+# stb
+set(STB_DIR "${DEP_DIR}/stb")
+attach_lib("${STB_DIR}/include" "" "")
+
+# templog
+set(TEMPLOG_DIR "${DEP_DIR}/templog")
+attach_lib("${TEMPLOG_DIR}/include" "${TEMPLOG_DIR}/imp/logging.cpp" "")
+
+## Static ##
+
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build shared libraries")
+
+# Boxer
+set(BOXER_DIR "${DEP_DIR}/Boxer")
+add_subdirectory(${BOXER_DIR})
+attach_lib("${BOXER_DIR}/include" "" "Boxer")
 
 # bullet
 set(BULLET_DIR "${DEP_DIR}/bullet")
-set(BULLET_INCLUDE_DIR "${BULLET_DIR}/include" "${BULLET_DIR}/include/bullet")
+set(LINEAR_MATH_TARGET LinearMath)
+set(BULLET_COLLISION_TARGET BulletCollision)
+set(BULLET_DYNAMICS_TARGET BulletDynamics)
+set(BULLET_SOFT_BODY_TARGET BulletSoftBody)
+
+add_library(${LINEAR_MATH_TARGET} STATIC IMPORTED)
+add_library(${BULLET_COLLISION_TARGET} STATIC IMPORTED)
+add_library(${BULLET_DYNAMICS_TARGET} STATIC IMPORTED)
+add_library(${BULLET_SOFT_BODY_TARGET} STATIC IMPORTED)
 
 if (APPLE)
-   set(BULLET_LIBRARIES_RELEASE
-      ${BULLET_DIR}/lib/osx/release/libLinearMath.a
-      ${BULLET_DIR}/lib/osx/release/libBulletCollision.a
-      ${BULLET_DIR}/lib/osx/release/libBulletDynamics.a
-      ${BULLET_DIR}/lib/osx/release/libBulletSoftBody.a
-   )
-   set(BULLET_LIBRARIES_DEBUG
-      ${BULLET_DIR}/lib/osx/debug/libLinearMath.a
-      ${BULLET_DIR}/lib/osx/debug/libBulletCollision.a
-      ${BULLET_DIR}/lib/osx/debug/libBulletDynamics.a
-      ${BULLET_DIR}/lib/osx/debug/libBulletSoftBody.a
-   )
+   set(OS_LIB_DIR osx)
+endif (APPLE)
+if (WIN32)
+   set(OS_LIB_DIR win32)
+endif (WIN32)
+if (LINUX)
+   set(OS_LIB_DIR linux)
+endif (LINUX)
+
+set(LINEAR_MATH_LIB_RELEASE ${BULLET_DIR}/lib/${OS_LIB_DIR}/release/libLinearMath.a)
+set(BULLET_COLLISION_LIB_RELEASE ${BULLET_DIR}/lib/${OS_LIB_DIR}/release/libBulletCollision.a)
+set(BULLET_DYNAMICS_LIB_RELEASE ${BULLET_DIR}/lib/${OS_LIB_DIR}/release/libBulletDynamics.a)
+set(BULLET_SOFT_BODY_LIB_RELEASE ${BULLET_DIR}/lib/${OS_LIB_DIR}/release/libBulletSoftBody.a)
+
+set(LINEAR_MATH_LIB_DEBUG ${BULLET_DIR}/lib/${OS_LIB_DIR}/debug/libLinearMath.a)
+set(BULLET_COLLISION_LIB_DEBUG ${BULLET_DIR}/lib/${OS_LIB_DIR}/debug/libBulletCollision.a)
+set(BULLET_DYNAMICS_LIB_DEBUG ${BULLET_DIR}/lib/${OS_LIB_DIR}/debug/libBulletDynamics.a)
+set(BULLET_SOFT_BODY_LIB_DEBUG ${BULLET_DIR}/lib/${OS_LIB_DIR}/debug/libBulletSoftBody.a)
+
+set_import_locations(${LINEAR_MATH_TARGET} ${LINEAR_MATH_LIB_RELEASE} ${LINEAR_MATH_LIB_DEBUG} "" "")
+set_import_locations(${BULLET_COLLISION_TARGET} ${BULLET_COLLISION_LIB_RELEASE} ${BULLET_COLLISION_LIB_DEBUG} "" "")
+set_import_locations(${BULLET_DYNAMICS_TARGET} ${BULLET_DYNAMICS_LIB_RELEASE} ${BULLET_DYNAMICS_LIB_DEBUG} "" "")
+set_import_locations(${BULLET_SOFT_BODY_TARGET} ${BULLET_SOFT_BODY_LIB_RELEASE} ${BULLET_SOFT_BODY_LIB_DEBUG} "" "")
+
+list(APPEND BULLET_INCLUDES
+   "${BULLET_DIR}/include"
+   "${BULLET_DIR}/include/bullet"
+)
+
+attach_lib("${BULLET_INCLUDES}" "" "${LINEAR_MATH_TARGET}")
+attach_lib("${BULLET_INCLUDES}" "" "${BULLET_COLLISION_TARGET}")
+attach_lib("${BULLET_INCLUDES}" "" "${BULLET_DYNAMICS_TARGET}")
+attach_lib("${BULLET_INCLUDES}" "" "${BULLET_SOFT_BODY_TARGET}")
+
+## Shared ##
+
+set(BUILD_SHARED_LIBS ON CACHE INTERNAL "Build shared libraries")
+
+# GLFW
+set(GLFW_DIR "${DEP_DIR}/GLFW")
+set(GLFW_TARGET glfw)
+add_library(${GLFW_TARGET} SHARED IMPORTED)
+
+set(GLFW_IMP_RELEASE false)
+set(GLFW_IMP_DEBUG false)
+
+if (APPLE)
+   set(GLFW_LIB_RELEASE ${GLFW_DIR}/lib/osx/release/libglfw.3.1.dylib)
+   set(GLFW_LIB_DEBUG ${GLFW_DIR}/lib/osx/release/libglfw.3.1.dylib)
 endif (APPLE)
 
 if (WIN32)
-   set(BULLET_LIBRARIES_RELEASE
-      ${BULLET_DIR}/lib/win32/release/LinearMath.lib
-      ${BULLET_DIR}/lib/win32/release/BulletCollision.lib
-      ${BULLET_DIR}/lib/win32/release/BulletDynamics.lib
-      ${BULLET_DIR}/lib/win32/release/BulletSoftBody.lib
-   )
-   set(BULLET_LIBRARIES_DEBUG
-      ${BULLET_DIR}/lib/win32/debug/LinearMath_Debug.lib
-      ${BULLET_DIR}/lib/win32/debug/BulletCollision_Debug.lib
-      ${BULLET_DIR}/lib/win32/debug/BulletDynamics_Debug.lib
-      ${BULLET_DIR}/lib/win32/debug/BulletSoftBody_Debug.lib
-   )
+   set(GLFW_LIB_RELEASE ${GLFW_DIR}/lib/win32/release/glfw3.dll)
+   set(GLFW_LIB_DEBUG ${GLFW_DIR}/lib/win32/debug/glfw3d.dll)
+   set(GLFW_IMP_RELEASE ${GLFW_DIR}/lib/win32/release/glfw3dll.lib)
+   set(GLFW_IMP_DEBUG ${GLFW_DIR}/lib/win32/debug/glfw3ddll.lib)
 endif (WIN32)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   set(BULLET_LIBRARIES_RELEASE
-      ${BULLET_DIR}/lib/linux/release/libBulletSoftBody.a
-      ${BULLET_DIR}/lib/linux/release/libBulletDynamics.a
-      ${BULLET_DIR}/lib/linux/release/libBulletCollision.a
-      ${BULLET_DIR}/lib/linux/release/libLinearMath.a
-   )
-   set(BULLET_LIBRARIES_DEBUG
-      ${BULLET_DIR}/lib/linux/debug/libBulletSoftBody.a
-      ${BULLET_DIR}/lib/linux/debug/libBulletDynamics.a
-      ${BULLET_DIR}/lib/linux/debug/libBulletCollision.a
-      ${BULLET_DIR}/lib/linux/debug/libLinearMath.a
-   )
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if (LINUX)
+   set(GLFW_LIB_RELEASE ${GLFW_DIR}/lib/linux/release/libglfw.so.3.1)
+   set(GLFW_LIB_DEBUG ${GLFW_DIR}/lib/linux/debug/libglfwd.so.3.1)
+endif (LINUX)
+
+set_import_locations(${GLFW_TARGET} ${GLFW_LIB_RELEASE} ${GLFW_LIB_DEBUG} ${GLFW_IMP_RELEASE} ${GLFW_IMP_DEBUG})
+attach_lib("${GLFW_DIR}/include" "" "${GLFW_TARGET}")
+
+# Assimp
+set(ASSIMP_DIR "${DEP_DIR}/assimp")
+set(ASSIMP_TARGET assimp)
+add_library(${ASSIMP_TARGET} SHARED IMPORTED)
+
+set(ASSIMP_IMP_RELEASE false)
+set(ASSIMP_IMP_DEBUG false)
+
+if (APPLE)
+   set(ASSIMP_LIB_RELEASE ${ASSIMP_DIR}/lib/osx/release/libassimp.3.1.1.dylib)
+   set(ASSIMP_LIB_DEBUG ${ASSIMP_DIR}/lib/osx/debug/libassimpd.3.1.1.dylib)
+endif (APPLE)
+
+if (WIN32)
+   set(ASSIMP_LIB_RELEASE ${ASSIMP_DIR}/lib/win32/release/assimp.dll)
+   set(ASSIMP_LIB_DEBUG ${ASSIMP_DIR}/lib/win32/debug/assimpd.dll)
+   set(ASSIMP_IMP_RELEASE ${ASSIMP_DIR}/lib/win32/release/assimp.lib)
+   set(ASSIMP_IMP_DEBUG ${ASSIMP_DIR}/lib/win32/debug/assimpd.lib)
+endif (WIN32)
+
+if (LINUX)
+   set(ASSIMP_LIB_RELEASE ${ASSIMP_DIR}/lib/linux/release/libassimp.so.3.1.1)
+   set(ASSIMP_LIB_DEBUG ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so.3.1.1)
+endif (LINUX)
+
+set_import_locations(${ASSIMP_TARGET} ${ASSIMP_LIB_RELEASE} ${ASSIMP_LIB_DEBUG} ${ASSIMP_IMP_RELEASE} ${ASSIMP_IMP_DEBUG})
+attach_lib("${ASSIMP_DIR}/include" "" "${ASSIMP_TARGET}")
+
+# FMOD
+set(FMOD_DIR "${DEP_DIR}/FMOD")
+set(FMOD_TARGET fmod)
+add_library(${FMOD_TARGET} SHARED IMPORTED)
+
+set(FMOD_IMP_RELEASE false)
+set(FMOD_IMP_DEBUG false)
+
+if (APPLE)
+   set(FMOD_LIB_RELEASE ${FMOD_DIR}/lib/osx/release/libfmod.dylib)
+   set(FMOD_LIB_DEBUG ${FMOD_DIR}/lib/osx/debug/libfmodL.dylib)
+endif (APPLE)
+
+if (WIN32)
+   if (64_BIT)
+      set(FMOD_WIN_ARCHITECTURE "x86_64")
+   else (64_BIT)
+      set(FMOD_WIN_ARCHITECTURE "x86")
+   endif (64_BIT)
+
+   set(FMOD_LIB_RELEASE ${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/release/fmod.dll)
+   set(FMOD_LIB_DEBUG ${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/debug/fmodL.dll)
+   set(FMOD_IMP_RELEASE ${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/release/fmod_vc.lib)
+   set(FMOD_IMP_DEBUG ${FMOD_DIR}/lib/win32/${FMOD_WIN_ARCHITECTURE}/debug/fmodL_vc.lib)
+endif (WIN32)
+
+if (LINUX)
+   if (64_BIT)
+      set(FMOD_LINUX_ARCHITECTURE "x86_64")
+   else (64_BIT)
+      set(FMOD_LINUX_ARCHITECTURE "x86")
+   endif (64_BIT)
+
+   set(FMOD_LIB_RELEASE ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/release/libfmod.so.5.10)
+   set(FMOD_LIB_DEBUG ${FMOD_DIR}/lib/linux/${FMOD_LINUX_ARCHITECTURE}/debug/libfmodL.so.5.10)
+endif (LINUX)
+
+set_import_locations(${FMOD_TARGET} ${FMOD_LIB_RELEASE} ${FMOD_LIB_DEBUG} ${FMOD_IMP_RELEASE} ${FMOD_IMP_DEBUG})
+attach_lib("${FMOD_DIR}/include" "" "${FMOD_TARGET}")
 
 ### Building ###
-
-# C++11
-if (NOT WIN32)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif (NOT WIN32)
-
-# OpenGL
-find_package(OpenGL REQUIRED)
-if(NOT OPENGL_FOUND)
-    message(ERROR " OpenGL not found!")
-endif(NOT OPENGL_FOUND)
 
 # Fix the rpath
 set(CMAKE_INSTALL_RPATH ${EXECUTABLE_OUTPUT_PATH})
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 # Includes
-include_directories(
-   ${SRC_DIR}
-   ${BIN_INCLUDE_DIR}
-   ${GLFW_INCLUDE_DIR}
-   ${GLAD_INCLUDE_DIR}
-   ${PEMPEK_INCLUDE_DIR}
-   ${BOXER_INCLUDE_DIR}
-   ${TEMPLOG_INCLUDE_DIR}
-   ${GLM_INCLUDE_DIR}
-   ${FOLLY_INCLUDE_DIR}
-   ${ASSIMP_INCLUDE_DIR}
-   ${FMOD_INCLUDE_DIR}
-   ${STB_INCLUDE_DIR}
-   ${CEREAL_INCLUDE_DIR}
-   ${BULLET_INCLUDE_DIR}
-)
-
-# Libraries
-set(RELEASE_LIBRARIES
-   ${OPENGL_LIBRARIES}
-   ${GLFW_LIBRARY_RELEASE}
-   ${CMAKE_DL_LIBS} # Needed for glad on Linux
-   ${BOXER_LIBRARY}
-   ${ASSIMP_LIBRARY_RELEASE}
-   ${FMOD_LIBRARY_RELEASE}
-   ${BULLET_LIBRARIES_RELEASE}
-)
-
-set(DEBUG_LIBRARIES
-   ${OPENGL_LIBRARIES}
-   ${GLFW_LIBRARY_DEBUG}
-   ${CMAKE_DL_LIBS} # Needed for glad on Linux
-   ${BOXER_LIBRARY}
-   ${ASSIMP_LIBRARY_DEBUG}
-   ${FMOD_LIBRARY_DEBUG}
-   ${BULLET_LIBRARIES_DEBUG}
-)
-
-foreach(RELEASE_LIBRARY ${RELEASE_LIBRARIES})
-   list(APPEND TAGGED_RELEASE_LIBRARIES
-      optimized ${RELEASE_LIBRARY}
-   )
-endforeach(RELEASE_LIBRARY)
-
-foreach(DEBUG_LIBRARY ${DEBUG_LIBRARIES})
-   list(APPEND TAGGED_DEBUG_LIBRARIES
-      debug ${DEBUG_LIBRARY}
-   )
-endforeach(DEBUG_LIBRARY)
+include_directories(${INCLUDES})
 
 # Binary
 add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS})
 
 # Link
-target_link_libraries(${PROJECT_NAME} ${TAGGED_RELEASE_LIBRARIES} ${TAGGED_DEBUG_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${LIBS})
 
-# Copy libraries to binary dir
-if (COPY_LIBRARIES)
-   foreach(COPY_LIBRARY ${COPY_LIBRARIES})
+### Post-Build ###
+
+# Copy DLLs
+#if(WIN32)
+   foreach(COPY_LIB ${COPY_LIBS})
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${COPY_LIBRARY}"
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${COPY_LIB}>" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
       )
-   endforeach(COPY_LIBRARY)
-endif (COPY_LIBRARIES)
+   endforeach(COPY_LIB)
+#endif(WIN32)
 
-# Install
+### Install ###
+
 if (APPLE)
    set(APP_DIR "${PROJECT_DISPLAY_NAME}.app")
    set(CONTENTS_DIR "${APP_DIR}/Contents")
@@ -510,11 +491,11 @@ if (WIN32)
       COMPONENT Runtime CONFIGURATIONS Debug)
 endif (WIN32)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if (LINUX)
    install(TARGETS ${PROJECT_NAME} DESTINATION "." COMPONENT Runtime)                                                  # Install the executable
 
    install(CODE "include(BundleUtilities)
       file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")                                # Copy in the data folder
       execute_process(COMMAND \"chrpath\" \"-r\" \"$ORIGIN/\" \"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}\")             # Fix the rpath of the executable
       fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime) # Fix the executable / libraries
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+endif (LINUX)
