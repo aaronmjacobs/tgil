@@ -403,10 +403,6 @@ attach_lib("${FMOD_DIR}/include" "" "${FMOD_TARGET}")
 
 ### Building ###
 
-# Fix the rpath
-set(CMAKE_INSTALL_RPATH ${EXECUTABLE_OUTPUT_PATH})
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-
 # Includes
 include_directories(${INCLUDES})
 
@@ -419,13 +415,13 @@ target_link_libraries(${PROJECT_NAME} ${LIBS})
 ### Post-Build ###
 
 # Copy DLLs
-#if(WIN32)
+if(WIN32)
    foreach(COPY_LIB ${COPY_LIBS})
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
          COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${COPY_LIB}>" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
       )
    endforeach(COPY_LIB)
-#endif(WIN32)
+endif(WIN32)
 
 ### Install ###
 
