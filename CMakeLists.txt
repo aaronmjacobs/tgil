@@ -324,32 +324,13 @@ attach_lib("${BULLET_INCLUDES}" "" "${BULLET_SOFT_BODY_TARGET}")
 set(BUILD_SHARED_LIBS ON CACHE INTERNAL "Build shared libraries")
 
 # GLFW
-set(GLFW_DIR "${DEP_DIR}/GLFW")
-set(GLFW_TARGET glfw)
-add_library(${GLFW_TARGET} SHARED IMPORTED)
-
-set(GLFW_IMP_RELEASE false)
-set(GLFW_IMP_DEBUG false)
-
-if (APPLE)
-   set(GLFW_LIB_RELEASE ${GLFW_DIR}/lib/osx/release/libglfw.3.1.dylib)
-   set(GLFW_LIB_DEBUG ${GLFW_DIR}/lib/osx/release/libglfw.3.1.dylib)
-endif (APPLE)
-
-if (WIN32)
-   set(GLFW_LIB_RELEASE ${GLFW_DIR}/lib/win32/release/glfw3.dll)
-   set(GLFW_LIB_DEBUG ${GLFW_DIR}/lib/win32/debug/glfw3d.dll)
-   set(GLFW_IMP_RELEASE ${GLFW_DIR}/lib/win32/release/glfw3dll.lib)
-   set(GLFW_IMP_DEBUG ${GLFW_DIR}/lib/win32/debug/glfw3ddll.lib)
-endif (WIN32)
-
-if (LINUX)
-   set(GLFW_LIB_RELEASE ${GLFW_DIR}/lib/linux/release/libglfw.so.3.1)
-   set(GLFW_LIB_DEBUG ${GLFW_DIR}/lib/linux/debug/libglfwd.so.3.1)
-endif (LINUX)
-
-set_import_locations(${GLFW_TARGET} ${GLFW_LIB_RELEASE} ${GLFW_LIB_DEBUG} ${GLFW_IMP_RELEASE} ${GLFW_IMP_DEBUG})
-attach_lib("${GLFW_DIR}/include" "" "${GLFW_TARGET}")
+set(GLFW_DIR "${DEP_DIR}/glfw")
+set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
+set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
+set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
+set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
+add_subdirectory(${GLFW_DIR})
+attach_lib("${GLFW_DIR}/include" "" "glfw")
 
 # Assimp
 set(ASSIMP_DIR "${DEP_DIR}/assimp")
