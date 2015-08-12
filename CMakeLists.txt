@@ -273,51 +273,52 @@ add_subdirectory(${BOXER_DIR})
 attach_lib("${BOXER_DIR}/include" "" "Boxer")
 
 # bullet
-set(BULLET_DIR "${DEP_DIR}/bullet")
-set(LINEAR_MATH_TARGET LinearMath)
-set(BULLET_COLLISION_TARGET BulletCollision)
-set(BULLET_DYNAMICS_TARGET BulletDynamics)
-set(BULLET_SOFT_BODY_TARGET BulletSoftBody)
+set(BULLET_DIR "${DEP_DIR}/bullet3")
+set(USE_GRAPHICAL_BENCHMARK OFF CACHE INTERNAL "Use Graphical Benchmark")
+set(BUILD_CPU_DEMOS OFF CACHE INTERNAL "Build original Bullet CPU examples")
+set(USE_GLUT OFF CACHE INTERNAL "Use Glut")
+set(BUILD_BULLET3 OFF CACHE INTERNAL "Set when you want to build Bullet 3")
+set(BUILD_BULLET2_DEMOS OFF CACHE INTERNAL "Set when you want to build the Bullet 2 demos")
+set(BUILD_EXTRAS OFF CACHE INTERNAL "Set when you want to build the extras")
+set(INSTALL_LIBS OFF CACHE INTERNAL "Set when you want to install libraries")
+set(INSTALL_EXTRA_LIBS OFF CACHE INTERNAL "Set when you want extra libraries installed")
+set(BUILD_UNIT_TESTS OFF CACHE INTERNAL "Build Unit Tests")
+add_subdirectory(${BULLET_DIR})
 
-add_library(${LINEAR_MATH_TARGET} STATIC IMPORTED)
-add_library(${BULLET_COLLISION_TARGET} STATIC IMPORTED)
-add_library(${BULLET_DYNAMICS_TARGET} STATIC IMPORTED)
-add_library(${BULLET_SOFT_BODY_TARGET} STATIC IMPORTED)
+# Bullet doesn't give us a nice includes folder, so make one at build time
+macro(list_subdirs result curdir)
+   file(GLOB children RELATIVE ${curdir} ${curdir}/*)
+   set(dirlist "")
+   foreach(child ${children})
+      if(IS_DIRECTORY ${curdir}/${child})
+         list(APPEND dirlist ${child})
+      endif(IS_DIRECTORY ${curdir}/${child})
+   endforeach(child)
+   set(${result} ${dirlist})
+endmacro(list_subdirs)
 
-if (APPLE)
-   set(OS_LIB_DIR osx)
-endif (APPLE)
-if (WIN32)
-   set(OS_LIB_DIR win32)
-endif (WIN32)
-if (LINUX)
-   set(OS_LIB_DIR linux)
-endif (LINUX)
+function(copy_headers source dest)
+   file(MAKE_DIRECTORY "${dest}")
 
-set(LINEAR_MATH_LIB_RELEASE ${BULLET_DIR}/lib/${OS_LIB_DIR}/release/libLinearMath.a)
-set(BULLET_COLLISION_LIB_RELEASE ${BULLET_DIR}/lib/${OS_LIB_DIR}/release/libBulletCollision.a)
-set(BULLET_DYNAMICS_LIB_RELEASE ${BULLET_DIR}/lib/${OS_LIB_DIR}/release/libBulletDynamics.a)
-set(BULLET_SOFT_BODY_LIB_RELEASE ${BULLET_DIR}/lib/${OS_LIB_DIR}/release/libBulletSoftBody.a)
+   file(GLOB HEADERS "${source}/*.h")
+   file(COPY ${HEADERS} DESTINATION "${dest}")
 
-set(LINEAR_MATH_LIB_DEBUG ${BULLET_DIR}/lib/${OS_LIB_DIR}/debug/libLinearMath.a)
-set(BULLET_COLLISION_LIB_DEBUG ${BULLET_DIR}/lib/${OS_LIB_DIR}/debug/libBulletCollision.a)
-set(BULLET_DYNAMICS_LIB_DEBUG ${BULLET_DIR}/lib/${OS_LIB_DIR}/debug/libBulletDynamics.a)
-set(BULLET_SOFT_BODY_LIB_DEBUG ${BULLET_DIR}/lib/${OS_LIB_DIR}/debug/libBulletSoftBody.a)
+   list_subdirs(SUBDIRS ${source})
+   foreach(subdir ${SUBDIRS})
+      copy_headers("${source}/${subdir}" "${dest}/${subdir}")
+   endforeach()
+endfunction(copy_headers)
 
-set_import_locations(${LINEAR_MATH_TARGET} ${LINEAR_MATH_LIB_RELEASE} ${LINEAR_MATH_LIB_DEBUG} "" "")
-set_import_locations(${BULLET_COLLISION_TARGET} ${BULLET_COLLISION_LIB_RELEASE} ${BULLET_COLLISION_LIB_DEBUG} "" "")
-set_import_locations(${BULLET_DYNAMICS_TARGET} ${BULLET_DYNAMICS_LIB_RELEASE} ${BULLET_DYNAMICS_LIB_DEBUG} "" "")
-set_import_locations(${BULLET_SOFT_BODY_TARGET} ${BULLET_SOFT_BODY_LIB_RELEASE} ${BULLET_SOFT_BODY_LIB_DEBUG} "" "")
+copy_headers(${BULLET_DIR}/src ${BIN_INCLUDE_DIR}/bullet)
 
 list(APPEND BULLET_INCLUDES
-   "${BULLET_DIR}/include"
-   "${BULLET_DIR}/include/bullet"
+   ${BULLET_DIR}/src
+   ${BIN_INCLUDE_DIR}
 )
 
-attach_lib("${BULLET_INCLUDES}" "" "${LINEAR_MATH_TARGET}")
-attach_lib("${BULLET_INCLUDES}" "" "${BULLET_COLLISION_TARGET}")
-attach_lib("${BULLET_INCLUDES}" "" "${BULLET_DYNAMICS_TARGET}")
-attach_lib("${BULLET_INCLUDES}" "" "${BULLET_SOFT_BODY_TARGET}")
+attach_lib("${BULLET_INCLUDES}" "" "LinearMath")
+attach_lib("${BULLET_INCLUDES}" "" "BulletCollision")
+attach_lib("${BULLET_INCLUDES}" "" "BulletDynamics")
 
 ## Shared ##
 
@@ -435,7 +436,9 @@ if (APPLE)
 
    install(CODE "file(MAKE_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/${MACOS_DIR}\")")                       # Make the .app file
 
-   install(TARGETS ${PROJECT_NAME} DESTINATION "${MACOS_DIR}" COMPONENT Runtime)                       # Install the executable
+   # Copy the executable (not install, so that the internal lib paths don't change)
+   install(FILES "$<TARGET_FILE:${PROJECT_NAME}>" DESTINATION "${MACOS_DIR}"
+           PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
    install(CODE "
       file(COPY \"${RES_DIR}/osx/Info.plist\" DESTINATION \"${CMAKE_INSTALL_PREFIX}/${CONTENTS_DIR}\") # Copy in the .plist file
