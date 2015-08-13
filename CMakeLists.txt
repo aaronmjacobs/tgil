@@ -391,8 +391,13 @@ target_link_libraries(${PROJECT_NAME} ${LIBS})
 ### Post-Build ###
 
 # Symlink data folder
+if(WIN32)
+   set(SYMLINK_COMMAND "${RES_DIR}/win/symlink.bat")
+else(WIN32)
+   set(SYMLINK_COMMAND "${CMAKE_COMMAND} -E create_symlink")
+endif(WIN32)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-   COMMAND ${CMAKE_COMMAND} -E create_symlink "${DATA_DIR}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/${DATA_DIR_NAME}"
+   COMMAND ${SYMLINK_COMMAND} "${DATA_DIR}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/${DATA_DIR_NAME}"
 )
 
 # Copy DLLs
