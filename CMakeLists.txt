@@ -33,7 +33,8 @@ endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 set(BIN_INCLUDE_DIR "${PROJECT_BINARY_DIR}/include")
-set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
+set(DATA_DIR_NAME "data")
+set(DATA_DIR "${PROJECT_SOURCE_DIR}/${DATA_DIR_NAME}")
 set(RES_DIR "${PROJECT_SOURCE_DIR}/resources")
 set(BIN_RES_DIR "${PROJECT_BINARY_DIR}/resources")
 
@@ -388,6 +389,11 @@ add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 ### Post-Build ###
+
+# Symlink data folder
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E create_symlink "${DATA_DIR}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/${DATA_DIR_NAME}"
+)
 
 # Copy DLLs
 if(WIN32)
