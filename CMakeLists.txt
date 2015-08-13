@@ -448,25 +448,23 @@ if (APPLE)
 endif (APPLE)
 
 if (WIN32)
-   # Manually install system libs (so that they're not in bin/)
-   set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP on)
-   include(InstallRequiredSystemLibraries.cmake)
+   # Copy the data folder
+   install(DIRECTORY "${DATA_DIR}" DESTINATION ".")
+
+   # Install the executable
+   install(TARGETS ${PROJECT_NAME} DESTINATION ".")
+
+   # Install all shared libraries
+   foreach(COPY_LIB ${COPY_LIBS})
+      install(FILES "$<TARGET_FILE:${COPY_LIB}>" DESTINATION ".")
+   endforeach(COPY_LIB)
+
+   # Install system libraries
+   set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true) # Let us choose the install location
+   include(InstallRequiredSystemLibraries)
    if(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
-      install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION "." COMPONENT Runtime)
+      install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ".")
    endif(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
-
-   install(TARGETS ${PROJECT_NAME} DESTINATION "." COMPONENT Runtime)                    # Install the executable
-
-   install(CODE "
-      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")" # Copy in the data folder
-      COMPONENT Runtime)
-                                                                                         # Fix the executable / libraries
-   install(CODE "include(BundleUtilities)
-      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.exe\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Release\")"
-      COMPONENT Runtime CONFIGURATIONS Release)
-   install(CODE "include(BundleUtilities)
-      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.exe\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Debug\")"
-      COMPONENT Runtime CONFIGURATIONS Debug)
 endif (WIN32)
 
 if (LINUX)
