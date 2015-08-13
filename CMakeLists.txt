@@ -12,6 +12,12 @@ set(VERSION_MINOR 0)
 set(VERSION_MICRO 0)
 set(VERSION_BUILD 1)
 
+# Build type
+if(NOT CMAKE_BUILD_TYPE)
+   message(STATUS "No build type selected, defaulting to Debug")
+   set(CMAKE_BUILD_TYPE "Debug")
+endif(NOT CMAKE_BUILD_TYPE)
+
 # Compiler requirements
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
