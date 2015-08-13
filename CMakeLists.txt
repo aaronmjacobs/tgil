@@ -35,9 +35,7 @@ set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
 set(BIN_INCLUDE_DIR "${PROJECT_BINARY_DIR}/include")
 set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
 set(RES_DIR "${PROJECT_SOURCE_DIR}/resources")
-
-# Custom executable output path
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(BIN_RES_DIR "${PROJECT_BINARY_DIR}/resources")
 
 # Options
 option(LOG_TO_FILE "Enable logging to a file" OFF)
@@ -334,6 +332,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
 set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
 set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
 set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
+set(GLFW_USE_CHDIR OFF CACHE INTERNAL "Make glfwInit chdir to Contents/Resources")
 add_subdirectory(${GLFW_DIR})
 attach_lib("${GLFW_DIR}/include" "" "glfw")
 
@@ -402,27 +401,39 @@ endif(WIN32)
 ### Install ###
 
 if (APPLE)
-   set(APP_DIR "${PROJECT_DISPLAY_NAME}.app")
+   set(APP_DIR "${CMAKE_INSTALL_PREFIX}/${PROJECT_DISPLAY_NAME}.app")
    set(CONTENTS_DIR "${APP_DIR}/Contents")
    set(MACOS_DIR "${CONTENTS_DIR}/MacOS")
+   set(RESOURCES_DIR "${CONTENTS_DIR}/Resources")
 
-   install(CODE "file(MAKE_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/${MACOS_DIR}\")")                       # Make the .app file
+   # Generate the .app file
+   install(CODE "
+      file(MAKE_DIRECTORY \"${MACOS_DIR}\")
+      file(MAKE_DIRECTORY \"${RESOURCES_DIR}\")")
+
+   # Generate the Info.plist file (at build time, not install time)
+   configure_file(
+     "${RES_DIR}/osx/Info.plist.in"
+     "${BIN_RES_DIR}/Info.plist"
+   )
+
+   # Copy the generated Info.plist file
+   install(FILES "${BIN_RES_DIR}/Info.plist" DESTINATION "${CONTENTS_DIR}")
+
+   # Copy the icon
+   install(FILES "${RES_DIR}/osx/${PROJECT_NAME}.icns" DESTINATION "${RESOURCES_DIR}")
+
+   # Copy the data folder
+   install(DIRECTORY "${DATA_DIR}" DESTINATION "${MACOS_DIR}")
 
    # Copy the executable (not install, so that the internal lib paths don't change)
    install(FILES "$<TARGET_FILE:${PROJECT_NAME}>" DESTINATION "${MACOS_DIR}"
            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
+   # Fix the bundle (copies and fixes shared libraries)
    install(CODE "
-      file(COPY \"${RES_DIR}/osx/Info.plist\" DESTINATION \"${CMAKE_INSTALL_PREFIX}/${CONTENTS_DIR}\") # Copy in the .plist file
-      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${CMAKE_INSTALL_PREFIX}/${MACOS_DIR}\")"  # Copy in the data folder
-      COMPONENT Runtime)
-                                                                                                       # Fix the executable / libraries
-   install(CODE "include(BundleUtilities)
-      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${APP_DIR}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Release\")"
-      COMPONENT Runtime CONFIGURATIONS Release)
-   install(CODE "include(BundleUtilities)
-      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${APP_DIR}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}/Debug\")"
-      COMPONENT Runtime CONFIGURATIONS Debug)
+      include(BundleUtilities)
+      fixup_bundle(\"${APP_DIR}\" \"\" \"\")")
 endif (APPLE)
 
 if (WIN32)
