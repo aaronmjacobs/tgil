@@ -4,9 +4,22 @@
 #include "Mesh.h"
 #include "MeshAssetManager.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
+#include <tinyobj/tiny_obj_loader.h>
+
+namespace tinyobj {
+
+class NullMaterialReader : public MaterialReader {
+public:
+   NullMaterialReader() {}
+   virtual ~NullMaterialReader() {}
+   virtual std::string operator()(const std::string &matId,
+                                  std::vector<material_t> &materials,
+                                  std::map<std::string, int> &matMap) {
+      return std::string("");
+   }
+};
+
+} // namespace tinyobj
 
 namespace {
 
@@ -16,63 +29,56 @@ const char* XY_PLANE_MESH_SOURCE = "v -1.000000 -1.000000 -0.000000\nv 1.000000 
 
 const char* OPEN_TOP_CUBE_MESH_SOURCE = "v -0.500000 -0.500000 0.500000\nv 0.500000 -0.500000 0.500000\nv -0.500000 0.500000 0.500000\nv 0.500000 0.500000 0.500000\nv -0.500000 0.500000 -0.500000\nv 0.500000 0.500000 -0.500000\nv -0.500000 -0.500000 -0.500000\nv 0.500000 -0.500000 -0.500000\nvt 0.000000 0.000000\nvt 1.000000 0.000000\nvt 0.000000 1.000000\nvt 1.000000 1.000000\nvn 0.000000 -0.000000 1.000000\nvn 0.000000 0.000000 -1.000000\nvn 0.000000 -1.000000 -0.000000\nvn 1.000000 0.000000 0.000000\nvn -1.000000 0.000000 0.000000\ns 1\nf 1/1/1 2/2/1 3/3/1\nf 3/3/1 2/2/1 4/4/1\nf 5/4/2 6/3/2 7/2/2\nf 7/2/2 6/3/2 8/1/2\nf 8/2/3 1/3/3 7/1/3\nf 1/3/3 8/2/3 2/4/3\nf 2/1/4 8/2/4 4/3/4\nf 4/3/4 8/2/4 6/4/4\nf 7/1/5 1/2/5 5/3/5\nf 5/3/5 1/2/5 3/4/5\n";
 
-SPtr<Mesh> meshFromAiMesh(const aiMesh* aiMesh) {
-   ASSERT(aiMesh, "Given null aiMesh");
+SPtr<Mesh> meshFromStream(std::istream &in) {
+   std::vector<tinyobj::shape_t> shapes;
+   std::vector<tinyobj::material_t> materials;
+   tinyobj::NullMaterialReader reader;
+
+   std::string error = tinyobj::LoadObj(shapes, materials, in, reader);
+
+   if (!error.empty()) {
+      LOG_WARNING(error);
+      return nullptr;
+   }
+
+   if (shapes.empty()) {
+      LOG_WARNING("No shapes");
+      return nullptr;
+   }
+
+   tinyobj::shape_t &shape = shapes.at(0);
 
    // Vertices
-   unsigned int numVertices = aiMesh->mNumVertices;
+   unsigned int numVertices = shape.mesh.positions.size() / 3;
    UPtr<float[]> vertices(new float[3 * numVertices]);
-   memcpy(vertices.get(), aiMesh->mVertices, sizeof(float) * 3 * numVertices);
+   memcpy(vertices.get(), shape.mesh.positions.data(), sizeof(float) * 3 * numVertices);
 
    // Normals
-   unsigned int numNormals = aiMesh->mNumVertices;
+   unsigned int numNormals = shape.mesh.normals.size() / 3;
    UPtr<float[]> normals(new float[3 * numNormals]);
-   memcpy(normals.get(), aiMesh->mNormals, sizeof(float) * 3 * numNormals);
+   memcpy(normals.get(), shape.mesh.normals.data(), sizeof(float) * 3 * numNormals);
 
    // Indices
-   unsigned int numIndices = aiMesh->mNumFaces * 3;
+   unsigned int numIndices = shape.mesh.indices.size();
    UPtr<unsigned int[]> indices(new unsigned int[numIndices]);
-   for (unsigned int i = 0; i < aiMesh->mNumFaces; ++i) {
-      const aiFace* face = &aiMesh->mFaces[i];
-      memcpy(&indices[i * 3], face->mIndices, 3 * sizeof(unsigned int));
-   }
+   memcpy(indices.get(), shape.mesh.indices.data(), sizeof(unsigned int) * numIndices);
 
    // Texture coordinates
-   unsigned int numTexCoords = 0;
-   UPtr<float[]> texCoords(nullptr);
-   if (aiMesh->HasTextureCoords(0)) {
-      numTexCoords = aiMesh->mNumVertices;
-      texCoords = UPtr<float[]>(new float[numTexCoords * 2]);
-      for (unsigned int i = 0; i < numTexCoords; ++i) {
-         texCoords[i * 2] = aiMesh->mTextureCoords[0][i].x;
-         texCoords[i * 2 + 1] = aiMesh->mTextureCoords[0][i].y;
-      }
-   }
+   unsigned int numTexCoords = shape.mesh.texcoords.size() / 2;
+   UPtr<float[]> texCoords(new float[numTexCoords * 2]);
+   memcpy(texCoords.get(), shape.mesh.texcoords.data(), sizeof(float) * 2 * numTexCoords);
 
    return std::make_shared<Mesh>(std::move(vertices), numVertices, std::move(normals), numNormals, std::move(indices), numIndices, std::move(texCoords), numTexCoords);
 }
 
-SPtr<Mesh> getMeshFromMemory(Assimp::Importer &assimpImporter, const char *data) {
-   unsigned int flags = aiProcess_GenSmoothNormals | aiProcess_Triangulate;
-   const aiScene *scene = assimpImporter.ReadFileFromMemory(data, strlen(data), flags);
-
-   if (!scene) {
-      LOG_FATAL("Unable to import scene from memory");
-      return nullptr;
-   }
-
-   if (scene->mNumMeshes < 1) {
-      LOG_FATAL("No meshes in scene loaded from memory");
-      return nullptr;
-   }
-
-   return meshFromAiMesh(scene->mMeshes[0]);
+SPtr<Mesh> getMeshFromMemory(const char *data) {
+   std::stringstream ss(data);
+   return meshFromStream(ss);
 }
 
 } // namespace
 
-MeshAssetManager::MeshAssetManager()
-   : assimpImporter(new Assimp::Importer) {
+MeshAssetManager::MeshAssetManager() {
 }
 
 MeshAssetManager::~MeshAssetManager() {
@@ -88,21 +94,13 @@ SPtr<Mesh> MeshAssetManager::loadMesh(const std::string &fileName) {
       return getMeshForShape(MeshShape::Cube);
    }
 
-   unsigned int flags = aiProcess_GenSmoothNormals | aiProcess_Triangulate;
-   const aiScene *scene = assimpImporter->ReadFile(IOUtils::dataPath(fileName), flags);
+   std::ifstream in(IOUtils::dataPath(fileName));
+   SPtr<Mesh> mesh(meshFromStream(in));
 
-   if (!scene) {
-      LOG_WARNING("Unable to import scene \"" << fileName << "\", reverting to default mesh");
+   if (!mesh) {
+      LOG_WARNING("Unable to import mesh \"" << fileName << "\", reverting to default mesh");
       return getMeshForShape(MeshShape::Cube);
    }
-
-   if (scene->mNumMeshes < 1) {
-      LOG_WARNING("No meshes in scene \"" << fileName << "\", reverting to default mesh");
-      return getMeshForShape(MeshShape::Cube);
-   }
-
-   // TODO Support for multiple meshes
-   SPtr<Mesh> mesh(meshFromAiMesh(scene->mMeshes[0]));
 
    meshMap[fileName] = mesh;
    return mesh;
@@ -116,17 +114,17 @@ SPtr<Mesh> MeshAssetManager::getMeshForShape(MeshShape shape) {
    switch (shape) {
       case MeshShape::Cube:
          if (!cubeMesh) {
-            cubeMesh = getMeshFromMemory(*assimpImporter, CUBE_MESH_SOURCE);
+            cubeMesh = getMeshFromMemory(CUBE_MESH_SOURCE);
          }
          return cubeMesh;
       case MeshShape::XYPlane:
          if (!xyPlaneMesh) {
-            xyPlaneMesh = getMeshFromMemory(*assimpImporter, XY_PLANE_MESH_SOURCE);
+            xyPlaneMesh = getMeshFromMemory(XY_PLANE_MESH_SOURCE);
          }
          return xyPlaneMesh;
       case MeshShape::OpenTopCube:
          if (!openTopCubeMesh) {
-            openTopCubeMesh = getMeshFromMemory(*assimpImporter, OPEN_TOP_CUBE_MESH_SOURCE);
+            openTopCubeMesh = getMeshFromMemory(OPEN_TOP_CUBE_MESH_SOURCE);
          }
          return openTopCubeMesh;
       default:

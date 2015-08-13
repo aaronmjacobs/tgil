@@ -8,10 +8,6 @@
 
 class Mesh;
 
-namespace Assimp {
-class Importer;
-} // namespace Assimp
-
 typedef std::unordered_map<std::string, SPtr<Mesh>> MeshMap;
 
 enum class MeshShape {
@@ -20,7 +16,6 @@ enum class MeshShape {
 
 class MeshAssetManager {
 protected:
-   const UPtr<Assimp::Importer> assimpImporter;
    MeshMap meshMap;
 
 public:

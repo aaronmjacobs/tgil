@@ -263,6 +263,10 @@ attach_lib("${STB_DIR}/include" "" "")
 set(TEMPLOG_DIR "${DEP_DIR}/templog")
 attach_lib("${TEMPLOG_DIR}/include" "${TEMPLOG_DIR}/imp/logging.cpp" "")
 
+# tinyobj
+set(TINYOBJ_DIR "${DEP_DIR}/tinyobj")
+attach_lib("${TINYOBJ_DIR}/include" "${TINYOBJ_DIR}/src/tiny_obj_loader.cc" "")
+
 ## Static ##
 
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build shared libraries")
@@ -332,34 +336,6 @@ set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
 set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
 add_subdirectory(${GLFW_DIR})
 attach_lib("${GLFW_DIR}/include" "" "glfw")
-
-# Assimp
-set(ASSIMP_DIR "${DEP_DIR}/assimp")
-set(ASSIMP_TARGET assimp)
-add_library(${ASSIMP_TARGET} SHARED IMPORTED)
-
-set(ASSIMP_IMP_RELEASE false)
-set(ASSIMP_IMP_DEBUG false)
-
-if (APPLE)
-   set(ASSIMP_LIB_RELEASE ${ASSIMP_DIR}/lib/osx/release/libassimp.3.1.1.dylib)
-   set(ASSIMP_LIB_DEBUG ${ASSIMP_DIR}/lib/osx/debug/libassimpd.3.1.1.dylib)
-endif (APPLE)
-
-if (WIN32)
-   set(ASSIMP_LIB_RELEASE ${ASSIMP_DIR}/lib/win32/release/assimp.dll)
-   set(ASSIMP_LIB_DEBUG ${ASSIMP_DIR}/lib/win32/debug/assimpd.dll)
-   set(ASSIMP_IMP_RELEASE ${ASSIMP_DIR}/lib/win32/release/assimp.lib)
-   set(ASSIMP_IMP_DEBUG ${ASSIMP_DIR}/lib/win32/debug/assimpd.lib)
-endif (WIN32)
-
-if (LINUX)
-   set(ASSIMP_LIB_RELEASE ${ASSIMP_DIR}/lib/linux/release/libassimp.so.3.1.1)
-   set(ASSIMP_LIB_DEBUG ${ASSIMP_DIR}/lib/linux/debug/libassimpd.so.3.1.1)
-endif (LINUX)
-
-set_import_locations(${ASSIMP_TARGET} ${ASSIMP_LIB_RELEASE} ${ASSIMP_LIB_DEBUG} ${ASSIMP_IMP_RELEASE} ${ASSIMP_IMP_DEBUG})
-attach_lib("${ASSIMP_DIR}/include" "" "${ASSIMP_TARGET}")
 
 # FMOD
 set(FMOD_DIR "${DEP_DIR}/FMOD")
