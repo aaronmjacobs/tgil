@@ -286,6 +286,7 @@ set(BUILD_EXTRAS OFF CACHE INTERNAL "Set when you want to build the extras")
 set(INSTALL_LIBS OFF CACHE INTERNAL "Set when you want to install libraries")
 set(INSTALL_EXTRA_LIBS OFF CACHE INTERNAL "Set when you want extra libraries installed")
 set(BUILD_UNIT_TESTS OFF CACHE INTERNAL "Build Unit Tests")
+set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE BOOL "Use MSVC Runtime Library DLL (/MD or /MDd)")
 add_subdirectory(${BULLET_DIR})
 
 # Bullet doesn't give us a nice includes folder, so make one at build time
