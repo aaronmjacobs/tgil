@@ -35,6 +35,11 @@ else(CMAKE_SIZEOF_VOID_P EQUAL 8)
    set(64_BIT false)
 endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
+# rpath handling
+if(LINUX)
+   set(CMAKE_INSTALL_RPATH "$ORIGIN/")
+endif(LINUX)
+
 # Directories
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/source")
 set(DEP_DIR "${PROJECT_SOURCE_DIR}/dependencies")
@@ -326,9 +331,10 @@ list(APPEND BULLET_INCLUDES
    ${BIN_INCLUDE_DIR}
 )
 
-attach_lib("${BULLET_INCLUDES}" "" "LinearMath")
-attach_lib("${BULLET_INCLUDES}" "" "BulletCollision")
+# Oddly enough, this order is important - won't link on Linux if not in this order
 attach_lib("${BULLET_INCLUDES}" "" "BulletDynamics")
+attach_lib("${BULLET_INCLUDES}" "" "BulletCollision")
+attach_lib("${BULLET_INCLUDES}" "" "LinearMath")
 
 ## Shared ##
 
@@ -475,10 +481,28 @@ if (WIN32)
 endif (WIN32)
 
 if (LINUX)
-   install(TARGETS ${PROJECT_NAME} DESTINATION "." COMPONENT Runtime)                                                  # Install the executable
+   # Copy the data folder
+   install(DIRECTORY "${DATA_DIR}" DESTINATION ".")
 
-   install(CODE "include(BundleUtilities)
-      file(COPY \"${PROJECT_SOURCE_DIR}/data\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")                                # Copy in the data folder
-      execute_process(COMMAND \"chrpath\" \"-r\" \"$ORIGIN/\" \"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}\")             # Fix the rpath of the executable
-      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}\" \"\" \"${EXECUTABLE_OUTPUT_PATH}\")" COMPONENT Runtime) # Fix the executable / libraries
+   # Copy the executable (not install, so that the rpath doesn't change)
+   install(FILES "$<TARGET_FILE:${PROJECT_NAME}>" DESTINATION "${CMAKE_INSTALL_PREFIX}"
+           PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+   # Fix the bundle (in order to copy shared libraries)
+   # Note: verify_app (called at the end of fixup_bundle) WILL fail, due to referencing external libraries
+   # In order to ignore the error / continue, replace the verify_app function with one that does nothing
+   install(CODE "
+      include(BundleUtilities)
+      function(verify_app app)
+         message(STATUS \"(Not actually verifying...)\")
+      endfunction(verify_app)
+      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}\" \"\" \"\")")
+
+   # Install the executable (this time, fixing the rpath)
+   install(TARGETS ${PROJECT_NAME} DESTINATION ".")
+
+   # Fix the bundle (just to do a proper verify)
+   install(CODE "
+      include(BundleUtilities)
+      fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}\" \"\" \"\")")
 endif (LINUX)

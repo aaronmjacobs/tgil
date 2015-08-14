@@ -6,6 +6,8 @@
 
 #include <tinyobj/tiny_obj_loader.h>
 
+#include <cstring>
+
 namespace tinyobj {
 
 class NullMaterialReader : public MaterialReader {
